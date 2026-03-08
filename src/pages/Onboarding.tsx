@@ -21,7 +21,7 @@ import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import pawPattern from "@/assets/paw-pattern.png";
 import petlyLogo from "@/assets/petly-logo.png";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 const speciesOptions = [
   { value: "dog", label: "Cachorro", icon: Dog, available: true },
