@@ -162,51 +162,63 @@ const QuestoesVeterinario = () => {
     setEditDialogOpen(true);
   };
 
-  const handleApplyEdit = () => {
+  const handleApplyEdit = async () => {
     if (!editingList) return;
 
-    if (editMode === "replace") {
-      const newQuestions = editInput
-        .split("\n")
-        .map((q) => q.trim())
-        .filter((q) => q.length > 0)
-        .map((q) => (q.endsWith("?") ? q : `${q}?`));
+    const newQuestions = editInput
+      .split("\n")
+      .map((q) => q.trim())
+      .filter((q) => q.length > 0)
+      .map((q) => (q.endsWith("?") ? q : `${q}?`));
 
-      setSavedLists((prev) =>
-        prev.map((l) => (l.id === editingList.id ? { ...l, questions: newQuestions } : l))
-      );
-      toast({ title: "Lista substituída! ✅" });
-    } else {
-      const newQuestions = editInput
-        .split("\n")
-        .map((q) => q.trim())
-        .filter((q) => q.length > 0)
-        .map((q) => (q.endsWith("?") ? q : `${q}?`));
+    const updatedQuestions = editMode === "replace"
+      ? newQuestions
+      : [...editingList.questions, ...newQuestions];
 
-      setSavedLists((prev) =>
-        prev.map((l) =>
-          l.id === editingList.id ? { ...l, questions: [...l.questions, ...newQuestions] } : l
-        )
-      );
-      toast({ title: "Perguntas acrescentadas! ✅" });
+    const { error } = await supabase
+      .from("vet_question_lists")
+      .update({ questions: updatedQuestions })
+      .eq("id", editingList.id);
+
+    if (error) {
+      console.error("Error updating list:", error);
+      toast({ title: "Erro ao atualizar", variant: "destructive" });
+      return;
     }
 
+    await fetchSavedLists();
+    toast({ title: editMode === "replace" ? "Lista substituída! ✅" : "Perguntas acrescentadas! ✅" });
     setEditDialogOpen(false);
     setEditingList(null);
     setEditInput("");
   };
 
-  const handleDeleteList = (id: string) => {
-    setSavedLists((prev) => prev.filter((l) => l.id !== id));
+  const handleDeleteList = async (id: string) => {
+    const { error } = await supabase.from("vet_question_lists").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting list:", error);
+      toast({ title: "Erro ao remover", variant: "destructive" });
+      return;
+    }
+    await fetchSavedLists();
     toast({ title: "Lista removida" });
   };
 
-  const handleDeleteQuestionFromList = (listId: string, qIndex: number) => {
-    setSavedLists((prev) =>
-      prev.map((l) =>
-        l.id === listId ? { ...l, questions: l.questions.filter((_, i) => i !== qIndex) } : l
-      )
-    );
+  const handleDeleteQuestionFromList = async (listId: string, qIndex: number) => {
+    const list = savedLists.find((l) => l.id === listId);
+    if (!list) return;
+
+    const updatedQuestions = list.questions.filter((_, i) => i !== qIndex);
+    const { error } = await supabase
+      .from("vet_question_lists")
+      .update({ questions: updatedQuestions })
+      .eq("id", listId);
+
+    if (error) {
+      console.error("Error removing question:", error);
+      return;
+    }
+    await fetchSavedLists();
   };
 
   return (
