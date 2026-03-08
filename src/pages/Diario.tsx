@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { startOfDay, startOfWeek, startOfMonth, isAfter } from "date-fns";
 import { BookOpen, Zap, UtensilsCrossed, Moon, Heart, Droplets, Footprints, Brain, RefreshCw, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
