@@ -406,12 +406,33 @@ const Diario = () => {
 
       {/* Histórico */}
       <div>
-        <h2 className="text-lg font-bold text-foreground mb-4">Histórico de check-ins</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-foreground">Histórico de check-ins</h2>
+          <div className="flex gap-1 bg-muted rounded-lg p-1">
+            {([
+              { value: "hoje", label: "Hoje" },
+              { value: "semana", label: "Semana" },
+              { value: "mes", label: "Mês" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setHistoryFilter(opt.value)}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  historyFilter === opt.value
+                    ? "bg-secondary text-secondary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="space-y-3">
-          {history.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Nenhum check-in registrado ainda.</p>
+          {filteredHistory.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">Nenhum check-in neste período.</p>
           ) : (
-            history.map((entry, idx) => (
+            filteredHistory.map((entry, idx) => (
               <Card key={idx} className="bg-background border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
