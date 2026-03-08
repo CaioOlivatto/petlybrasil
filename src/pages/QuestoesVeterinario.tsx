@@ -77,27 +77,35 @@ const QuestoesVeterinario = () => {
 
     setIsOrganizing(true);
 
-    // Simulate AI organization (will be replaced with real AI later)
-    setTimeout(() => {
-      const sentences = userInput
-        .split(/[.!?\n]+/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 5);
-
-      const organized = sentences.map((s) => {
-        const clean = s.charAt(0).toUpperCase() + s.slice(1);
-        return clean.endsWith("?") ? clean : `${clean}?`;
+    try {
+      const { data, error } = await supabase.functions.invoke("organize-questions", {
+        body: { userInput: userInput.trim() },
       });
 
-      if (organized.length === 0) {
-        organized.push(userInput.trim().endsWith("?") ? userInput.trim() : `${userInput.trim()}?`);
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({ title: "Erro", description: data.error, variant: "destructive" });
+        setIsOrganizing(false);
+        return;
       }
 
-      setOrganizedQuestions((prev) => [...prev, ...organized]);
+      const questions: string[] = data?.questions || [];
+      if (questions.length === 0) {
+        toast({ title: "Nenhuma pergunta gerada", description: "Tente descrever com mais detalhes.", variant: "destructive" });
+        setIsOrganizing(false);
+        return;
+      }
+
+      setOrganizedQuestions((prev) => [...prev, ...questions]);
       setUserInput("");
+      toast({ title: "Perguntas organizadas! ✨", description: `${questions.length} pergunta(s) formulada(s) pela IA.` });
+    } catch (e) {
+      console.error("Error organizing questions:", e);
+      toast({ title: "Erro ao organizar", description: "Tente novamente em alguns segundos.", variant: "destructive" });
+    } finally {
       setIsOrganizing(false);
-      toast({ title: "Perguntas organizadas! ✨", description: `${organized.length} pergunta(s) adicionada(s).` });
-    }, 1500);
+    }
   };
 
   const handleSaveList = () => {
