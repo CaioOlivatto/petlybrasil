@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
 import Prontuario from "./pages/Prontuario";
 
 const queryClient = new QueryClient();
