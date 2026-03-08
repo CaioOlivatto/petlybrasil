@@ -207,16 +207,30 @@ const QuestoesVeterinario = () => {
       {organizedQuestions.length > 0 && (
         <Card className="bg-background border-border">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-secondary" />
-              Suas Perguntas ({organizedQuestions.length})
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-secondary" />
+                Suas Perguntas ({organizedQuestions.length})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setOrganizedQuestions([]);
+                  toast({ title: "Todas as perguntas removidas" });
+                }}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                Deletar todas
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {organizedQuestions.map((q, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 p-3 rounded-xl border border-border bg-muted/30 group"
+                className="flex items-start gap-3 p-3 rounded-xl border border-border bg-muted/30"
               >
                 <Badge variant="secondary" className="mt-0.5 shrink-0 text-xs min-w-[28px] justify-center">
                   {i + 1}
@@ -224,7 +238,7 @@ const QuestoesVeterinario = () => {
                 <span className="text-sm text-foreground flex-1">{q}</span>
                 <button
                   onClick={() => handleRemoveQuestion(i)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                  className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
