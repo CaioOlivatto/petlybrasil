@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Prontuario from "./pages/Prontuario";
 import Agenda from "./pages/Agenda";
 import Diario from "./pages/Diario";
+import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,7 @@ const App = () => (
             <Route path="/diario" element={<Diario />} />
             <Route path="/treino" element={<Dashboard />} />
             <Route path="/petzinho-ia" element={<Dashboard />} />
-            <Route path="/questoes-veterinario" element={<Dashboard />} />
+            <Route path="/questoes-veterinario" element={<QuestoesVeterinario />} />
             <Route path="/perfil" element={<Dashboard />} />
           </Route>
           <Route path="*" element={<NotFound />} />
