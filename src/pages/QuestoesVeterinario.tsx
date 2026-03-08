@@ -54,6 +54,31 @@ const QuestoesVeterinario = () => {
   const [editInput, setEditInput] = useState("");
   const [editMode, setEditMode] = useState<"add" | "replace">("add");
 
+  const fetchSavedLists = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("vet_question_lists")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching lists:", error);
+      return;
+    }
+
+    setSavedLists(
+      (data || []).map((row: any) => ({
+        id: row.id,
+        title: row.title,
+        questions: row.questions || [],
+        createdAt: new Date(row.created_at),
+      }))
+    );
+  }, []);
+
+  useEffect(() => {
+    fetchSavedLists();
+  }, [fetchSavedLists]);
+
   const handleAddSuggested = (question: string) => {
     if (!organizedQuestions.includes(question)) {
       setOrganizedQuestions((prev) => [...prev, question]);
