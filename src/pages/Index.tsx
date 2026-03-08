@@ -85,8 +85,8 @@ const Index = () => {
       >
         <div className="max-w-lg space-y-8 text-center">
           {/* Icon */}
-          <div className="mx-auto inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-foreground/10 backdrop-blur-sm">
-            <Heart className="h-10 w-10 text-primary" fill="hsl(var(--primary))" />
+            <div className="mx-auto inline-flex items-center justify-center h-40 w-40 rounded-3xl bg-foreground/10 backdrop-blur-sm">
+              <Heart className="h-20 w-20 text-primary" fill="hsl(var(--primary))" />
           </div>
 
           <div className="space-y-4">
