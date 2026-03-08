@@ -45,8 +45,8 @@ export default function Dashboard() {
             onClick={() => navigate(action.url)}
             className={`flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-5 rounded-2xl border-2 border-accent/30 transition-all hover:border-accent hover:shadow-md ${
               action.highlight
-                ? "bg-accent/15 border-accent"
-                : "bg-background/80 backdrop-blur-sm"
+                ? "bg-accent/15 border-accent bg-background"
+                : "bg-background backdrop-blur-sm"
             }`}
           >
             <action.icon className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
