@@ -19,11 +19,9 @@ const Index = () => {
       >
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
-          <div className="flex flex-col items-center space-y-2">
-            <div className="bg-background/80 backdrop-blur-sm rounded-2xl p-6 border-2 border-accent shadow-sm">
-              <img src={petlyLogo} alt="Petly" className="h-28 w-28 object-contain" />
-            </div>
-            <p className="text-muted-foreground text-sm">Cuidado inteligente para seu pet</p>
+          <div className="flex flex-col items-center border-2 border-accent rounded-2xl p-8 bg-background/80 backdrop-blur-sm shadow-sm">
+            <img src={petlyLogo} alt="Petly" className="h-28 w-28 object-contain" />
+            <p className="text-muted-foreground text-sm mt-3">Cuidado inteligente para seu pet</p>
           </div>
 
           {/* Form */}
