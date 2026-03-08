@@ -14,6 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
+      pets: {
+        Row: {
+          birth_date: string | null
+          blood_type: string | null
+          breed: string | null
+          created_at: string
+          father_name: string | null
+          id: string
+          kennel: string | null
+          mother_name: string | null
+          name: string
+          pedigree: string | null
+          photo_url: string | null
+          sex: string | null
+          species: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          birth_date?: string | null
+          blood_type?: string | null
+          breed?: string | null
+          created_at?: string
+          father_name?: string | null
+          id?: string
+          kennel?: string | null
+          mother_name?: string | null
+          name: string
+          pedigree?: string | null
+          photo_url?: string | null
+          sex?: string | null
+          species?: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          birth_date?: string | null
+          blood_type?: string | null
+          breed?: string | null
+          created_at?: string
+          father_name?: string | null
+          id?: string
+          kennel?: string | null
+          mother_name?: string | null
+          name?: string
+          pedigree?: string | null
+          photo_url?: string | null
+          sex?: string | null
+          species?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          birthday: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          onboarding_completed: boolean
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          birthday?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          onboarding_completed?: boolean
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          birthday?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          onboarding_completed?: boolean
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vet_question_lists: {
         Row: {
           created_at: string
