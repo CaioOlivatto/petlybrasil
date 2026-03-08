@@ -70,7 +70,7 @@ export default function Auth() {
       <Card className="w-full max-w-md relative z-10 shadow-xl border-accent/20">
         <CardHeader className="text-center space-y-3">
           <div className="flex justify-center">
-            <img src={petlyLogo} alt="Petly" className="h-16 w-16 object-contain rounded-full" />
+            <img src={petlyLogo} alt="Petly" className="h-32 w-32 object-contain rounded-full" />
           </div>
           <CardTitle className="text-2xl font-bold text-foreground">
             {isLogin ? "Bem-vindo de volta!" : "Crie sua conta"}
