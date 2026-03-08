@@ -229,32 +229,34 @@ const PetzinhoIA = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Input area - prominent */}
+      <div className="bg-background border-2 border-secondary/40 rounded-2xl p-3 shadow-md">
+        <div className="flex gap-2 items-end">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Escreva aqui sua dúvida sobre seu pet..."
+            className="min-h-[48px] max-h-[120px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70"
+            rows={1}
+            disabled={isLoading}
+          />
+          <Button
+            onClick={() => sendMessage(input)}
+            disabled={!input.trim() || isLoading}
+            size="icon"
+            className="shrink-0 h-12 w-12 rounded-xl"
+          >
+            <Send className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+
       {/* Disclaimer */}
-      <p className="text-[10px] text-muted-foreground text-center mb-2">
+      <p className="text-[10px] text-muted-foreground text-center mt-2">
         ⚠️ Esta orientação é educativa e não substitui a avaliação presencial de
         um médico veterinário.
       </p>
-
-      {/* Input */}
-      <div className="flex gap-2 items-end">
-        <Textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Digite sua dúvida..."
-          className="min-h-[44px] max-h-[120px] resize-none"
-          rows={1}
-          disabled={isLoading}
-        />
-        <Button
-          onClick={() => sendMessage(input)}
-          disabled={!input.trim() || isLoading}
-          size="icon"
-          className="shrink-0 h-11 w-11"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
     </div>
   );
 };
