@@ -10,13 +10,15 @@ export function DashboardLayout() {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div
-          className="flex-1 flex flex-col min-w-0"
+          className="flex-1 flex flex-col min-w-0 relative"
           style={{
             backgroundImage: `url(${pawPattern})`,
             backgroundSize: "300px",
             backgroundRepeat: "repeat",
           }}
         >
+          {/* White overlay to lighten the pattern */}
+          <div className="absolute inset-0 bg-background/50 pointer-events-none" />
           {/* Mobile header with trigger */}
           <header className="md:hidden flex items-center gap-3 p-4 bg-accent">
             <SidebarTrigger className="text-accent-foreground">
