@@ -124,11 +124,18 @@ export default function Onboarding() {
 
       if (petError) throw petError;
 
-      // Mark onboarding as completed
-      await supabase
+      // Save tutor profile + mark onboarding completed
+      const { error: profileError } = await supabase
         .from("profiles")
-        .update({ onboarding_completed: true })
+        .update({
+          name: tutorForm.tutor_name,
+          phone: tutorForm.tutor_phone || null,
+          birthday: tutorForm.tutor_birthday || null,
+          onboarding_completed: true,
+        })
         .eq("user_id", user.id);
+
+      if (profileError) throw profileError;
 
       toast.success("Tudo pronto! Bem-vindo ao Petly 🐾");
       navigate("/dashboard");
