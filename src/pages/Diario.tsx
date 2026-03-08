@@ -63,9 +63,13 @@ const alteracoesOptions = [
 
 const mudancaOptions = [
   { value: "nenhuma", label: "Não houve mudança" },
-  { value: "alimentacao", label: "Mudança na alimentação" },
+  { value: "viagem", label: "Viagem" },
   { value: "ambiente", label: "Mudança de ambiente" },
-  { value: "medicacao", label: "Nova medicação" },
+  { value: "horarios", label: "Alteração de horários" },
+  { value: "menos_passeios", label: "Menos passeios" },
+  { value: "mais_passeios", label: "Mais passeios" },
+  { value: "ausencia_tutor", label: "Ausência do tutor" },
+  { value: "muitas_pessoas", label: "Muitas pessoas em casa" },
   { value: "outro", label: "Outro" },
 ];
 
