@@ -20,7 +20,7 @@ export function DashboardLayout() {
           {/* White overlay to lighten the pattern */}
           <div className="absolute inset-0 bg-background/50 pointer-events-none" />
           {/* Mobile header with trigger */}
-          <header className="md:hidden flex items-center gap-3 p-4 bg-accent">
+          <header className="md:hidden flex items-center gap-3 p-4 bg-accent relative z-10">
             <SidebarTrigger className="text-accent-foreground">
               <Menu className="h-6 w-6" />
             </SidebarTrigger>
