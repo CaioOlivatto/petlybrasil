@@ -133,21 +133,25 @@ const QuestoesVeterinario = () => {
     }
   };
 
-  const handleSaveList = () => {
+  const handleSaveList = async () => {
     if (organizedQuestions.length === 0) {
       toast({ title: "Nenhuma pergunta para salvar", variant: "destructive" });
       return;
     }
 
-    const newList: SavedList = {
-      id: Date.now().toString(),
+    const { error } = await supabase.from("vet_question_lists").insert({
       title: `Consulta ${savedLists.length + 1}`,
-      questions: [...organizedQuestions],
-      createdAt: new Date(),
-    };
+      questions: organizedQuestions,
+    });
 
-    setSavedLists((prev) => [newList, ...prev]);
+    if (error) {
+      console.error("Error saving list:", error);
+      toast({ title: "Erro ao salvar", variant: "destructive" });
+      return;
+    }
+
     setOrganizedQuestions([]);
+    await fetchSavedLists();
     toast({ title: "Lista salva! 📋", description: "Suas perguntas foram salvas para a consulta." });
   };
 
