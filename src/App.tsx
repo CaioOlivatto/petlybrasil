@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
+import Prontuario from "./pages/Prontuario";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/prontuario" element={<Dashboard />} />
+            <Route path="/prontuario" element={<Prontuario />} />
             <Route path="/vacinas" element={<Dashboard />} />
             <Route path="/agenda" element={<Dashboard />} />
             <Route path="/diario" element={<Dashboard />} />
