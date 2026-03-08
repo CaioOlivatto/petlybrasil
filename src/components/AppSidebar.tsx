@@ -59,15 +59,15 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 bg-background rounded-xl p-3 shadow-sm">
           <img src={petlyLogo} alt="Petly" className="h-10 w-10 object-contain rounded-full" />
           {!collapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-sm text-sidebar-foreground">Petly</span>
-              <span className="text-xs text-sidebar-foreground/70">Cuidado inteligente</span>
+              <span className="font-bold text-sm text-foreground">Petly</span>
+              <span className="text-xs text-muted-foreground">Cuidado inteligente</span>
             </div>
           )}
-          {!collapsed && <SidebarTrigger className="ml-auto text-sidebar-foreground/70 hover:text-sidebar-foreground" />}
+          {!collapsed && <SidebarTrigger className="ml-auto text-muted-foreground hover:text-foreground" />}
         </div>
       </SidebarHeader>
 
