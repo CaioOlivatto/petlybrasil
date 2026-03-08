@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Prontuario from "./pages/Prontuario";
 import Agenda from "./pages/Agenda";
 import Diario from "./pages/Diario";
+import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 
 const queryClient = new QueryClient();
 
