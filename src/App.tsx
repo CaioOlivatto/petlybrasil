@@ -16,6 +16,7 @@ import Diario from "./pages/Diario";
 import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
+import PetzinhoIA from "./pages/PetzinhoIA";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +42,7 @@ const App = () => (
               <Route path="/agenda" element={<Agenda />} />
               <Route path="/diario" element={<Diario />} />
               <Route path="/treino" element={<Dashboard />} />
-              <Route path="/petzinho-ia" element={<Dashboard />} />
+              <Route path="/petzinho-ia" element={<PetzinhoIA />} />
               <Route path="/questoes-veterinario" element={<QuestoesVeterinario />} />
               <Route path="/perfil" element={<Perfil />} />
             </Route>
