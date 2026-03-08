@@ -214,24 +214,6 @@ export default function Agenda() {
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              locale={{
-                localize: {
-                  day: (n: number) => ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"][n],
-                  month: (n: number) => ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"][n],
-                  ordinalNumber: (n: number) => String(n),
-                  era: () => "",
-                  quarter: () => "",
-                  dayPeriod: () => "",
-                },
-                formatLong: {
-                  date: () => "dd/MM/yyyy",
-                  time: () => "HH:mm",
-                  dateTime: () => "dd/MM/yyyy HH:mm",
-                },
-                match: undefined as any,
-                options: { weekStartsOn: 0 as const, firstWeekContainsDate: 1 as const },
-                code: "pt-BR",
-              }}
               modifiers={{
                 event: eventDates,
               }}
