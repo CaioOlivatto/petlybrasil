@@ -147,7 +147,11 @@ export default function Onboarding() {
   };
 
   const nextStep = () => {
-    if (step === 1 && !form.name) {
+    if (step === 1 && !tutorForm.tutor_name) {
+      toast.error("Informe seu nome");
+      return;
+    }
+    if (step === 2 && !form.name) {
       toast.error("Informe o nome do pet");
       return;
     }
