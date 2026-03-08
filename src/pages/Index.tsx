@@ -58,7 +58,7 @@ const Index = () => {
           </div>
 
           {/* Form */}
-          <div className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Email</label>
               <Input
@@ -67,13 +67,14 @@ const Index = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 bg-background/70 backdrop-blur-sm"
+                required
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-foreground">Senha</label>
-                <button className="text-sm text-accent hover:underline">Esqueceu a senha?</button>
+                <button type="button" className="text-sm text-accent hover:underline">Esqueceu a senha?</button>
               </div>
               <div className="relative">
                 <Input
@@ -82,6 +83,8 @@ const Index = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 bg-background/70 backdrop-blur-sm pr-12"
+                  required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -93,16 +96,17 @@ const Index = () => {
               </div>
             </div>
 
-            <Button className="w-full h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
+            <Button type="submit" disabled={loading} className="w-full h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
+              {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Entrar
             </Button>
-          </div>
+          </form>
 
           {/* Footer */}
           <div className="text-center space-y-3">
             <p className="text-sm text-muted-foreground">
               Não tem conta?{" "}
-              <button className="text-accent font-medium hover:underline">Cadastre-se</button>
+              <button onClick={() => navigate("/auth")} className="text-accent font-medium hover:underline">Cadastre-se</button>
             </p>
             <p className="text-xs text-muted-foreground">
               Ao entrar, você concorda com nossos termos de uso e política de privacidade.
