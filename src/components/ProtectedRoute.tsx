@@ -11,21 +11,43 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      setCheckingOnboarding(false);
-      return;
-    }
+    let isMounted = true;
 
-    supabase
-      .from("profiles")
-      .select("onboarding_completed")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
+    const checkOnboarding = async () => {
+      if (!user) {
+        if (isMounted) {
+          setCheckingOnboarding(false);
+          setOnboardingCompleted(null);
+        }
+        return;
+      }
+
+      if (isMounted) setCheckingOnboarding(true);
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!isMounted) return;
+
+      if (error) {
+        console.error("Erro ao verificar onboarding:", error);
+        setOnboardingCompleted(false);
+      } else {
         setOnboardingCompleted(data?.onboarding_completed ?? false);
-        setCheckingOnboarding(false);
-      });
-  }, [user]);
+      }
+
+      setCheckingOnboarding(false);
+    };
+
+    void checkOnboarding();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, location.pathname]);
 
   if (loading || checkingOnboarding) {
     return (
@@ -37,10 +59,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  // Redirect to onboarding if not completed (unless already on onboarding page)
   if (onboardingCompleted === false && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;
 }
+
