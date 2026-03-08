@@ -17,6 +17,8 @@ import {
   ChevronDown,
   ChevronUp,
   ImageOff,
+  Upload,
+  Camera,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -78,6 +80,29 @@ export default function Prontuario() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [newDate, setNewDate] = useState("");
+  const [hasValidity, setHasValidity] = useState(false);
+  const [validityDate, setValidityDate] = useState("");
+  const [observations, setObservations] = useState("");
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+
+  const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAttachedFile(e.target.files[0]);
+    }
+  };
+
+  const resetForm = () => {
+    setDialogOpen(false);
+    setSelectedCategory(null);
+    setNewName("");
+    setNewDate("");
+    setHasValidity(false);
+    setValidityDate("");
+    setObservations("");
+    setAttachedFile(null);
+  };
 
   const filteredRecords = mockRecords.filter((r) => {
     const matchCategory = activeFilter === "todas" || r.category === activeFilter;
@@ -131,7 +156,7 @@ export default function Prontuario() {
               Novo Registro
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-xl">
                 <Plus className="h-5 w-5 text-accent" />
@@ -182,18 +207,92 @@ export default function Prontuario() {
                 />
               </div>
 
-              <Button
-                className="w-full h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
-                disabled={!selectedCategory || !newName || !newDate}
-                onClick={() => {
-                  setDialogOpen(false);
-                  setSelectedCategory(null);
-                  setNewName("");
-                  setNewDate("");
-                }}
-              >
-                Salvar Registro
-              </Button>
+              {/* Validity toggle */}
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-foreground">Tem validade?</label>
+                <button
+                  onClick={() => setHasValidity(!hasValidity)}
+                  className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-accent" : "bg-muted"}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-background shadow transition-transform ${hasValidity ? "translate-x-5" : ""}`} />
+                </button>
+              </div>
+
+              {hasValidity && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Data de validade</label>
+                  <Input
+                    type="date"
+                    value={validityDate}
+                    onChange={(e) => setValidityDate(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+              )}
+
+              {/* Observations */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">Observações</label>
+                <textarea
+                  placeholder="Digite algo que aconteceu hoje..."
+                  value={observations}
+                  onChange={(e) => setObservations(e.target.value)}
+                  className="w-full min-h-[100px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              {/* Attachment - only for applicable categories */}
+              {selectedCategory && categoriesWithAttachment.includes(selectedCategory) && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Anexo</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground">Enviar Arquivo</span>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                      <Camera className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground">Tirar Foto</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {attachedFile && (
+                    <p className="text-xs text-accent font-medium mt-1">
+                      📎 {attachedFile.name}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  className="h-12 text-base rounded-xl"
+                  onClick={resetForm}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                  disabled={!selectedCategory || !newName || !newDate}
+                  onClick={resetForm}
+                >
+                  Salvar
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
