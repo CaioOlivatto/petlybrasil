@@ -12,7 +12,22 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Evento {
   id: string;
@@ -63,6 +78,21 @@ export default function Agenda() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [activeSection, setActiveSection] = useState<"atrasadas" | "proxima-semana" | "proximo-mes" | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [eventType, setEventType] = useState("");
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventNotes, setEventNotes] = useState("");
+
+  const resetEventForm = () => {
+    setDialogOpen(false);
+    setEventType("");
+    setEventTitle("");
+    setEventDate("");
+    setEventTime("");
+    setEventNotes("");
+  };
 
   const sectionRefs = {
     atrasadas: useRef<HTMLDivElement>(null),
@@ -145,13 +175,97 @@ export default function Agenda() {
             </div>
           </div>
         </div>
-        <Button className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
-          <Plus className="h-5 w-5 mr-2" />
-          Novo Evento
-        </Button>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
+              <Plus className="h-5 w-5 mr-2" />
+              Novo Evento
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <CalendarIcon className="h-5 w-5 text-accent" />
+                Novo Evento
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">Tipo de Evento *</label>
+                <Select value={eventType} onValueChange={setEventType}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="vacina">Vacina</SelectItem>
+                    <SelectItem value="consulta">Consulta</SelectItem>
+                    <SelectItem value="exame">Exame</SelectItem>
+                    <SelectItem value="vermifugo">Vermífugo</SelectItem>
+                    <SelectItem value="medicacao">Medicação</SelectItem>
+                    <SelectItem value="procedimento">Procedimento</SelectItem>
+                    <SelectItem value="outro">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">Título *</label>
+                <Input
+                  placeholder="Ex: Vacina V10 - 2ª dose"
+                  value={eventTitle}
+                  onChange={(e) => setEventTitle(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Data *</label>
+                  <Input
+                    type="date"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Horário</label>
+                  <Input
+                    type="time"
+                    value={eventTime}
+                    onChange={(e) => setEventTime(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">Observações (opcional)</label>
+                <textarea
+                  placeholder="Ex: Levar carteira de vacinação"
+                  value={eventNotes}
+                  onChange={(e) => setEventNotes(e.target.value)}
+                  className="w-full min-h-[80px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button variant="outline" className="h-12 text-base rounded-xl" onClick={resetEventForm}>
+                  Cancelar
+                </Button>
+                <Button
+                  className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                  disabled={!eventType || !eventTitle || !eventDate}
+                  onClick={resetEventForm}
+                >
+                  Criar Evento
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <button
           onClick={() => handleCardClick("atrasadas")}
