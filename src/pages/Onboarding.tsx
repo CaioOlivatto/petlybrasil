@@ -21,7 +21,7 @@ import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import pawPattern from "@/assets/paw-pattern.png";
 import petlyLogo from "@/assets/petly-logo.png";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 const speciesOptions = [
   { value: "dog", label: "Cachorro", icon: Dog, available: true },
@@ -42,6 +42,12 @@ export default function Onboarding() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [breedOpen, setBreedOpen] = useState(false);
+
+  const [tutorForm, setTutorForm] = useState({
+    tutor_name: "",
+    tutor_phone: "",
+    tutor_birthday: "",
+  });
 
   const [form, setForm] = useState({
     name: "",
@@ -74,8 +80,8 @@ export default function Onboarding() {
   };
 
   const handleFinish = async () => {
-    if (!user || !form.name) {
-      toast.error("Nome do pet é obrigatório");
+    if (!user || !form.name || !tutorForm.tutor_name) {
+      toast.error("Nome do tutor e do pet são obrigatórios");
       return;
     }
 
@@ -118,11 +124,18 @@ export default function Onboarding() {
 
       if (petError) throw petError;
 
-      // Mark onboarding as completed
-      await supabase
+      // Save tutor profile + mark onboarding completed
+      const { error: profileError } = await supabase
         .from("profiles")
-        .update({ onboarding_completed: true })
+        .update({
+          name: tutorForm.tutor_name,
+          phone: tutorForm.tutor_phone || null,
+          birthday: tutorForm.tutor_birthday || null,
+          onboarding_completed: true,
+        })
         .eq("user_id", user.id);
+
+      if (profileError) throw profileError;
 
       toast.success("Tudo pronto! Bem-vindo ao Petly 🐾");
       navigate("/dashboard");
@@ -134,7 +147,11 @@ export default function Onboarding() {
   };
 
   const nextStep = () => {
-    if (step === 1 && !form.name) {
+    if (step === 1 && !tutorForm.tutor_name) {
+      toast.error("Informe seu nome");
+      return;
+    }
+    if (step === 2 && !form.name) {
       toast.error("Informe o nome do pet");
       return;
     }
@@ -171,8 +188,53 @@ export default function Onboarding() {
             ))}
           </div>
 
-          {/* Step 1: Name + Photo */}
+          {/* Step 1: Tutor info */}
           {step === 1 && (
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
+                  <Heart className="h-6 w-6 text-accent" />
+                </div>
+              </div>
+              <h2 className="text-xl font-bold text-foreground mb-1">Bem-vindo ao Petly!</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                Primeiro, precisamos saber um pouco sobre você
+              </p>
+
+              <div className="text-left space-y-4">
+                <div>
+                  <Label className="font-semibold">Seu nome *</Label>
+                  <Input
+                    value={tutorForm.tutor_name}
+                    onChange={(e) => setTutorForm({ ...tutorForm, tutor_name: e.target.value })}
+                    placeholder="Nome completo"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label className="font-semibold">Telefone</Label>
+                  <Input
+                    value={tutorForm.tutor_phone}
+                    onChange={(e) => setTutorForm({ ...tutorForm, tutor_phone: e.target.value })}
+                    placeholder="(11) 99999-9999"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label className="font-semibold">Data de nascimento</Label>
+                  <Input
+                    type="date"
+                    value={tutorForm.tutor_birthday}
+                    onChange={(e) => setTutorForm({ ...tutorForm, tutor_birthday: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Pet Name + Photo */}
+          {step === 2 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
@@ -231,8 +293,8 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* Step 2: Species + Breed */}
-          {step === 2 && (
+          {/* Step 3: Species + Breed */}
+          {step === 3 && (
             <div className="text-center">
               <h2 className="text-xl font-bold text-foreground mb-1">Sobre {petName}</h2>
               <p className="text-sm text-muted-foreground mb-6">Conte mais sobre a espécie e raça</p>
@@ -314,8 +376,8 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* Step 3: Age + Sex */}
-          {step === 3 && (
+          {/* Step 4: Age + Sex */}
+          {step === 4 && (
             <div className="text-center">
               <h2 className="text-xl font-bold text-foreground mb-1">Idade e sexo</h2>
               <p className="text-sm text-muted-foreground mb-6">Quando {petName} nasceu?</p>
@@ -367,8 +429,8 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* Step 4: Additional info */}
-          {step === 4 && (
+          {/* Step 5: Additional info */}
+          {step === 5 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
