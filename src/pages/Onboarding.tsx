@@ -43,6 +43,12 @@ export default function Onboarding() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [breedOpen, setBreedOpen] = useState(false);
 
+  const [tutorForm, setTutorForm] = useState({
+    tutor_name: "",
+    tutor_phone: "",
+    tutor_birthday: "",
+  });
+
   const [form, setForm] = useState({
     name: "",
     species: "dog",
