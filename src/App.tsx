@@ -9,6 +9,7 @@ import { DashboardLayout } from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Prontuario from "./pages/Prontuario";
 import Agenda from "./pages/Agenda";
+import Diario from "./pages/Diario";
 
 const queryClient = new QueryClient();
 
