@@ -10,22 +10,24 @@ export function DashboardLayout() {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div
-          className="flex-1 flex flex-col min-w-0"
+          className="flex-1 flex flex-col min-w-0 relative"
           style={{
             backgroundImage: `url(${pawPattern})`,
             backgroundSize: "300px",
             backgroundRepeat: "repeat",
           }}
         >
+          {/* White overlay to lighten the pattern */}
+          <div className="absolute inset-0 bg-background/50 pointer-events-none" />
           {/* Mobile header with trigger */}
-          <header className="md:hidden flex items-center gap-3 p-4 bg-accent">
+          <header className="md:hidden flex items-center gap-3 p-4 bg-accent relative z-10 relative z-10">
             <SidebarTrigger className="text-accent-foreground">
               <Menu className="h-6 w-6" />
             </SidebarTrigger>
             <span className="font-bold text-accent-foreground">Petly</span>
           </header>
 
-          <main className="flex-1 p-4 sm:p-6 overflow-auto">
+          <main className="flex-1 p-4 sm:p-6 relative z-10 overflow-auto">
             <Outlet />
           </main>
         </div>
