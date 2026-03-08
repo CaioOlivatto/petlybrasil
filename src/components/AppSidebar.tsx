@@ -60,7 +60,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3 bg-background rounded-xl p-3 shadow-sm">
-          <img src={petlyLogo} alt="Petly" className="h-10 w-10 object-contain rounded-full" />
+          <img src={petlyLogo} alt="Petly" className="h-12 w-12 object-contain rounded-full" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-bold text-sm text-foreground">Petly</span>
