@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Prontuario from "./pages/Prontuario";
+import Agenda from "./pages/Agenda";
 
 const queryClient = new QueryClient();
 
