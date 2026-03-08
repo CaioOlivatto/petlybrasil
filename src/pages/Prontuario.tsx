@@ -156,7 +156,7 @@ export default function Prontuario() {
               Novo Registro
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-xl">
                 <Plus className="h-5 w-5 text-accent" />
