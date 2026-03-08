@@ -83,7 +83,7 @@ const Index = () => {
         className="hidden lg:flex flex-1 flex-col items-center justify-center px-12 text-primary-foreground"
         style={{ background: "var(--hero-gradient)" }}
       >
-        <div className="max-w-lg space-y-8 text-center">
+        <div className="max-w-lg space-y-8 text-center -mt-[70px]">
           {/* Icon */}
             <div className="mx-auto inline-flex items-center justify-center h-40 w-40 rounded-3xl bg-foreground/10 backdrop-blur-sm">
               <Heart className="h-20 w-20 text-primary" fill="hsl(var(--primary))" />
