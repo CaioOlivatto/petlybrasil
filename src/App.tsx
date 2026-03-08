@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Prontuario from "./pages/Prontuario";
+import Agenda from "./pages/Agenda";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/prontuario" element={<Prontuario />} />
             <Route path="/vacinas" element={<Dashboard />} />
-            <Route path="/agenda" element={<Dashboard />} />
+            <Route path="/agenda" element={<Agenda />} />
             <Route path="/diario" element={<Dashboard />} />
             <Route path="/treino" element={<Dashboard />} />
             <Route path="/petzinho-ia" element={<Dashboard />} />
