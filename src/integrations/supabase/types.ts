@@ -16,12 +16,15 @@ export type Database = {
     Tables: {
       pets: {
         Row: {
+          allergies: string | null
           birth_date: string | null
           blood_type: string | null
           breed: string | null
           created_at: string
           father_name: string | null
+          health_conditions: string | null
           id: string
+          is_neutered: boolean | null
           kennel: string | null
           mother_name: string | null
           name: string
@@ -34,12 +37,15 @@ export type Database = {
           weight: number | null
         }
         Insert: {
+          allergies?: string | null
           birth_date?: string | null
           blood_type?: string | null
           breed?: string | null
           created_at?: string
           father_name?: string | null
+          health_conditions?: string | null
           id?: string
+          is_neutered?: boolean | null
           kennel?: string | null
           mother_name?: string | null
           name: string
@@ -52,12 +58,15 @@ export type Database = {
           weight?: number | null
         }
         Update: {
+          allergies?: string | null
           birth_date?: string | null
           blood_type?: string | null
           breed?: string | null
           created_at?: string
           father_name?: string | null
+          health_conditions?: string | null
           id?: string
+          is_neutered?: boolean | null
           kennel?: string | null
           mother_name?: string | null
           name?: string
