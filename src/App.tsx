@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { DashboardLayout } from "./components/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +18,17 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/prontuario" element={<Dashboard />} />
+            <Route path="/vacinas" element={<Dashboard />} />
+            <Route path="/agenda" element={<Dashboard />} />
+            <Route path="/diario" element={<Dashboard />} />
+            <Route path="/treino" element={<Dashboard />} />
+            <Route path="/petzinho-ia" element={<Dashboard />} />
+            <Route path="/questoes-veterinario" element={<Dashboard />} />
+            <Route path="/perfil" element={<Dashboard />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
