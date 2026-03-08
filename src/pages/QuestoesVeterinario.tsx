@@ -65,7 +65,7 @@ const QuestoesVeterinario = () => {
     setOrganizedQuestions((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleOrganizeWithAI = () => {
+  const handleOrganizeWithAI = async () => {
     if (!userInput.trim()) {
       toast({
         title: "Escreva suas dúvidas",
