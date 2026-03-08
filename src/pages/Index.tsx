@@ -11,21 +11,21 @@ const Index = () => {
   const [password, setPassword] = useState("");
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Left side - Login */}
       <div
-        className="flex-1 flex flex-col items-center justify-center px-8 relative"
+        className="flex-1 flex flex-col items-center justify-center px-4 sm:px-8 py-8 lg:py-0 relative"
         style={{ backgroundImage: `url(${pawPattern})`, backgroundSize: "300px", backgroundRepeat: "repeat" }}
       >
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-6 sm:space-y-8">
           {/* Logo */}
-          <div className="flex flex-col items-center border-2 border-accent rounded-2xl p-8 bg-background/80 backdrop-blur-sm shadow-sm">
-            <img src={petlyLogo} alt="Petly" className="h-28 w-28 object-contain" />
+          <div className="flex flex-col items-center border-2 border-accent rounded-2xl p-6 sm:p-8 bg-background/80 backdrop-blur-sm shadow-sm">
+            <img src={petlyLogo} alt="Petly" className="h-20 w-20 sm:h-28 sm:w-28 object-contain" />
             <p className="text-muted-foreground text-sm mt-3">Cuidado inteligente para seu pet</p>
           </div>
 
           {/* Form */}
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Email</label>
               <Input
@@ -80,7 +80,7 @@ const Index = () => {
 
       {/* Right side - Hero */}
       <div
-        className="hidden lg:flex flex-1 flex-col items-center justify-center px-12 text-primary-foreground"
+        className="hidden lg:flex flex-1 flex-col items-center justify-center px-8 xl:px-12 text-primary-foreground"
         style={{ background: "var(--hero-gradient)" }}
       >
         <div className="max-w-lg space-y-8 text-center -mt-[70px]">
@@ -90,10 +90,10 @@ const Index = () => {
           </div>
 
           <div className="space-y-4">
-            <h1 className="text-4xl font-bold leading-tight">
+            <h1 className="text-3xl xl:text-4xl font-bold leading-tight">
               Tudo que seu pet precisa, organizado com IA
             </h1>
-            <p className="text-lg opacity-90">
+            <p className="text-base xl:text-lg opacity-90">
               Gerencie consultas, vacinas, rotinas e receba orientações inteligentes para cuidar melhor do seu companheiro.
             </p>
           </div>
