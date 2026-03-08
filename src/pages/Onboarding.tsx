@@ -376,8 +376,8 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* Step 3: Age + Sex */}
-          {step === 3 && (
+          {/* Step 4: Age + Sex */}
+          {step === 4 && (
             <div className="text-center">
               <h2 className="text-xl font-bold text-foreground mb-1">Idade e sexo</h2>
               <p className="text-sm text-muted-foreground mb-6">Quando {petName} nasceu?</p>
