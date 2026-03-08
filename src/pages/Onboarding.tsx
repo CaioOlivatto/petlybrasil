@@ -293,8 +293,8 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* Step 2: Species + Breed */}
-          {step === 2 && (
+          {/* Step 3: Species + Breed */}
+          {step === 3 && (
             <div className="text-center">
               <h2 className="text-xl font-bold text-foreground mb-1">Sobre {petName}</h2>
               <p className="text-sm text-muted-foreground mb-6">Conte mais sobre a espécie e raça</p>
