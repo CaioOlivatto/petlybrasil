@@ -188,8 +188,53 @@ export default function Onboarding() {
             ))}
           </div>
 
-          {/* Step 1: Name + Photo */}
+          {/* Step 1: Tutor info */}
           {step === 1 && (
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
+                  <Heart className="h-6 w-6 text-accent" />
+                </div>
+              </div>
+              <h2 className="text-xl font-bold text-foreground mb-1">Bem-vindo ao Petly!</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                Primeiro, precisamos saber um pouco sobre você
+              </p>
+
+              <div className="text-left space-y-4">
+                <div>
+                  <Label className="font-semibold">Seu nome *</Label>
+                  <Input
+                    value={tutorForm.tutor_name}
+                    onChange={(e) => setTutorForm({ ...tutorForm, tutor_name: e.target.value })}
+                    placeholder="Nome completo"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label className="font-semibold">Telefone</Label>
+                  <Input
+                    value={tutorForm.tutor_phone}
+                    onChange={(e) => setTutorForm({ ...tutorForm, tutor_phone: e.target.value })}
+                    placeholder="(11) 99999-9999"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label className="font-semibold">Data de nascimento</Label>
+                  <Input
+                    type="date"
+                    value={tutorForm.tutor_birthday}
+                    onChange={(e) => setTutorForm({ ...tutorForm, tutor_birthday: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Pet Name + Photo */}
+          {step === 2 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
