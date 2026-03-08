@@ -126,7 +126,7 @@ export default function Agenda() {
         key={evento.id}
         className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors cursor-pointer ${
           isOverdue
-            ? "border-destructive/30 bg-destructive/5 hover:border-destructive/50"
+            ? "border-destructive/30 bg-background hover:border-destructive/50"
             : "border-accent/20 bg-background hover:border-accent/40"
         }`}
       >
