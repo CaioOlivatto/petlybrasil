@@ -11,7 +11,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import petlyLogo from "@/assets/petly-logo.png";
 
 import {
@@ -44,6 +45,16 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
+  };
+
+  const displayName = user?.user_metadata?.name || user?.email?.split("@")[0] || "Tutor";
+  const initials = displayName.charAt(0).toUpperCase();
 
   return (
     <Sidebar collapsible="icon">
@@ -96,13 +107,13 @@ export function AppSidebar() {
           <>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center text-xs font-bold text-sidebar-foreground">
-                C
+                {initials}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-sidebar-foreground">Caio Olivatto</span>
+                <span className="text-sm font-medium text-sidebar-foreground">{displayName}</span>
                 <span className="text-xs text-sidebar-foreground/70">Tutor</span>
               </div>
-              <button className="ml-auto text-sidebar-foreground/70 hover:text-sidebar-foreground">
+              <button onClick={handleLogout} className="ml-auto text-sidebar-foreground/70 hover:text-sidebar-foreground">
                 <LogOut className="h-4 w-4" />
               </button>
             </div>
