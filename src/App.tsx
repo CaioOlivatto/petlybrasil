@@ -16,6 +16,7 @@ import Diario from "./pages/Diario";
 import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
+import PetzinhoIA from "./pages/PetzinhoIA";
 
 const queryClient = new QueryClient();
 
