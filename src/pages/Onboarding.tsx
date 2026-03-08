@@ -429,8 +429,8 @@ export default function Onboarding() {
             </div>
           )}
 
-          {/* Step 4: Additional info */}
-          {step === 4 && (
+          {/* Step 5: Additional info */}
+          {step === 5 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
