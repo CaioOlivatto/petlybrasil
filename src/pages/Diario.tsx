@@ -83,6 +83,8 @@ const Diario = () => {
     observacoes: "",
   });
 
+  const [historyFilter, setHistoryFilter] = useState<"hoje" | "semana" | "mes">("hoje");
+
   const [history, setHistory] = useState<HistoryEntry[]>([
     {
       date: new Date(Date.now() - 86400000),
@@ -109,6 +111,19 @@ const Diario = () => {
       observacoes: "Vomitou após trocar a ração. Monitorando.",
     },
   ]);
+
+  const filteredHistory = useMemo(() => {
+    const now = new Date();
+    let start: Date;
+    if (historyFilter === "hoje") {
+      start = startOfDay(now);
+    } else if (historyFilter === "semana") {
+      start = startOfWeek(now, { weekStartsOn: 1 });
+    } else {
+      start = startOfMonth(now);
+    }
+    return history.filter((entry) => isAfter(entry.date, start) || startOfDay(entry.date).getTime() === start.getTime());
+  }, [history, historyFilter]);
 
   const toggleAlteracao = (value: string) => {
     setCheckIn((prev) => ({
