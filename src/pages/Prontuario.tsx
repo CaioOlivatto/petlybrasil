@@ -80,6 +80,29 @@ export default function Prontuario() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [newDate, setNewDate] = useState("");
+  const [hasValidity, setHasValidity] = useState(false);
+  const [validityDate, setValidityDate] = useState("");
+  const [observations, setObservations] = useState("");
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+
+  const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAttachedFile(e.target.files[0]);
+    }
+  };
+
+  const resetForm = () => {
+    setDialogOpen(false);
+    setSelectedCategory(null);
+    setNewName("");
+    setNewDate("");
+    setHasValidity(false);
+    setValidityDate("");
+    setObservations("");
+    setAttachedFile(null);
+  };
 
   const filteredRecords = mockRecords.filter((r) => {
     const matchCategory = activeFilter === "todas" || r.category === activeFilter;
