@@ -78,6 +78,21 @@ export default function Agenda() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [activeSection, setActiveSection] = useState<"atrasadas" | "proxima-semana" | "proximo-mes" | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [eventType, setEventType] = useState("");
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventNotes, setEventNotes] = useState("");
+
+  const resetEventForm = () => {
+    setDialogOpen(false);
+    setEventType("");
+    setEventTitle("");
+    setEventDate("");
+    setEventTime("");
+    setEventNotes("");
+  };
 
   const sectionRefs = {
     atrasadas: useRef<HTMLDivElement>(null),
