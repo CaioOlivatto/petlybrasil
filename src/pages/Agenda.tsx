@@ -264,8 +264,8 @@ export default function Agenda() {
             </div>
           </DialogContent>
         </Dialog>
+      </div>
 
-      {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <button
           onClick={() => handleCardClick("atrasadas")}
