@@ -240,7 +240,7 @@ export default function Onboarding() {
                   />
                 </div>
                 <div>
-                  <Label className="font-semibold">Telefone</Label>
+                  <Label className="font-semibold">Telefone *</Label>
                   <Input
                     value={tutorForm.tutor_phone}
                     onChange={(e) => setTutorForm({ ...tutorForm, tutor_phone: e.target.value })}
