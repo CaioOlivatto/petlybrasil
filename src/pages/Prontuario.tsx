@@ -22,6 +22,8 @@ import {
   Loader2,
   Trash2,
   ExternalLink,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -323,17 +325,14 @@ export default function Prontuario() {
     return d.toLocaleDateString("pt-BR");
   };
 
-  const isExpired = (validityDate: string | null) => {
-    if (!validityDate) return false;
-    return new Date(validityDate) < new Date();
+  const isRealized = (dateStr: string) => {
+    return new Date(dateStr + "T12:00:00") < new Date();
   };
 
-  const isExpiringSoon = (validityDate: string | null) => {
-    if (!validityDate) return false;
-    const d = new Date(validityDate);
+  const isUpcoming = (dateStr: string) => {
+    const d = new Date(dateStr + "T12:00:00");
     const now = new Date();
-    const diff = d.getTime() - now.getTime();
-    return diff > 0 && diff < 7 * 24 * 60 * 60 * 1000;
+    return d >= now;
   };
 
   const filteredRecords = records.filter((r) => {
@@ -657,12 +656,12 @@ export default function Prontuario() {
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
-            Vencido
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+            Realizado
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            Vencendo em 7 dias
+            <Clock className="h-3.5 w-3.5 text-primary" />
+            Previsto para próximos dias
           </span>
         </div>
         <span className="hidden sm:inline text-accent italic">
@@ -731,8 +730,8 @@ export default function Prontuario() {
                             >
                               <td className="px-5 py-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
-                                  {isExpired(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-destructive shrink-0" />}
-                                  {isExpiringSoon(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />}
+                                  {isRealized(record.date) && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
+                                  {isUpcoming(record.date) && <Clock className="h-4 w-4 text-primary shrink-0" />}
                                   {record.name}
                                 </div>
                               </td>
@@ -771,8 +770,8 @@ export default function Prontuario() {
                         <div key={record.id} className="p-4 space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              {isExpired(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-destructive shrink-0" />}
-                              {isExpiringSoon(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />}
+                              {isRealized(record.date) && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
+                              {isUpcoming(record.date) && <Clock className="h-4 w-4 text-primary shrink-0" />}
                               <p className="font-medium text-foreground">{record.name}</p>
                             </div>
                             <button
