@@ -106,15 +106,15 @@ export function VaccinationSchedule({ pet }: Props) {
     setSaving(null);
   };
 
-  const getStatusColor = (vaccine: VaccineItem) => {
+  const getStatusBorder = (vaccine: VaccineItem) => {
     const record = records[vaccine.key];
-    if (record?.status === "taken") return "border-green-500/30 bg-green-500/5";
-    if (record?.status === "will_not_take") return "border-muted bg-muted/20 opacity-60";
-    if (record?.status === "not_taken") return "border-destructive/30 bg-destructive/5";
+    if (record?.status === "taken") return "border-green-500/30";
+    if (record?.status === "will_not_take") return "border-muted opacity-60";
+    if (record?.status === "not_taken") return "border-destructive/30";
     if (!petAgeDays) return "border-border";
     const urgency = getVaccineStatus(petAgeDays, vaccine.ageDays);
-    if (urgency === "overdue") return "border-destructive/40 bg-destructive/5";
-    if (urgency === "due") return "border-primary/40 bg-primary/5";
+    if (urgency === "overdue") return "border-destructive/40";
+    if (urgency === "due") return "border-primary/40";
     return "border-border";
   };
 
@@ -180,7 +180,7 @@ export function VaccinationSchedule({ pet }: Props) {
   return (
     <div className="space-y-4">
       {/* Header info */}
-      <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-cardrder-accent/20 rounded-xl p-4 flex items-start gap-3">
         <Shield className="h-5 w-5 text-accent mt-0.5 shrink-0" />
         <div className="text-sm">
           <p className="font-semibold text-foreground">
@@ -195,7 +195,7 @@ export function VaccinationSchedule({ pet }: Props) {
       </div>
 
       {/* Tip */}
-      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-primacardecardprimary/20 rounded-xl p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
         <p className="text-xs text-muted-foreground">
           <strong>Dica veterinária:</strong> Nunca deixe filhotes pisarem no chão da rua antes da 3ª dose da vacina. Parvovirose e cinomose matam muitos filhotes.
@@ -212,7 +212,7 @@ export function VaccinationSchedule({ pet }: Props) {
           return (
             <div
               key={vaccine.key}
-              className={`border-2 rounded-xl p-4 transition-all bg-background ${getStatusColor(vaccine)}`}
+              className={`border-2 rounded-xl p-4 transition-all bg-card ${getStatusBorder(vaccine)}`}
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-start gap-3">
@@ -314,7 +314,7 @@ export function VaccinationSchedule({ pet }: Props) {
       </div>
 
       {/* Annual reminder */}
-      <div className="bg-muted/30 border border-border rounded-xl p-4 text-xs text-muted-foreground">
+      <div className="bg-muted/30 bcardrder-border rounded-xl p-4 text-xs text-muted-foreground">
         <p className="font-semibold text-foreground mb-1">📆 Reforços Anuais</p>
         <p>Após 1 ano de idade, seu pet precisa de reforço anual de V8/V10 (ou V3/V4/V5 para gatos) + Antirrábica.</p>
       </div>
