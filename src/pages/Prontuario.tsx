@@ -91,6 +91,19 @@ export default function Prontuario() {
   const [observations, setObservations] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pets")
+      .select("*")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setPet(data);
+      });
+  }, [user]);
+
   const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
