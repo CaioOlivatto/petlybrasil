@@ -13,10 +13,19 @@ import {
   ImageOff,
   Trash2,
   Search,
-  Filter,
+  Upload,
+  Camera,
+  Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +71,15 @@ export default function Documentos() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState<DocumentRecord | null>(null);
 
+  // Create dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<typeof documentTypes[0] | null>(null);
+  const [docName, setDocName] = useState("");
+  const [docDate, setDocDate] = useState(new Date().toISOString().split("T")[0]);
+  const [docNotes, setDocNotes] = useState("");
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -94,6 +112,75 @@ export default function Documentos() {
     if (pet) fetchDocuments();
   }, [pet, fetchDocuments]);
 
+  const openCreateDialog = (type: typeof documentTypes[0]) => {
+    setSelectedType(type);
+    setDocName(type.label);
+    setDocDate(new Date().toISOString().split("T")[0]);
+    setDocNotes("");
+    setAttachedFile(null);
+    setDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setDialogOpen(false);
+    setSelectedType(null);
+    setDocName("");
+    setDocNotes("");
+    setAttachedFile(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) setAttachedFile(e.target.files[0]);
+  };
+
+  const handleSave = async () => {
+    if (!user || !pet || !docName || !docDate) return;
+    setSaving(true);
+
+    try {
+      let attachment_url: string | null = null;
+      let attachment_name: string | null = null;
+
+      if (attachedFile) {
+        const ext = attachedFile.name.split(".").pop();
+        const path = `${user.id}/${pet.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("medical-attachments")
+          .upload(path, attachedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from("medical-attachments")
+          .getPublicUrl(path);
+
+        attachment_url = data.publicUrl;
+        attachment_name = attachedFile.name;
+      }
+
+      const { error } = await supabase.from("medical_records").insert({
+        user_id: user.id,
+        pet_id: pet.id,
+        category: "documento",
+        name: docName,
+        date: docDate,
+        notes: docNotes || null,
+        attachment_url,
+        attachment_name,
+      } as any);
+
+      if (error) throw error;
+
+      toast.success("Documento salvo com sucesso!");
+      resetForm();
+      fetchDocuments();
+    } catch (error: any) {
+      toast.error("Erro ao salvar: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!recordToDelete) return;
     const { error } = await supabase
@@ -119,7 +206,6 @@ export default function Documentos() {
     d.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Match documents to document types by name
   const getDocTypeForRecord = (name: string) => {
     const lower = name.toLowerCase();
     if (lower.includes("pedigree")) return "pedigree";
@@ -165,27 +251,21 @@ export default function Documentos() {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => navigate("/prontuario")}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-accent text-accent-foreground font-semibold text-sm hover:bg-accent/90 transition-colors shadow-lg"
-        >
-          <FileText className="h-4 w-4" />
-          Adicionar via Prontuário
-        </button>
       </div>
 
-      {/* Document type cards overview */}
+      {/* Document type cards - clickable to create */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {documentTypes.map((type) => {
           const count = documents.filter((d) => getDocTypeForRecord(d.name) === type.key).length;
           const Icon = type.icon;
           return (
-            <div
+            <button
               key={type.key}
-              className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
+              onClick={() => openCreateDialog(type)}
+              className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left cursor-pointer hover:shadow-md ${
                 count > 0
-                  ? "border-accent/30 bg-accent/5"
-                  : "border-border bg-background opacity-60"
+                  ? "border-accent/30 bg-accent/5 hover:border-accent/60"
+                  : "border-border bg-background hover:border-accent/40 hover:bg-accent/5"
               }`}
             >
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
@@ -193,13 +273,14 @@ export default function Documentos() {
               }`}>
                 <Icon className={`h-5 w-5 ${count > 0 ? "text-accent" : "text-muted-foreground"}`} />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground text-sm truncate">{type.label}</p>
                 <p className="text-xs text-muted-foreground">
-                  {count > 0 ? `${count} documento(s)` : "Nenhum"}
+                  {count > 0 ? `${count} doc(s)` : "Clique para adicionar"}
                 </p>
               </div>
-            </div>
+              <Plus className="h-4 w-4 text-muted-foreground shrink-0" />
+            </button>
           );
         })}
       </div>
@@ -223,7 +304,7 @@ export default function Documentos() {
           <ImageOff className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
           <p className="text-lg font-medium text-muted-foreground">Nenhum documento cadastrado</p>
           <p className="text-sm text-muted-foreground/70 mt-1">
-            Vá ao Prontuário e adicione registros na categoria "Documento"
+            Clique em um tipo de documento acima para começar
           </p>
         </div>
       ) : (
@@ -277,6 +358,96 @@ export default function Documentos() {
           })}
         </div>
       )}
+
+      {/* Create Document Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); else setDialogOpen(true); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              {selectedType && <selectedType.icon className="h-5 w-5 text-accent" />}
+              {selectedType?.label || "Novo Documento"}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{selectedType?.description}</p>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">Nome / Título *</label>
+              <Input
+                placeholder="Ex: Pedigree CBKC"
+                value={docName}
+                onChange={(e) => setDocName(e.target.value)}
+                className="h-12"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">Data *</label>
+              <Input
+                type="date"
+                value={docDate}
+                onChange={(e) => setDocDate(e.target.value)}
+                className="h-12"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">Observações</label>
+              <textarea
+                placeholder="Detalhes adicionais sobre o documento..."
+                value={docNotes}
+                onChange={(e) => setDocNotes(e.target.value)}
+                className="w-full min-h-[80px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-foreground">Anexo</label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Enviar Arquivo</span>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                  <Camera className="h-6 w-6 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Tirar Foto</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {attachedFile && (
+                <p className="text-xs text-accent font-medium mt-1">
+                  📎 {attachedFile.name}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <Button variant="outline" className="h-12 text-base rounded-xl" onClick={resetForm}>
+                Cancelar
+              </Button>
+              <Button
+                className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                disabled={!docName || !docDate || saving}
+                onClick={handleSave}
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Salvar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete confirmation */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
