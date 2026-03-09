@@ -76,10 +76,12 @@ const mockRecords: Record[] = [
 
 export default function Prontuario() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>("exame");
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [showVaccineSchedule, setShowVaccineSchedule] = useState(false);
+  const [pet, setPet] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [newDate, setNewDate] = useState("");
