@@ -6,7 +6,7 @@ import { Menu } from "lucide-react";
 
 export function DashboardLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div
