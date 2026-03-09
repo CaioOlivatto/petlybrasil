@@ -162,13 +162,18 @@ export function PetStatusCard({ petName, petId }: Props) {
           <div className="animate-spin h-5 w-5 border-2 border-accent border-t-transparent rounded-full" />
         </div>
       ) : !hasData ? (
-        <div className="text-center py-8">
-          <p className="text-sm text-muted-foreground">
-            {period === "hoje"
-              ? "Nenhum registro hoje. Faça o check-in no Diário!"
-              : "Nenhum registro neste período."}
+        <button
+          onClick={() => navigate("/diario")}
+          className="w-full text-center py-8 group cursor-pointer"
+        >
+          <ClipboardEdit className="h-10 w-10 text-accent/60 mx-auto mb-3 group-hover:text-accent transition-colors" />
+          <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
+            Preencha como {petName} está hoje
           </p>
-        </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            e mantenha um histórico de bem-estar 🐾
+          </p>
+        </button>
       ) : (
         <>
           <p className="text-xs text-muted-foreground mb-4">{periodLabel}</p>
