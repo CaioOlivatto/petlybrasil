@@ -124,34 +124,19 @@ export default function Onboarding() {
 
       if (petError) throw petError;
 
-      // Save tutor profile + mark onboarding completed
-      const { error: profileError, data: profileData, count } = await supabase
+      // Save tutor profile + mark onboarding completed (upsert directly)
+      const { error: profileError } = await supabase
         .from("profiles")
-        .update({
+        .upsert({
+          user_id: user.id,
           name: tutorForm.tutor_name,
           phone: tutorForm.tutor_phone || null,
           birthday: tutorForm.tutor_birthday || null,
           onboarding_completed: true,
-        })
-        .eq("user_id", user.id)
-        .select();
+          email: user.email || null,
+        }, { onConflict: "user_id" });
 
       if (profileError) throw profileError;
-      
-      // If no rows were updated, the profile might not exist yet
-      if (!profileData || profileData.length === 0) {
-        // Try upsert instead
-        const { error: upsertError } = await supabase
-          .from("profiles")
-          .upsert({
-            user_id: user.id,
-            name: tutorForm.tutor_name,
-            phone: tutorForm.tutor_phone || null,
-            birthday: tutorForm.tutor_birthday || null,
-            onboarding_completed: true,
-          }, { onConflict: "user_id" });
-        if (upsertError) throw upsertError;
-      }
 
       toast.success("Tudo pronto! Bem-vindo ao Petly 🐾");
       navigate("/dashboard");
