@@ -315,7 +315,7 @@ export default function Prontuario() {
             </div>
           </DialogContent>
         </Dialog>
-        </div>
+      </div>
       </div>
 
       {/* Vaccination Schedule */}
