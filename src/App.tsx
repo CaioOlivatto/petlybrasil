@@ -18,6 +18,7 @@ import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
 import PetzinhoIA from "./pages/PetzinhoIA";
 import Emergency from "./pages/Emergency";
+import Vacinas from "./pages/Vacinas";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +41,7 @@ const App = () => (
             }>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/prontuario" element={<Prontuario />} />
-              <Route path="/vacinas" element={<Dashboard />} />
+              <Route path="/vacinas" element={<Vacinas />} />
               <Route path="/agenda" element={<Agenda />} />
               <Route path="/diario" element={<Diario />} />
               <Route path="/treino" element={<Dashboard />} />

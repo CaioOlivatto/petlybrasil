@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   FileText,
   ArrowLeft,
@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
+
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
@@ -80,7 +80,7 @@ export default function Prontuario() {
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>("exame");
-  const [showVaccineSchedule, setShowVaccineSchedule] = useState(false);
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pet, setPet] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -168,17 +168,7 @@ export default function Prontuario() {
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <Button
-            variant={showVaccineSchedule ? "default" : "outline"}
-            className={`h-12 px-5 text-base font-semibold rounded-xl ${showVaccineSchedule ? "bg-accent text-accent-foreground" : ""}`}
-            onClick={() => setShowVaccineSchedule(!showVaccineSchedule)}
-          >
-            <Syringe className="h-5 w-5 mr-2" />
-            Vacinas
-          </Button>
-
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
               <Plus className="h-5 w-5 mr-2" />
@@ -325,17 +315,9 @@ export default function Prontuario() {
             </div>
           </DialogContent>
         </Dialog>
-        </div>
       </div>
 
-      {/* Vaccination Schedule */}
-      {showVaccineSchedule && pet && (
-        <VaccinationSchedule pet={pet} />
-      )}
-
-      {/* Show regular content only when not viewing vaccines */}
-      {!showVaccineSchedule && (
-      <>
+      {/* Filter tabs */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
@@ -492,8 +474,6 @@ export default function Prontuario() {
             );
           })}
         </div>
-      )}
-      </>
       )}
     </div>
   );
