@@ -55,16 +55,7 @@ interface Evento {
 
 const today = new Date();
 
-const initialEventos: Evento[] = [
-  { id: "1", title: "V8/V10 - 1ª dose", category: "Vacina", date: new Date(2025, 0, 30), icon: Syringe, overdue: true },
-  { id: "2", title: "Gripe - 1ª dose", category: "Vacina", date: new Date(2025, 1, 13), icon: Syringe, overdue: true },
-  { id: "3", title: "Giárdia - 1ª dose", category: "Vacina", date: new Date(2025, 1, 13), icon: Syringe, overdue: true },
-  { id: "4", title: "V8/V10 - 2ª dose", category: "Vacina", date: new Date(2025, 1, 27), icon: Syringe, overdue: true },
-  { id: "5", title: "Raiva - Dose única", category: "Vacina", date: new Date(2025, 2, 13), icon: Syringe, overdue: true },
-  { id: "6", title: "Consulta de rotina", category: "Consulta", date: new Date(2026, 2, 12), icon: CalendarIcon },
-  { id: "7", title: "Vermífugo trimestral", category: "Vermífugo", date: new Date(2026, 2, 15), icon: CalendarIcon },
-  { id: "8", title: "Exame de sangue", category: "Exame", date: new Date(2026, 3, 5), icon: CalendarIcon },
-];
+const initialEventos: Evento[] = [];
 
 const categoryToType: Record<string, string> = {
   "Vacina": "vacina",
