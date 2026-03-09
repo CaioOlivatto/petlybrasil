@@ -55,6 +55,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ name: string | null } | null>(null);
   const [pet, setPet] = useState<{
+    id: string;
     name: string;
     species: string;
     breed: string | null;
