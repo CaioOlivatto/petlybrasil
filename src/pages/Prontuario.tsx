@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
+
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
