@@ -1,11 +1,11 @@
 import { useSearchParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import {
   PawPrint, Phone, Mail, Heart, AlertTriangle, Droplets, Weight, Calendar,
-  Pill, Stethoscope, ClipboardList, Plane, Activity, MessageSquare
+  Pill, Stethoscope, ClipboardList, Plane, Activity, MessageSquare, Syringe, Loader2
 } from "lucide-react";
 import { format, differenceInYears, differenceInMonths } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
 import petlyLogo from "@/assets/petly-logo.png";
 
 const energiaLabels: Record<string, string> = { alta: "🔋 Alta", normal: "⚡ Normal", baixa: "🪫 Baixa" };
@@ -16,24 +16,81 @@ const travelLabels: Record<string, string> = { viagem: "✈️ Viagem", ausencia
 
 export default function Emergency() {
   const [params] = useSearchParams();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const data = useMemo(() => {
-    try {
-      const raw = params.get("data");
-      if (!raw) return null;
-      return JSON.parse(atob(decodeURIComponent(raw)));
-    } catch {
+  useEffect(() => {
+    const petId = params.get("pet_id");
+    
+    // Legacy support: try old base64 format
+    const legacyData = params.get("data");
+    if (legacyData) {
       try {
-        const raw = params.get("data");
-        if (!raw) return null;
-        return JSON.parse(atob(raw));
+        const parsed = JSON.parse(atob(decodeURIComponent(legacyData)));
+        setData(parsed);
+        setLoading(false);
+        return;
       } catch {
-        return null;
+        try {
+          const parsed = JSON.parse(atob(legacyData));
+          setData(parsed);
+          setLoading(false);
+          return;
+        } catch {}
       }
     }
+
+    if (!petId) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        const { data: result, error: fnError } = await supabase.functions.invoke("emergency-data", {
+          body: null,
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        // Edge functions via invoke don't support query params easily, use fetch directly
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/emergency-data?pet_id=${petId}`,
+          {
+            headers: {
+              "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch");
+        const json = await response.json();
+        setData(json);
+      } catch (e) {
+        console.error("Error fetching emergency data:", e);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [params]);
 
-  if (!data) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50 p-4">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 text-red-500 mx-auto mb-4 animate-spin" />
+          <p className="text-red-700 font-medium">Carregando ficha de emergência...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-red-50 p-4">
         <div className="text-center">
@@ -45,7 +102,7 @@ export default function Emergency() {
     );
   }
 
-  const { pet, tutor, medications, consultations, procedures, wellness, travel, observations } = data;
+  const { pet, tutor, medications, consultations, procedures, vaccinations, wellness, travel, observations } = data;
 
   const petAge = pet?.birth_date
     ? (() => {
@@ -121,9 +178,10 @@ export default function Emergency() {
                   <p className="text-sm font-semibold text-gray-900">{m.name}</p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
                     <span className="text-xs text-gray-500">Início: {formatDate(m.date)}</span>
-                    {m.end && <span className="text-xs text-gray-500">Término: {formatDate(m.end)}</span>}
+                    {m.usage_end_date && <span className="text-xs text-gray-500">Término: {formatDate(m.usage_end_date)}</span>}
                     {m.frequency && <span className="text-xs text-gray-500">Freq: {m.frequency}</span>}
                   </div>
+                  {m.notes && <p className="text-xs text-gray-400 mt-1">{m.notes}</p>}
                 </div>
               ))}
             </div>
@@ -155,9 +213,24 @@ export default function Emergency() {
                 <div key={i} className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{p.name}</p>
-                    <span className="text-xs text-gray-400">{p.cat === "exame" ? "Exame" : "Cirurgia"}</span>
+                    <span className="text-xs text-gray-400">{p.category === "exame" ? "Exame" : "Cirurgia"}</span>
+                    {p.notes && <p className="text-xs text-gray-500 mt-0.5">{p.notes}</p>}
                   </div>
                   <span className="text-xs text-gray-400 whitespace-nowrap">{formatDate(p.date)}</span>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        )}
+
+        {/* Vaccinations */}
+        {vaccinations && vaccinations.length > 0 && (
+          <SectionCard title="Vacinas Aplicadas" icon={<Syringe className="h-5 w-5 text-cyan-600" />} borderColor="border-cyan-100" headerBg="bg-cyan-50" titleColor="text-cyan-800">
+            <div className="space-y-2">
+              {vaccinations.map((v: any, i: number) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-700">{v.vaccine_key}</span>
+                  <span className="text-xs text-gray-400">{v.date_taken ? formatDate(v.date_taken) : "—"}</span>
                 </div>
               ))}
             </div>
@@ -172,10 +245,10 @@ export default function Emergency() {
                 <div key={i} className="bg-teal-50/50 rounded-lg p-3">
                   <p className="text-xs font-semibold text-gray-600 mb-1">{formatDate(w.date)}</p>
                   <div className="flex flex-wrap gap-2">
-                    {w.e && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{energiaLabels[w.e] || w.e}</span>}
-                    {w.a && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{apetiteLabels[w.a] || w.a}</span>}
-                    {w.h && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{humorLabels[w.h] || w.h}</span>}
-                    {w.s && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{sonoLabels[w.s] || w.s}</span>}
+                    {w.energia && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{energiaLabels[w.energia] || w.energia}</span>}
+                    {w.apetite && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{apetiteLabels[w.apetite] || w.apetite}</span>}
+                    {w.humor && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{humorLabels[w.humor] || w.humor}</span>}
+                    {w.sono && <span className="text-xs bg-white rounded-full px-2 py-0.5 border border-gray-100">{sonoLabels[w.sono] || w.sono}</span>}
                   </div>
                 </div>
               ))}
@@ -183,7 +256,7 @@ export default function Emergency() {
           </SectionCard>
         )}
 
-        {/* Travel / Routine changes */}
+        {/* Travel */}
         {travel && travel.length > 0 && (
           <SectionCard title="Mudanças de Rotina" icon={<Plane className="h-5 w-5 text-amber-600" />} borderColor="border-amber-100" headerBg="bg-amber-50" titleColor="text-amber-800">
             <div className="space-y-2">
