@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Calendar as CalendarIcon,
   ArrowLeft,
@@ -11,6 +11,8 @@ import {
   CalendarClock,
   Trash2,
   Pencil,
+  Loader2,
+  Pill,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -41,89 +42,85 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface Evento {
+interface AgendaEvent {
   id: string;
   title: string;
   category: string;
-  date: Date;
-  icon: typeof Syringe;
-  overdue?: boolean;
-  time?: string;
-  notes?: string;
+  date: string;
+  time: string | null;
+  notes: string | null;
+  source: string | null;
 }
 
-const today = new Date();
-
-const initialEventos: Evento[] = [];
-
-const categoryToType: Record<string, string> = {
-  "Vacina": "vacina",
-  "Consulta": "consulta",
-  "Exame": "exame",
-  "Vermífugo": "vermifugo",
-  "Medicação": "medicacao",
-  "Procedimento": "procedimento",
-  "Outro": "outro",
-};
-
 const typeToCategory: Record<string, string> = {
-  "vacina": "Vacina",
-  "consulta": "Consulta",
-  "exame": "Exame",
-  "vermifugo": "Vermífugo",
-  "medicacao": "Medicação",
-  "procedimento": "Procedimento",
-  "outro": "Outro",
+  vacina: "Vacina",
+  consulta: "Consulta",
+  exame: "Exame",
+  vermifugo: "Vermífugo",
+  medicacao: "Medicação",
+  procedimento: "Procedimento",
+  outro: "Outro",
 };
 
 const typeToIcon: Record<string, typeof Syringe> = {
-  "vacina": Syringe,
-  "consulta": CalendarIcon,
-  "exame": CalendarIcon,
-  "vermifugo": CalendarIcon,
-  "medicacao": CalendarIcon,
-  "procedimento": CalendarIcon,
-  "outro": CalendarIcon,
+  vacina: Syringe,
+  consulta: CalendarIcon,
+  exame: CalendarIcon,
+  vermifugo: CalendarIcon,
+  medicacao: Pill,
+  procedimento: CalendarIcon,
+  outro: CalendarIcon,
 };
 
-function daysAgo(date: Date): number {
-  const diff = today.getTime() - date.getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+const categoryToType: Record<string, string> = Object.fromEntries(
+  Object.entries(typeToCategory).map(([k, v]) => [v, k])
+);
+
+function daysFromNow(dateStr: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const date = new Date(dateStr + "T12:00:00");
+  date.setHours(0, 0, 0, 0);
+  return Math.round((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function isNextWeek(date: Date): boolean {
-  const startOfNextWeek = new Date(today);
-  startOfNextWeek.setDate(today.getDate() + (7 - today.getDay()));
-  const endOfNextWeek = new Date(startOfNextWeek);
-  endOfNextWeek.setDate(startOfNextWeek.getDate() + 7);
-  return date >= today && date >= startOfNextWeek && date < endOfNextWeek;
+function isNextWeek(dateStr: string): boolean {
+  const days = daysFromNow(dateStr);
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const daysUntilNextWeekStart = 7 - dayOfWeek;
+  return days >= daysUntilNextWeekStart && days < daysUntilNextWeekStart + 7;
 }
 
-function isNextMonth(date: Date): boolean {
-  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  const endNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
-  return date >= nextMonth && date <= endNextMonth;
+function isNextMonth(dateStr: string): boolean {
+  const d = new Date(dateStr + "T12:00:00");
+  const today = new Date();
+  const nextMonth = today.getMonth() + 1;
+  const nextMonthYear = nextMonth > 11 ? today.getFullYear() + 1 : today.getFullYear();
+  return d.getMonth() === (nextMonth % 12) && d.getFullYear() === nextMonthYear;
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("pt-BR");
-}
-
-function formatDateForInput(date: Date): string {
-  return date.toISOString().split("T")[0];
+function formatDate(dateStr: string): string {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("pt-BR");
 }
 
 export default function Agenda() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [eventos, setEventos] = useState<Evento[]>(initialEventos);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
+  const { user } = useAuth();
+  const [eventos, setEventos] = useState<AgendaEvent[]>([]);
+  const [pet, setPet] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [activeSection, setActiveSection] = useState<"atrasadas" | "proxima-semana" | "proximo-mes" | null>(null);
 
   // Create/Edit dialog
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Evento | null>(null);
+  const [editingEvent, setEditingEvent] = useState<AgendaEvent | null>(null);
   const [eventType, setEventType] = useState("");
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
@@ -131,12 +128,12 @@ export default function Agenda() {
   const [eventNotes, setEventNotes] = useState("");
 
   // Detail dialog
-  const [detailEvent, setDetailEvent] = useState<Evento | null>(null);
+  const [detailEvent, setDetailEvent] = useState<AgendaEvent | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
   // Delete confirmation
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<Evento | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<AgendaEvent | null>(null);
 
   const sectionRefs = {
     atrasadas: useRef<HTMLDivElement>(null),
@@ -144,15 +141,48 @@ export default function Agenda() {
     "proximo-mes": useRef<HTMLDivElement>(null),
   };
 
-  const overdue = eventos.filter((e) => e.date < today);
-  const nextWeek = eventos.filter((e) => isNextWeek(e.date));
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pets")
+      .select("id, name")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setPet(data);
+        else setLoading(false);
+      });
+  }, [user]);
+
+  const fetchEvents = useCallback(async () => {
+    if (!user || !pet) return;
+    const { data, error } = await supabase
+      .from("agenda_events")
+      .select("id, title, category, date, time, notes, source")
+      .eq("user_id", user.id)
+      .eq("pet_id", pet.id)
+      .order("date", { ascending: true });
+
+    if (!error && data) setEventos(data);
+    setLoading(false);
+  }, [user, pet]);
+
+  useEffect(() => {
+    if (pet) fetchEvents();
+  }, [pet, fetchEvents]);
+
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const overdue = eventos.filter((e) => e.date < todayStr);
+  const nextWeek = eventos.filter((e) => e.date >= todayStr && isNextWeek(e.date));
   const nextMonth = eventos.filter((e) => isNextMonth(e.date));
 
   const selectedDayEvents = eventos.filter(
-    (e) => selectedDate && e.date.toDateString() === selectedDate.toDateString()
+    (e) => selectedDate && e.date === selectedDate.toISOString().split("T")[0]
   );
 
-  const eventDates = eventos.map((e) => e.date);
+  const eventDates = eventos.map((e) => new Date(e.date + "T12:00:00"));
 
   const resetEventForm = () => {
     setDialogOpen(false);
@@ -165,69 +195,83 @@ export default function Agenda() {
   };
 
   const openCreateDialog = () => {
-    setEditingEvent(null);
-    setEventType("");
-    setEventTitle("");
-    setEventDate("");
-    setEventTime("");
-    setEventNotes("");
+    resetEventForm();
     setDialogOpen(true);
   };
 
-  const openEditDialog = (evento: Evento) => {
+  const openEditDialog = (evento: AgendaEvent) => {
     setEditingEvent(evento);
-    setEventType(categoryToType[evento.category] || "outro");
+    setEventType(categoryToType[evento.category] || evento.category);
     setEventTitle(evento.title);
-    setEventDate(formatDateForInput(evento.date));
+    setEventDate(evento.date);
     setEventTime(evento.time || "");
     setEventNotes(evento.notes || "");
     setDetailOpen(false);
     setDialogOpen(true);
   };
 
-  const handleSaveEvent = () => {
-    if (!eventType || !eventTitle || !eventDate) return;
+  const handleSaveEvent = async () => {
+    if (!eventType || !eventTitle || !eventDate || !user || !pet) return;
+    setSaving(true);
 
-    const category = typeToCategory[eventType] || "Outro";
-    const icon = typeToIcon[eventType] || CalendarIcon;
-    const date = new Date(eventDate + "T12:00:00");
+    const category = typeToCategory[eventType] || eventType;
 
-    if (editingEvent) {
-      setEventos((prev) =>
-        prev.map((e) =>
-          e.id === editingEvent.id
-            ? { ...e, title: eventTitle, category, date, icon, time: eventTime, notes: eventNotes, overdue: date < today }
-            : e
-        )
-      );
-      toast({ title: "Evento atualizado", description: `"${eventTitle}" foi atualizado com sucesso.` });
-    } else {
-      const newEvent: Evento = {
-        id: Date.now().toString(),
-        title: eventTitle,
-        category,
-        date,
-        icon,
-        time: eventTime,
-        notes: eventNotes,
-        overdue: date < today,
-      };
-      setEventos((prev) => [...prev, newEvent]);
-      toast({ title: "Evento criado", description: `"${eventTitle}" foi adicionado à agenda.` });
+    try {
+      if (editingEvent) {
+        const { error } = await supabase
+          .from("agenda_events")
+          .update({
+            title: eventTitle,
+            category,
+            date: eventDate,
+            time: eventTime || null,
+            notes: eventNotes || null,
+          } as any)
+          .eq("id", editingEvent.id);
+        if (error) throw error;
+        toast({ title: "Evento atualizado", description: `"${eventTitle}" foi atualizado.` });
+      } else {
+        const { error } = await supabase.from("agenda_events").insert({
+          user_id: user.id,
+          pet_id: pet.id,
+          title: eventTitle,
+          category,
+          date: eventDate,
+          time: eventTime || null,
+          notes: eventNotes || null,
+          source: "manual",
+        } as any);
+        if (error) throw error;
+        toast({ title: "Evento criado", description: `"${eventTitle}" foi adicionado à agenda.` });
+      }
+      resetEventForm();
+      fetchEvents();
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
-    resetEventForm();
   };
 
-  const handleDeleteEvent = () => {
+  const handleDeleteEvent = async () => {
     if (!eventToDelete) return;
-    setEventos((prev) => prev.filter((e) => e.id !== eventToDelete.id));
-    toast({ title: "Evento excluído", description: `"${eventToDelete.title}" foi removido da agenda.`, variant: "destructive" });
+    const { error } = await supabase
+      .from("agenda_events")
+      .delete()
+      .eq("id", eventToDelete.id);
+    
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Evento excluído", description: `"${eventToDelete.title}" foi removido.`, variant: "destructive" });
+      fetchEvents();
+    }
     setEventToDelete(null);
     setDeleteConfirmOpen(false);
     setDetailOpen(false);
   };
 
-  const openEventDetail = (evento: Evento) => {
+  const openEventDetail = (evento: AgendaEvent) => {
     setDetailEvent(evento);
     setDetailOpen(true);
   };
@@ -239,9 +283,10 @@ export default function Agenda() {
     }, 100);
   };
 
-  const renderEventCard = (evento: Evento) => {
-    const days = daysAgo(evento.date);
-    const isOverdue = evento.date < today;
+  const renderEventCard = (evento: AgendaEvent) => {
+    const days = daysFromNow(evento.date);
+    const isOverdue = days < 0;
+    const Icon = typeToIcon[categoryToType[evento.category] || evento.category] || CalendarIcon;
 
     return (
       <div
@@ -256,7 +301,7 @@ export default function Agenda() {
         <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
           isOverdue ? "bg-destructive/10" : "bg-accent/10"
         }`}>
-          <evento.icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-accent"}`} />
+          <Icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-accent"}`} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -267,7 +312,7 @@ export default function Agenda() {
         </div>
         <div className="text-right shrink-0">
           <p className={`text-sm font-bold ${isOverdue ? "text-destructive" : "text-accent"}`}>
-            {isOverdue ? `Há ${days} dias` : `Em ${Math.abs(days)} dias`}
+            {isOverdue ? `Há ${Math.abs(days)} dias` : days === 0 ? "Hoje" : `Em ${days} dias`}
           </p>
           <p className="text-xs text-muted-foreground">{formatDate(evento.date)}</p>
         </div>
@@ -275,6 +320,14 @@ export default function Agenda() {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-5">
@@ -403,7 +456,13 @@ export default function Agenda() {
               <CalendarIcon className="h-4 w-4" />
               Atrasados ({overdue.length})
             </h2>
-            <div className="space-y-2">{overdue.map(renderEventCard)}</div>
+            {overdue.length === 0 ? (
+              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
+                Nenhum evento atrasado 🎉
+              </p>
+            ) : (
+              <div className="space-y-2">{overdue.map(renderEventCard)}</div>
+            )}
           </div>
 
           <div ref={sectionRefs["proxima-semana"]}>
@@ -441,7 +500,6 @@ export default function Agenda() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              {detailEvent && <detailEvent.icon className="h-5 w-5 text-accent" />}
               Detalhes do Evento
             </DialogTitle>
           </DialogHeader>
@@ -474,11 +532,17 @@ export default function Agenda() {
                     <p className="text-sm text-foreground">{detailEvent.notes}</p>
                   </div>
                 )}
-                {detailEvent.date < today && (
+                {detailEvent.source && detailEvent.source !== "manual" && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/10 border border-accent/20">
+                    <Pill className="h-4 w-4 text-accent" />
+                    <p className="text-sm text-accent font-medium">Criado automaticamente via prontuário</p>
+                  </div>
+                )}
+                {daysFromNow(detailEvent.date) < 0 && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
                     <AlertTriangle className="h-4 w-4 text-destructive" />
                     <p className="text-sm font-medium text-destructive">
-                      Atrasado há {daysAgo(detailEvent.date)} dias
+                      Atrasado há {Math.abs(daysFromNow(detailEvent.date))} dias
                     </p>
                   </div>
                 )}
@@ -585,9 +649,10 @@ export default function Agenda() {
               </Button>
               <Button
                 className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
-                disabled={!eventType || !eventTitle || !eventDate}
+                disabled={!eventType || !eventTitle || !eventDate || saving}
                 onClick={handleSaveEvent}
               >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 {editingEvent ? "Salvar" : "Criar Evento"}
               </Button>
             </div>
