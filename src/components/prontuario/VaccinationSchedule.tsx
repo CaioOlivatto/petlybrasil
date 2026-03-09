@@ -212,7 +212,7 @@ export function VaccinationSchedule({ pet }: Props) {
           return (
             <div
               key={vaccine.key}
-              className={`border-2 rounded-xl p-4 transition-all ${getStatusColor(vaccine)}`}
+              className={`border-2 rounded-xl p-4 transition-all bg-background ${getStatusColor(vaccine)}`}
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-start gap-3">
