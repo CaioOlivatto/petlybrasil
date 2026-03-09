@@ -1,7 +1,10 @@
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Printer, Download, Eye, Lightbulb } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { format } from "date-fns";
 import petlyLogo from "@/assets/petly-logo.png";
 
 interface Props {
@@ -11,11 +14,97 @@ interface Props {
 
 export function QRCodeSection({ pet, profile }: Props) {
   const qrRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const [extraData, setExtraData] = useState<any>(null);
 
   const petName = pet?.name || "seu pet";
 
-  // The QR code will encode a URL that could resolve to a public emergency page
-  // For now, encode the pet data as a data URI
+  useEffect(() => {
+    if (!pet?.id || !user?.id) return;
+
+    const fetchExtraData = async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+
+      // Fetch active medications (no end date or end date >= today)
+      const { data: meds } = await supabase
+        .from("medical_records")
+        .select("name, date, frequency, usage_end_date, notes")
+        .eq("pet_id", pet.id)
+        .eq("user_id", user.id)
+        .eq("category", "medicacao")
+        .or(`usage_end_date.gte.${today},usage_end_date.is.null`)
+        .order("date", { ascending: false })
+        .limit(5);
+
+      // Fetch last consultations
+      const { data: consults } = await supabase
+        .from("medical_records")
+        .select("name, date, notes")
+        .eq("pet_id", pet.id)
+        .eq("user_id", user.id)
+        .eq("category", "consulta")
+        .order("date", { ascending: false })
+        .limit(3);
+
+      // Fetch recent procedures (exame, cirurgia)
+      const { data: procedures } = await supabase
+        .from("medical_records")
+        .select("name, date, category, notes")
+        .eq("pet_id", pet.id)
+        .eq("user_id", user.id)
+        .in("category", ["exame", "cirurgia"])
+        .order("date", { ascending: false })
+        .limit(3);
+
+      // Fetch recent daily checkins for wellness & travel
+      const { data: checkins } = await supabase
+        .from("daily_checkins")
+        .select("date, energia, apetite, humor, sono, mudanca_rotina, observacoes")
+        .eq("pet_id", pet.id)
+        .eq("user_id", user.id)
+        .order("date", { ascending: false })
+        .limit(5);
+
+      setExtraData({
+        medications: meds?.map(m => ({
+          name: m.name,
+          date: m.date,
+          frequency: m.frequency,
+          end: m.usage_end_date,
+        })) || [],
+        consultations: consults?.map(c => ({
+          name: c.name,
+          date: c.date,
+          notes: c.notes?.slice(0, 60),
+        })) || [],
+        procedures: procedures?.map(p => ({
+          name: p.name,
+          date: p.date,
+          cat: p.category,
+        })) || [],
+        wellness: checkins?.map(c => ({
+          date: c.date,
+          e: c.energia,
+          a: c.apetite,
+          h: c.humor,
+          s: c.sono,
+        })) || [],
+        travel: checkins?.some(c => c.mudanca_rotina && c.mudanca_rotina !== "nenhuma")
+          ? checkins.filter(c => c.mudanca_rotina && c.mudanca_rotina !== "nenhuma").map(c => ({
+              date: c.date,
+              reason: c.mudanca_rotina,
+            })).slice(0, 2)
+          : [],
+        observations: checkins
+          ?.filter(c => c.observacoes)
+          .map(c => ({ date: c.date, text: c.observacoes?.slice(0, 80) }))
+          .slice(0, 2) || [],
+      });
+    };
+
+    fetchExtraData();
+  }, [pet?.id, user?.id]);
+
   const emergencyData = JSON.stringify({
     pet: pet ? {
       name: pet.name,
@@ -34,6 +123,7 @@ export function QRCodeSection({ pet, profile }: Props) {
       phone: profile.phone,
       email: profile.email,
     } : null,
+    ...(extraData || {}),
   });
 
   const qrValue = `${window.location.origin}/emergency?data=${encodeURIComponent(btoa(emergencyData))}`;
@@ -67,7 +157,7 @@ export function QRCodeSection({ pet, profile }: Props) {
         <h2 className="text-lg font-bold text-foreground">QR Code de Emergência</h2>
       </div>
       <p className="text-sm text-muted-foreground mb-6">
-        Ao escanear, o QR Code abre o prontuário em PDF do {petName} (com dados do pet e do tutor).
+        Ao escanear, o QR Code abre a ficha completa do {petName} com dados médicos, bem-estar e contatos do tutor.
       </p>
 
       {/* QR Code display */}
@@ -76,7 +166,7 @@ export function QRCodeSection({ pet, profile }: Props) {
           <QRCodeSVG
             value={qrValue}
             size={200}
-            level="M"
+            level="L"
             imageSettings={{
               src: petlyLogo,
               height: 40,
@@ -88,7 +178,7 @@ export function QRCodeSection({ pet, profile }: Props) {
       </div>
 
       <p className="text-center text-sm text-muted-foreground mb-6">
-        Ao escanear o QR Code, o prontuário abre direto<br />em PDF no celular.
+        Ao escanear o QR Code, a ficha completa abre<br />direto no celular.
       </p>
 
       {/* Buttons */}
@@ -104,10 +194,10 @@ export function QRCodeSection({ pet, profile }: Props) {
       </div>
 
       <div className="text-center mb-6">
-        <button className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
+        <a href={qrValue} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto justify-center">
           <Eye className="h-4 w-4" />
           Ver prévia do documento
-        </button>
+        </a>
       </div>
 
       {/* Tip */}
@@ -117,7 +207,7 @@ export function QRCodeSection({ pet, profile }: Props) {
           <div>
             <p className="text-sm font-medium text-foreground">Dica:</p>
             <p className="text-sm text-muted-foreground">
-              Clique em "Imprimir / Salvar PDF" para gerar um documento completo com todos os dados do pet. No celular, escolha "Salvar como PDF" para manter uma cópia digital.
+              O QR Code inclui medicamentos ativos, últimas consultas, procedimentos, histórico de bem-estar e observações recentes.
             </p>
           </div>
         </div>
