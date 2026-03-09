@@ -20,6 +20,7 @@ const metricConfig = [
 type Period = "hoje" | "7dias" | "30dias";
 
 export function PetStatusCard({ petName, petId }: Props) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [period, setPeriod] = useState<Period>("hoje");
   const [metrics, setMetrics] = useState<Record<string, { value: number; label: string }>>({});
