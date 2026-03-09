@@ -508,16 +508,16 @@ export default function Agenda() {
 
         <div className="space-y-5">
           <div ref={sectionRefs.atrasadas}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-destructive mb-3">
+            <h2 className="flex items-center gap-2 text-base font-bold text-muted-foreground mb-3">
               <CalendarIcon className="h-4 w-4" />
-              Atrasados ({overdue.length})
+              Realizadas ({realized.length})
             </h2>
-            {overdue.length === 0 ? (
+            {realized.length === 0 ? (
               <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento atrasado 🎉
+                Nenhum evento realizado ainda
               </p>
             ) : (
-              <div className="space-y-2">{overdue.map(renderEventCard)}</div>
+              <div className="space-y-2">{realized.map(renderEventCard)}</div>
             )}
           </div>
 
