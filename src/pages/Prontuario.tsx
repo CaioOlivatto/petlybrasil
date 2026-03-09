@@ -92,6 +92,8 @@ export default function Prontuario() {
   const [validityDate, setValidityDate] = useState("");
   const [observations, setObservations] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [usageEndDate, setUsageEndDate] = useState("");
+  const [frequency, setFrequency] = useState("");
 
   // Delete state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -149,6 +151,8 @@ export default function Prontuario() {
     setValidityDate("");
     setObservations("");
     setAttachedFile(null);
+    setUsageEndDate("");
+    setFrequency("");
   };
 
   const handleSave = async () => {
@@ -186,7 +190,9 @@ export default function Prontuario() {
         notes: observations || null,
         attachment_url,
         attachment_name,
-      });
+        usage_end_date: selectedCategory === "medicacao" && usageEndDate ? usageEndDate : null,
+        frequency: selectedCategory === "medicacao" && frequency ? frequency : null,
+      } as any);
 
       if (error) throw error;
 
@@ -379,6 +385,30 @@ export default function Prontuario() {
                   className="w-full min-h-[100px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
+
+              {/* Medication-specific fields */}
+              {selectedCategory === "medicacao" && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Utilizar até quando?</label>
+                    <Input
+                      type="date"
+                      value={usageEndDate}
+                      onChange={(e) => setUsageEndDate(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Instruções (quantas vezes por dia)</label>
+                    <Input
+                      placeholder="Ex: 2x ao dia, de 12 em 12 horas"
+                      value={frequency}
+                      onChange={(e) => setFrequency(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+                </>
+              )}
 
               {/* Attachment */}
               {selectedCategory && categoriesWithAttachment.includes(selectedCategory) && (

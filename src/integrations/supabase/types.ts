@@ -83,11 +83,13 @@ export type Database = {
           category: string
           created_at: string
           date: string
+          frequency: string | null
           id: string
           name: string
           notes: string | null
           pet_id: string
           updated_at: string
+          usage_end_date: string | null
           user_id: string
           validity_date: string | null
         }
@@ -97,11 +99,13 @@ export type Database = {
           category: string
           created_at?: string
           date: string
+          frequency?: string | null
           id?: string
           name: string
           notes?: string | null
           pet_id: string
           updated_at?: string
+          usage_end_date?: string | null
           user_id: string
           validity_date?: string | null
         }
@@ -111,11 +115,13 @@ export type Database = {
           category?: string
           created_at?: string
           date?: string
+          frequency?: string | null
           id?: string
           name?: string
           notes?: string | null
           pet_id?: string
           updated_at?: string
+          usage_end_date?: string | null
           user_id?: string
           validity_date?: string | null
         }
