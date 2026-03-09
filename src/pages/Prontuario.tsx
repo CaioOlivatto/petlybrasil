@@ -151,6 +151,8 @@ export default function Prontuario() {
     setValidityDate("");
     setObservations("");
     setAttachedFile(null);
+    setUsageEndDate("");
+    setFrequency("");
   };
 
   const handleSave = async () => {
