@@ -62,12 +62,14 @@ export function AppSidebar() {
         <div className="flex items-center gap-3 bg-background rounded-xl p-3 shadow-sm">
           <img src={petlyLogo} alt="Petly" className="h-10 w-10 object-contain rounded-full" />
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-bold text-sm text-foreground">Petly</span>
-              <span className="text-xs text-muted-foreground">Cuidado inteligente</span>
-            </div>
+            <>
+              <div className="flex flex-col">
+                <span className="font-bold text-sm text-foreground">Petly</span>
+                <span className="text-xs text-muted-foreground">Cuidado inteligente</span>
+              </div>
+              <SidebarTrigger className="ml-auto text-muted-foreground hover:text-foreground" />
+            </>
           )}
-          <SidebarTrigger className={`${collapsed ? "" : "ml-auto"} text-muted-foreground hover:text-foreground`} />
         </div>
       </SidebarHeader>
 

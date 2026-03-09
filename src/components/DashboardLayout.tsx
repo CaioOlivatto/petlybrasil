@@ -19,12 +19,12 @@ export function DashboardLayout() {
         >
           {/* White overlay to lighten the pattern */}
           <div className="absolute inset-0 bg-background/50 pointer-events-none" />
-          {/* Mobile header with trigger */}
-          <header className="md:hidden flex items-center gap-3 p-4 bg-accent relative z-10 relative z-10">
-            <SidebarTrigger className="text-accent-foreground">
-              <Menu className="h-6 w-6" />
+
+          {/* Header with sidebar trigger - always visible */}
+          <header className="flex items-center gap-3 p-3 relative z-10">
+            <SidebarTrigger className="h-9 w-9 flex items-center justify-center rounded-lg bg-card border border-border shadow-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <Menu className="h-5 w-5" />
             </SidebarTrigger>
-            <span className="font-bold text-accent-foreground">Petly</span>
           </header>
 
           <main className="flex-1 p-4 sm:p-6 relative z-10 overflow-auto">
