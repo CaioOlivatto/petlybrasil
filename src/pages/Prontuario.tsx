@@ -253,6 +253,29 @@ export default function Prontuario() {
         }
       }
 
+      // Auto-create single agenda event for non-medication categories
+      const agendaCategories = ["consulta", "exame", "procedimento", "vermifugo", "viagem"];
+      if (agendaCategories.includes(selectedCategory) && insertedRecord) {
+        const categoryIcons: Record<string, string> = {
+          consulta: "🩺",
+          exame: "📋",
+          procedimento: "🔧",
+          vermifugo: "🐛",
+          viagem: "✈️",
+        };
+        await supabase.from("agenda_events").insert({
+          user_id: user.id,
+          pet_id: pet.id,
+          title: `${categoryIcons[selectedCategory] || ""} ${newName}`,
+          category: selectedCategory,
+          date: newDate,
+          notes: observations || null,
+          source: "prontuario",
+          source_record_id: insertedRecord.id,
+        } as any);
+        toast.success("Evento adicionado à agenda!");
+      }
+
       toast.success("Registro salvo com sucesso!");
       resetForm();
       fetchRecords();
