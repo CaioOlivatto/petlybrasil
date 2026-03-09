@@ -434,17 +434,66 @@ export default function Agenda() {
             {selectedDayEvents.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nenhum evento neste dia</p>
             ) : (
-              <div className="space-y-2">
-                {selectedDayEvents.map((e) => (
-                  <div
-                    key={e.id}
-                    onClick={() => openEventDetail(e)}
-                    className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-accent transition-colors"
-                  >
-                    <span className="h-2 w-2 rounded-full bg-accent" />
-                    {e.title}
-                  </div>
-                ))}
+              <div className="space-y-3">
+                {/* Group medication events together */}
+                {(() => {
+                  const medEvents = selectedDayEvents.filter((e) => e.category === "medicacao" || e.category === "Medicação");
+                  const otherEvents = selectedDayEvents.filter((e) => e.category !== "medicacao" && e.category !== "Medicação");
+
+                  // Group med events by medication name (extract name from title like "💊 POLI 3 - 12:30")
+                  const medByName: Record<string, AgendaEvent[]> = {};
+                  medEvents.forEach((e) => {
+                    const name = e.title.replace(/^💊\s*/, "").replace(/\s*-\s*\d{2}:\d{2}$/, "").trim();
+                    if (!medByName[name]) medByName[name] = [];
+                    medByName[name].push(e);
+                  });
+
+                  return (
+                    <>
+                      {Object.keys(medByName).length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-accent uppercase tracking-wide flex items-center gap-1.5">
+                            <Pill className="h-3.5 w-3.5" />
+                            Medicação
+                          </p>
+                          {Object.entries(medByName).map(([name, events]) => (
+                            <div key={name} className="pl-1 space-y-0.5">
+                              {events
+                                .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+                                .map((e) => (
+                                  <div
+                                    key={e.id}
+                                    onClick={() => openEventDetail(e)}
+                                    className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-accent transition-colors py-0.5"
+                                  >
+                                    <span className="h-2 w-2 rounded-full bg-accent shrink-0" />
+                                    <span className="font-medium">{e.title}</span>
+                                  </div>
+                                ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {otherEvents.length > 0 && (
+                        <div className="space-y-1">
+                          {Object.keys(medByName).length > 0 && (
+                            <p className="text-xs font-bold text-primary uppercase tracking-wide mt-2">Outros</p>
+                          )}
+                          {otherEvents.map((e) => (
+                            <div
+                              key={e.id}
+                              onClick={() => openEventDetail(e)}
+                              className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-accent transition-colors py-0.5"
+                            >
+                              <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                              {e.title}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>
