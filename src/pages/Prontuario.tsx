@@ -182,7 +182,7 @@ export default function Prontuario() {
         }
       }
 
-      const { error } = await supabase.from("medical_records").insert({
+      const { data: insertedRecord, error } = await supabase.from("medical_records").insert({
         user_id: user.id,
         pet_id: pet.id,
         category: selectedCategory,
@@ -194,15 +194,15 @@ export default function Prontuario() {
         attachment_name,
         usage_end_date: selectedCategory === "medicacao" && usageEndDate ? usageEndDate : null,
         frequency: selectedCategory === "medicacao" && frequency ? frequency : null,
-      } as any);
+      } as any).select().single();
 
       if (error) throw error;
 
       // Auto-create agenda events for medications with frequency
       if (selectedCategory === "medicacao" && frequency && frequency !== "sob_demanda" && usageEndDate && startTime) {
         const agendaEvents: any[] = [];
-        const startDate = new Date(newDate + "T12:00:00");
-        const endDate = new Date(usageEndDate + "T12:00:00");
+        const startDate = new Date(newDate + "T00:00:00");
+        const endDate = new Date(usageEndDate + "T00:00:00");
 
         const frequencyLabels: Record<string, string> = {
           "1x_dia": "1x/dia",
@@ -212,7 +212,6 @@ export default function Prontuario() {
           "semanal": "1x/semana",
         };
 
-        // Calculate times based on frequency and start time
         const calcTimes = (freq: string, start: string): string[] => {
           const [h, m] = start.split(":").map(Number);
           const pad = (n: number) => String(n).padStart(2, "0");
@@ -242,6 +241,7 @@ export default function Prontuario() {
               time: t,
               notes: `${frequencyLabels[frequency] || frequency}${observations ? " | " + observations : ""}`,
               source: "medicacao",
+              source_record_id: insertedRecord?.id || null,
             });
           }
           current.setDate(current.getDate() + intervalDays);
