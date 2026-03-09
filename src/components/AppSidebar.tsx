@@ -36,7 +36,7 @@ const menuItems = [
   { title: "Vacinas", url: "/vacinas", icon: Syringe },
   { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Diário", url: "/diario", icon: BookOpen },
-  { title: "Treino", url: "/treino", icon: Dumbbell },
+  { title: "Dicas / Treino", url: "/treino", icon: Dumbbell },
   { title: "Petlyzinho IA", url: "/petzinho-ia", icon: Bot },
   { title: "Questões Veterinário", url: "/questoes-veterinario", icon: HelpCircle },
   { title: "Documentos", url: "/documentos", icon: FolderOpen },
