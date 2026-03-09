@@ -25,6 +25,7 @@ const quickActions = [
   { title: "Treino", icon: Dumbbell, url: "/treino" },
   { title: "Petzinho IA", icon: Bot, url: "/petzinho-ia" },
   { title: "Vet. Perguntas", icon: HelpCircle, url: "/questoes-veterinario" },
+  { title: "Documentos", icon: FolderOpen, url: "/documentos" },
 ];
 
 
