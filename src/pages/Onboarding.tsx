@@ -171,6 +171,10 @@ export default function Onboarding() {
       toast.error("Informe o nome do pet");
       return;
     }
+    if (step === 3 && !form.breed) {
+      toast.error("Informe a raça do pet");
+      return;
+    }
     if (step < TOTAL_STEPS) setStep(step + 1);
   };
 
