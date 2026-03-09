@@ -265,6 +265,13 @@ export default function Prontuario() {
 
   const handleDelete = async () => {
     if (!recordToDelete) return;
+
+    // First delete associated agenda events
+    await supabase
+      .from("agenda_events")
+      .delete()
+      .eq("source_record_id", recordToDelete.id);
+
     const { error } = await supabase
       .from("medical_records")
       .delete()
@@ -273,7 +280,7 @@ export default function Prontuario() {
     if (error) {
       toast.error("Erro ao excluir: " + error.message);
     } else {
-      toast.success("Registro excluído!");
+      toast.success("Registro e agenda excluídos!");
       fetchRecords();
     }
     setRecordToDelete(null);
