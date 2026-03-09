@@ -67,7 +67,7 @@ export function AppSidebar() {
               <span className="text-xs text-muted-foreground">Cuidado inteligente</span>
             </div>
           )}
-          {!collapsed && <SidebarTrigger className="ml-auto text-muted-foreground hover:text-foreground" />}
+          <SidebarTrigger className={`${collapsed ? "" : "ml-auto"} text-muted-foreground hover:text-foreground`} />
         </div>
       </SidebarHeader>
 
