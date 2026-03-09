@@ -316,7 +316,6 @@ export default function Prontuario() {
           </DialogContent>
         </Dialog>
       </div>
-      </div>
 
       {/* Filter tabs */}
       <div className="space-y-3">
