@@ -36,7 +36,7 @@ const menuItems = [
   { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Diário", url: "/diario", icon: BookOpen },
   { title: "Treino", url: "/treino", icon: Dumbbell },
-  { title: "Petzinho IA", url: "/petzinho-ia", icon: Bot },
+  { title: "Petlyzinho IA", url: "/petzinho-ia", icon: Bot },
   { title: "Questões Veterinário", url: "/questoes-veterinario", icon: HelpCircle },
   { title: "Perfil", url: "/perfil", icon: User },
 ];

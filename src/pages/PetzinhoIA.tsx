@@ -180,7 +180,7 @@ const PetzinhoIA = () => {
         {showWelcome && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <p className="text-2xl font-bold text-foreground mb-1">
-              Olá! Sou o Petzinho 🐾
+              Olá! Sou o Petlyzinho 🐾
             </p>
             <p className="text-muted-foreground text-sm mb-8 max-w-md">
               Estou aqui para ajudar com dúvidas sobre cuidados, alimentação,
