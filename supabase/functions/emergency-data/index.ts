@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -87,13 +87,17 @@ serve(async (req) => {
       .order("date_taken", { ascending: false })
       .limit(5);
 
-    // Recent daily checkins
+    // Recent daily checkins - last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split("T")[0];
+
     const { data: checkins } = await supabase
       .from("daily_checkins")
       .select("date, energia, apetite, humor, sono, mudanca_rotina, observacoes")
       .eq("pet_id", petId)
-      .order("date", { ascending: false })
-      .limit(7);
+      .gte("date", thirtyDaysAgoStr)
+      .order("date", { ascending: false });
 
     const travel = checkins
       ?.filter((c: any) => c.mudanca_rotina && c.mudanca_rotina !== "nenhuma")
