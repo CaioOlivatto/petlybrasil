@@ -76,6 +76,8 @@ const mudancaOptions = [
 
 const Diario = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [pet, setPet] = useState<{ id: string; name: string } | null>(null);
   const [checkIn, setCheckIn] = useState<CheckInData>({
     energia: "",
     apetite: "",
@@ -89,33 +91,54 @@ const Diario = () => {
   });
 
   const [historyFilter, setHistoryFilter] = useState<"hoje" | "semana" | "mes">("hoje");
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [saving, setSaving] = useState(false);
 
-  const [history, setHistory] = useState<HistoryEntry[]>([
-    {
-      date: new Date(Date.now() - 86400000),
-      energia: "normal",
-      apetite: "alto",
-      sono: "otimo",
-      humor: "brincalhao",
-      alteracoes: [],
-      passeio: true,
-      atividadeMental: true,
-      mudancaRotina: "nenhuma",
-      observacoes: "Dia tranquilo, brincou bastante no parque.",
-    },
-    {
-      date: new Date(Date.now() - 172800000),
-      energia: "baixa",
-      apetite: "baixo",
-      sono: "ruim",
-      humor: "calmo",
-      alteracoes: ["vomito"],
-      passeio: false,
-      atividadeMental: false,
-      mudancaRotina: "alimentacao",
-      observacoes: "Vomitou após trocar a ração. Monitorando.",
-    },
-  ]);
+  // Fetch pet
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pets")
+      .select("id, name")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setPet(data);
+      });
+  }, [user]);
+
+  // Fetch history
+  const fetchHistory = useCallback(async () => {
+    if (!user || !pet) return;
+    const { data } = await supabase
+      .from("daily_checkins")
+      .select("*")
+      .eq("pet_id", pet.id)
+      .order("date", { ascending: false })
+      .limit(30);
+
+    if (data) {
+      setHistory(
+        data.map((row: any) => ({
+          date: new Date(row.date),
+          energia: row.energia || "",
+          apetite: row.apetite || "",
+          sono: row.sono || "",
+          humor: row.humor || "",
+          alteracoes: row.alteracoes || [],
+          passeio: row.passeio,
+          atividadeMental: row.atividade_mental,
+          mudancaRotina: row.mudanca_rotina || "nenhuma",
+          observacoes: row.observacoes || "",
+        }))
+      );
+    }
+  }, [user, pet]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   const filteredHistory = useMemo(() => {
     const now = new Date();
@@ -139,7 +162,7 @@ const Diario = () => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!checkIn.energia || !checkIn.apetite || !checkIn.sono || !checkIn.humor) {
       toast({
         title: "Preencha os campos obrigatórios",
@@ -149,8 +172,40 @@ const Diario = () => {
       return;
     }
 
-    const newEntry: HistoryEntry = { ...checkIn, date: new Date() };
-    setHistory((prev) => [newEntry, ...prev]);
+    if (!user || !pet) return;
+    setSaving(true);
+
+    const today = format(new Date(), "yyyy-MM-dd");
+    const payload = {
+      user_id: user.id,
+      pet_id: pet.id,
+      date: today,
+      energia: checkIn.energia,
+      apetite: checkIn.apetite,
+      sono: checkIn.sono,
+      humor: checkIn.humor,
+      alteracoes: checkIn.alteracoes,
+      passeio: checkIn.passeio,
+      atividade_mental: checkIn.atividadeMental,
+      mudanca_rotina: checkIn.mudancaRotina,
+      observacoes: checkIn.observacoes,
+    };
+
+    const { error } = await supabase
+      .from("daily_checkins")
+      .upsert(payload, { onConflict: "pet_id,date" });
+
+    setSaving(false);
+
+    if (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCheckIn({
       energia: "",
       apetite: "",
@@ -166,6 +221,7 @@ const Diario = () => {
       title: "Check-in salvo! 🐾",
       description: "O registro de hoje foi salvo com sucesso.",
     });
+    fetchHistory();
   };
 
   const getEmojiForValue = (category: keyof typeof emojiOptions, value: string) => {
