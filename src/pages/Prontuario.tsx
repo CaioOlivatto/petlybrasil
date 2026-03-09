@@ -92,6 +92,8 @@ export default function Prontuario() {
   const [validityDate, setValidityDate] = useState("");
   const [observations, setObservations] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [usageEndDate, setUsageEndDate] = useState("");
+  const [frequency, setFrequency] = useState("");
 
   // Delete state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
