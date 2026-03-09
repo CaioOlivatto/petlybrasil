@@ -183,6 +183,10 @@ export default function Onboarding() {
       toast.error("Informe a raça do pet");
       return;
     }
+    if (step === 4 && !form.sex) {
+      toast.error("Informe o sexo do pet");
+      return;
+    }
     if (step < TOTAL_STEPS) setStep(step + 1);
   };
 
@@ -429,7 +433,7 @@ export default function Onboarding() {
                 </div>
 
                 <div>
-                  <Label className="font-semibold mb-3 block">Sexo</Label>
+                  <Label className="font-semibold mb-3 block">Sexo *</Label>
                   <div className="grid grid-cols-2 gap-4">
                     {[
                       { value: "male", label: "Macho", emoji: "♂" },
