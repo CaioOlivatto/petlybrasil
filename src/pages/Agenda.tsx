@@ -175,9 +175,15 @@ export default function Agenda() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   const isMedication = (e: AgendaEvent) => e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
-  const overdue = eventos.filter((e) => e.date < todayStr && !isMedication(e));
-  const nextWeek = eventos.filter((e) => e.date >= todayStr && isNextWeek(e.date) && !isMedication(e));
-  const nextMonth = eventos.filter((e) => isNextMonth(e.date) && !isMedication(e));
+  const realized = eventos.filter((e) => e.date < todayStr && !isMedication(e));
+  const nextWeek = eventos.filter((e) => {
+    const days = daysFromNow(e.date);
+    return days >= 0 && days <= 7 && !isMedication(e);
+  });
+  const nextMonth = eventos.filter((e) => {
+    const days = daysFromNow(e.date);
+    return days > 7 && days <= 37 && !isMedication(e);
+  });
 
   const selectedDayEvents = eventos.filter(
     (e) => selectedDate && e.date === selectedDate.toISOString().split("T")[0]
@@ -372,11 +378,11 @@ export default function Agenda() {
           }`}
         >
           <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-            <Clock className="h-6 w-6 text-destructive" />
+            <Clock className="h-6 w-6 text-muted-foreground" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-destructive">{overdue.length}</p>
-            <p className="text-sm font-medium text-foreground">Atrasadas</p>
+            <p className="text-2xl font-bold text-muted-foreground">{realized.length}</p>
+            <p className="text-sm font-medium text-foreground">Realizadas</p>
           </div>
         </button>
 
@@ -502,16 +508,16 @@ export default function Agenda() {
 
         <div className="space-y-5">
           <div ref={sectionRefs.atrasadas}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-destructive mb-3">
+            <h2 className="flex items-center gap-2 text-base font-bold text-muted-foreground mb-3">
               <CalendarIcon className="h-4 w-4" />
-              Atrasados ({overdue.length})
+              Realizadas ({realized.length})
             </h2>
-            {overdue.length === 0 ? (
+            {realized.length === 0 ? (
               <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento atrasado 🎉
+                Nenhum evento realizado ainda
               </p>
             ) : (
-              <div className="space-y-2">{overdue.map(renderEventCard)}</div>
+              <div className="space-y-2">{realized.map(renderEventCard)}</div>
             )}
           </div>
 
