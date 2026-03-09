@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Zap, UtensilsCrossed, Moon, Heart } from "lucide-react";
+import { Zap, UtensilsCrossed, Moon, Heart, ClipboardEdit } from "lucide-react";
 import { subDays, format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   petName: string;
