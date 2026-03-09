@@ -237,7 +237,7 @@ const Diario = () => {
           <BookOpen className="h-7 w-7 text-secondary" />
           <h1 className="text-2xl font-bold text-foreground">Diário do Pet</h1>
         </div>
-        <p className="text-muted-foreground">Como Lilly está hoje?</p>
+        <p className="text-muted-foreground">Como seu pet está hoje?</p>
       </div>
 
       {/* Check-in de hoje */}
