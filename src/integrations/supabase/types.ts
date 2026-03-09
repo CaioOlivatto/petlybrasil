@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_checkins: {
+        Row: {
+          alteracoes: string[] | null
+          apetite: string | null
+          atividade_mental: boolean | null
+          created_at: string
+          date: string
+          energia: string | null
+          humor: string | null
+          id: string
+          mudanca_rotina: string | null
+          observacoes: string | null
+          passeio: boolean | null
+          pet_id: string
+          sono: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alteracoes?: string[] | null
+          apetite?: string | null
+          atividade_mental?: boolean | null
+          created_at?: string
+          date?: string
+          energia?: string | null
+          humor?: string | null
+          id?: string
+          mudanca_rotina?: string | null
+          observacoes?: string | null
+          passeio?: boolean | null
+          pet_id: string
+          sono?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alteracoes?: string[] | null
+          apetite?: string | null
+          atividade_mental?: boolean | null
+          created_at?: string
+          date?: string
+          energia?: string | null
+          humor?: string | null
+          id?: string
+          mudanca_rotina?: string | null
+          observacoes?: string | null
+          passeio?: boolean | null
+          pet_id?: string
+          sono?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_checkins_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pet_vaccinations: {
         Row: {
           created_at: string
