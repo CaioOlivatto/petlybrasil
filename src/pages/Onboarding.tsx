@@ -167,6 +167,14 @@ export default function Onboarding() {
       toast.error("Informe seu nome");
       return;
     }
+    if (step === 1 && !tutorForm.tutor_phone) {
+      toast.error("Informe seu telefone");
+      return;
+    }
+    if (step === 1 && !tutorForm.tutor_birthday) {
+      toast.error("Informe sua data de nascimento");
+      return;
+    }
     if (step === 2 && !form.name) {
       toast.error("Informe o nome do pet");
       return;
@@ -232,7 +240,7 @@ export default function Onboarding() {
                   />
                 </div>
                 <div>
-                  <Label className="font-semibold">Telefone</Label>
+                  <Label className="font-semibold">Telefone *</Label>
                   <Input
                     value={tutorForm.tutor_phone}
                     onChange={(e) => setTutorForm({ ...tutorForm, tutor_phone: e.target.value })}
@@ -241,7 +249,7 @@ export default function Onboarding() {
                   />
                 </div>
                 <div>
-                  <Label className="font-semibold">Data de nascimento</Label>
+                  <Label className="font-semibold">Data de nascimento *</Label>
                   <Input
                     type="date"
                     value={tutorForm.tutor_birthday}
