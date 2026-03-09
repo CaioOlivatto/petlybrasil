@@ -656,12 +656,12 @@ export default function Prontuario() {
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
-            Vencido
+            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+            Realizado
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            Vencendo em 7 dias
+            <Clock className="h-3.5 w-3.5 text-primary" />
+            Previsto para próximos dias
           </span>
         </div>
         <span className="hidden sm:inline text-accent italic">
