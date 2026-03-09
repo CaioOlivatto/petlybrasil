@@ -76,6 +76,59 @@ export type Database = {
           },
         ]
       }
+      medical_records: {
+        Row: {
+          attachment_name: string | null
+          attachment_url: string | null
+          category: string
+          created_at: string
+          date: string
+          id: string
+          name: string
+          notes: string | null
+          pet_id: string
+          updated_at: string
+          user_id: string
+          validity_date: string | null
+        }
+        Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          category: string
+          created_at?: string
+          date: string
+          id?: string
+          name: string
+          notes?: string | null
+          pet_id: string
+          updated_at?: string
+          user_id: string
+          validity_date?: string | null
+        }
+        Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          category?: string
+          created_at?: string
+          date?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          pet_id?: string
+          updated_at?: string
+          user_id?: string
+          validity_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pet_vaccinations: {
         Row: {
           created_at: string
