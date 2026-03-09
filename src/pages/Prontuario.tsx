@@ -730,8 +730,8 @@ export default function Prontuario() {
                             >
                               <td className="px-5 py-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
-                                  {isExpired(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-destructive shrink-0" />}
-                                  {isExpiringSoon(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />}
+                                  {isRealized(record.date) && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
+                                  {isUpcoming(record.date) && <Clock className="h-4 w-4 text-primary shrink-0" />}
                                   {record.name}
                                 </div>
                               </td>
