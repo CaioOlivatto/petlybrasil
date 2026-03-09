@@ -398,9 +398,24 @@ export default function Prontuario() {
                 />
               </div>
 
+              {/* Observations - before date for medicacao */}
+              {selectedCategory === "medicacao" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Observações</label>
+                  <textarea
+                    placeholder="Ex: Aplicar 2 gotas em cada olho..."
+                    value={observations}
+                    onChange={(e) => setObservations(e.target.value)}
+                    className="w-full min-h-[100px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+              )}
+
               {/* Date */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Data *</label>
+                <label className="text-sm font-semibold text-foreground">
+                  {selectedCategory === "medicacao" ? "Data início *" : "Data *"}
+                </label>
                 <Input
                   type="date"
                   value={newDate}
@@ -409,91 +424,94 @@ export default function Prontuario() {
                 />
               </div>
 
-              {/* Validity toggle */}
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-foreground">Tem validade?</label>
-                <button
-                  onClick={() => setHasValidity(!hasValidity)}
-                  className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-accent" : "bg-muted"}`}
-                >
-                  <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-background shadow transition-transform ${hasValidity ? "translate-x-5" : ""}`} />
-                </button>
-              </div>
-
-              {hasValidity && (
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Data de validade</label>
-                  <Input
-                    type="date"
-                    value={validityDate}
-                    onChange={(e) => setValidityDate(e.target.value)}
-                    className="h-12"
-                  />
+              {/* Medication: Horário + Até quando */}
+              {selectedCategory === "medicacao" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Horário de início *</label>
+                    <Input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Utilizar até quando? *</label>
+                    <Input
+                      type="date"
+                      value={usageEndDate}
+                      onChange={(e) => setUsageEndDate(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
                 </div>
               )}
 
-              {/* Observations */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Observações</label>
-                <textarea
-                  placeholder="Digite algo que aconteceu hoje..."
-                  value={observations}
-                  onChange={(e) => setObservations(e.target.value)}
-                  className="w-full min-h-[100px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              </div>
-
-              {/* Medication-specific fields */}
+              {/* Medication: Frequência */}
               {selectedCategory === "medicacao" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Frequência de uso *</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: "1x_dia", label: "1x ao dia" },
+                      { value: "2x_dia", label: "2x ao dia (12/12h)" },
+                      { value: "3x_dia", label: "3x ao dia (8/8h)" },
+                      { value: "4x_dia", label: "4x ao dia (6/6h)" },
+                      { value: "semanal", label: "1x por semana" },
+                      { value: "sob_demanda", label: "Sob demanda" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setFrequency(opt.value)}
+                        className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-center ${
+                          frequency === opt.value
+                            ? "border-accent bg-accent/10 text-accent"
+                            : "border-border text-muted-foreground hover:border-accent/50"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    💡 Os lembretes serão adicionados automaticamente à sua agenda com os horários calculados
+                  </p>
+                </div>
+              )}
+
+              {/* Non-medication: Validity + Observations */}
+              {selectedCategory !== "medicacao" && (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-foreground">Tem validade?</label>
+                    <button
+                      onClick={() => setHasValidity(!hasValidity)}
+                      className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-accent" : "bg-muted"}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-background shadow transition-transform ${hasValidity ? "translate-x-5" : ""}`} />
+                    </button>
+                  </div>
+                  {hasValidity && (
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-foreground">Horário de início *</label>
-                      <Input
-                        type="time"
-                        value={startTime}
-                        onChange={(e) => setStartTime(e.target.value)}
-                        className="h-12"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-foreground">Utilizar até quando? *</label>
+                      <label className="text-sm font-semibold text-foreground">Data de validade</label>
                       <Input
                         type="date"
-                        value={usageEndDate}
-                        onChange={(e) => setUsageEndDate(e.target.value)}
+                        value={validityDate}
+                        onChange={(e) => setValidityDate(e.target.value)}
                         className="h-12"
                       />
                     </div>
-                  </div>
+                  )}
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Frequência de uso *</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { value: "1x_dia", label: "1x ao dia" },
-                        { value: "2x_dia", label: "2x ao dia (12/12h)" },
-                        { value: "3x_dia", label: "3x ao dia (8/8h)" },
-                        { value: "4x_dia", label: "4x ao dia (6/6h)" },
-                        { value: "semanal", label: "1x por semana" },
-                        { value: "sob_demanda", label: "Sob demanda" },
-                      ].map((opt) => (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setFrequency(opt.value)}
-                          className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-center ${
-                            frequency === opt.value
-                              ? "border-accent bg-accent/10 text-accent"
-                              : "border-border text-muted-foreground hover:border-accent/50"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      💡 Os lembretes serão adicionados automaticamente à sua agenda com os horários calculados
-                    </p>
+                    <label className="text-sm font-semibold text-foreground">Observações</label>
+                    <textarea
+                      placeholder="Digite algo que aconteceu hoje..."
+                      value={observations}
+                      onChange={(e) => setObservations(e.target.value)}
+                      className="w-full min-h-[100px] p-3 rounded-xl border border-input bg-background text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
                   </div>
                 </>
               )}
