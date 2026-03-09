@@ -81,6 +81,7 @@ export default function Prontuario() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>("exame");
   const [showVaccineSchedule, setShowVaccineSchedule] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [pet, setPet] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
