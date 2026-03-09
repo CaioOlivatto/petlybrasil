@@ -427,14 +427,25 @@ export default function Prontuario() {
               {/* Medication-specific fields */}
               {selectedCategory === "medicacao" && (
                 <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Utilizar até quando?</label>
-                    <Input
-                      type="date"
-                      value={usageEndDate}
-                      onChange={(e) => setUsageEndDate(e.target.value)}
-                      className="h-12"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Horário de início *</label>
+                      <Input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Utilizar até quando? *</label>
+                      <Input
+                        type="date"
+                        value={usageEndDate}
+                        onChange={(e) => setUsageEndDate(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-foreground">Frequência de uso *</label>
@@ -462,7 +473,7 @@ export default function Prontuario() {
                       ))}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      💡 Os lembretes serão adicionados automaticamente à sua agenda
+                      💡 Os lembretes serão adicionados automaticamente à sua agenda com os horários calculados
                     </p>
                   </div>
                 </>
