@@ -22,7 +22,7 @@ const quickActions = [
   { title: "Vacinas", icon: Syringe, url: "/vacinas", highlight: true },
   { title: "Agenda", icon: Calendar, url: "/agenda" },
   { title: "Diário", icon: BookOpen, url: "/diario" },
-  { title: "Treino", icon: Dumbbell, url: "/treino" },
+  { title: "Dicas / Treino", icon: Dumbbell, url: "/treino" },
   { title: "Petzinho IA", icon: Bot, url: "/petzinho-ia" },
   { title: "Vet. Perguntas", icon: HelpCircle, url: "/questoes-veterinario" },
   { title: "Documentos", icon: FolderOpen, url: "/documentos" },
