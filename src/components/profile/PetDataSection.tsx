@@ -5,6 +5,8 @@ import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Save, Loader2, PawPrint } from "lucide-react";
@@ -36,6 +38,9 @@ export function PetDataSection({ pet, onUpdate }: Props) {
     birth_date: pet?.birth_date || "",
     weight: pet?.weight || "",
     blood_type: pet?.blood_type || "",
+    is_neutered: pet?.is_neutered || false,
+    allergies: pet?.allergies || "",
+    health_conditions: pet?.health_conditions || "",
     mother_name: pet?.mother_name || "",
     father_name: pet?.father_name || "",
     pedigree: pet?.pedigree || "",
@@ -195,7 +200,42 @@ export function PetDataSection({ pet, onUpdate }: Props) {
         </Select>
       </div>
 
-      {/* Pedigree */}
+      {/* Health info */}
+      <div className="mt-6">
+        <h3 className="text-base font-semibold text-foreground mb-3">Saúde</h3>
+
+        <div className="flex items-center justify-between p-3 rounded-lg border border-border mb-4">
+          <div>
+            <p className="text-sm font-medium text-foreground">Castrado(a)?</p>
+            <p className="text-xs text-muted-foreground">{form.name || "Seu pet"} foi castrado(a)?</p>
+          </div>
+          <Switch
+            checked={form.is_neutered}
+            onCheckedChange={(v) => setForm({ ...form, is_neutered: v })}
+          />
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Alergias conhecidas</Label>
+            <Textarea
+              value={form.allergies}
+              onChange={(e) => setForm({ ...form, allergies: e.target.value })}
+              placeholder="Ex: Alergia a frango, pólen..."
+              className="mt-1 min-h-[60px]"
+            />
+          </div>
+          <div>
+            <Label>Condições de saúde / Doenças crônicas</Label>
+            <Textarea
+              value={form.health_conditions}
+              onChange={(e) => setForm({ ...form, health_conditions: e.target.value })}
+              placeholder="Ex: Displasia coxofemoral, epilepsia..."
+              className="mt-1 min-h-[60px]"
+            />
+          </div>
+        </div>
+      </div>
       <div className="mt-6">
         <h3 className="text-base font-semibold text-foreground mb-3">Informações de Pedigree</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
