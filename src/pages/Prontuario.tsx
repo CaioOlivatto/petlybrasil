@@ -318,15 +318,7 @@ export default function Prontuario() {
       </div>
       </div>
 
-      {/* Vaccination Schedule */}
-      {showVaccineSchedule && pet && (
-        <VaccinationSchedule pet={pet} />
-      )}
-
-      {/* Show regular content only when not viewing vaccines */}
-      {!showVaccineSchedule && (
-      <>
-      <div className="space-y-3">
+      {/* Filter tabs */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
           Filtrar por categoria:
