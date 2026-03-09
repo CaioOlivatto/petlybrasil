@@ -9,6 +9,7 @@ import {
   HelpCircle,
   CheckCircle,
   Loader2,
+  FolderOpen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
