@@ -20,6 +20,7 @@ import PetzinhoIA from "./pages/PetzinhoIA";
 import Treino from "./pages/Treino";
 import Emergency from "./pages/Emergency";
 import Vacinas from "./pages/Vacinas";
+import Documentos from "./pages/Documentos";
 
 const queryClient = new QueryClient();
 
