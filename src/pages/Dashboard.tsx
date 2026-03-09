@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInYears, differenceInMonths, parseISO } from "date-fns";
+import { PetStatusCard } from "@/components/dashboard/PetStatusCard";
 
 const quickActions = [
   { title: "Prontuário", icon: FileText, url: "/prontuario" },
