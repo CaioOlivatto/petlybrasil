@@ -42,6 +42,7 @@ export default function Onboarding() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [breedOpen, setBreedOpen] = useState(false);
+  const [customBreed, setCustomBreed] = useState(false);
 
   const [tutorForm, setTutorForm] = useState({
     tutor_name: "",
