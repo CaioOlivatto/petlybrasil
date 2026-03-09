@@ -180,7 +180,7 @@ export function VaccinationSchedule({ pet }: Props) {
   return (
     <div className="space-y-4">
       {/* Header info */}
-      <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-card border border-accent/20 rounded-xl p-4 flex items-start gap-3">
         <Shield className="h-5 w-5 text-accent mt-0.5 shrink-0" />
         <div className="text-sm">
           <p className="font-semibold text-foreground">
