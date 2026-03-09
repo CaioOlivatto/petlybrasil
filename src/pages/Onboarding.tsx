@@ -183,6 +183,10 @@ export default function Onboarding() {
       toast.error("Informe a raça do pet");
       return;
     }
+    if (step === 4 && !form.sex) {
+      toast.error("Informe o sexo do pet");
+      return;
+    }
     if (step < TOTAL_STEPS) setStep(step + 1);
   };
 
