@@ -294,7 +294,7 @@ export default function Agenda() {
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Agenda</h1>
-              <p className="text-sm text-muted-foreground">Eventos e alertas de Lilly</p>
+              <p className="text-sm text-muted-foreground">Eventos e alertas do seu pet</p>
             </div>
           </div>
         </div>
