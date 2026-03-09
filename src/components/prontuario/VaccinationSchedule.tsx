@@ -106,15 +106,15 @@ export function VaccinationSchedule({ pet }: Props) {
     setSaving(null);
   };
 
-  const getStatusColor = (vaccine: VaccineItem) => {
+  const getStatusBorder = (vaccine: VaccineItem) => {
     const record = records[vaccine.key];
-    if (record?.status === "taken") return "border-green-500/30 bg-green-500/5";
-    if (record?.status === "will_not_take") return "border-muted bg-muted/20 opacity-60";
-    if (record?.status === "not_taken") return "border-destructive/30 bg-destructive/5";
+    if (record?.status === "taken") return "border-green-500/30";
+    if (record?.status === "will_not_take") return "border-muted opacity-60";
+    if (record?.status === "not_taken") return "border-destructive/30";
     if (!petAgeDays) return "border-border";
     const urgency = getVaccineStatus(petAgeDays, vaccine.ageDays);
-    if (urgency === "overdue") return "border-destructive/40 bg-destructive/5";
-    if (urgency === "due") return "border-primary/40 bg-primary/5";
+    if (urgency === "overdue") return "border-destructive/40";
+    if (urgency === "due") return "border-primary/40";
     return "border-border";
   };
 
