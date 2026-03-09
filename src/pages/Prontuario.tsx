@@ -474,7 +474,6 @@ export default function Prontuario() {
             );
           })}
         </div>
-      )}
     </div>
   );
 }
