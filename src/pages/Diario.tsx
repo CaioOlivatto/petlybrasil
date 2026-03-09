@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { startOfDay, startOfWeek, startOfMonth, isAfter } from "date-fns";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { startOfDay, startOfWeek, startOfMonth, isAfter, format, subDays } from "date-fns";
 import { BookOpen, Zap, UtensilsCrossed, Moon, Heart, Droplets, Footprints, Brain, RefreshCw, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type CheckInData = {
   energia: string;
