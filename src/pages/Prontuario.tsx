@@ -770,8 +770,8 @@ export default function Prontuario() {
                         <div key={record.id} className="p-4 space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              {isExpired(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-destructive shrink-0" />}
-                              {isExpiringSoon(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />}
+                              {isRealized(record.date) && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
+                              {isUpcoming(record.date) && <Clock className="h-4 w-4 text-primary shrink-0" />}
                               <p className="font-medium text-foreground">{record.name}</p>
                             </div>
                             <button
