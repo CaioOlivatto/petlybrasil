@@ -458,9 +458,9 @@ const Diario = () => {
             />
           </div>
 
-          <Button onClick={handleSave} className="w-full" size="lg">
-            <Save className="h-4 w-4 mr-2" />
-            Salvar check-in
+           <Button onClick={handleSave} className="w-full" size="lg" disabled={saving}>
+             <Save className="h-4 w-4 mr-2" />
+             {saving ? "Salvando..." : "Salvar check-in"}
           </Button>
         </CardContent>
       </Card>
