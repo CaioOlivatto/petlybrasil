@@ -206,7 +206,42 @@ export function PetDataSection({ pet, onUpdate }: Props) {
         </Select>
       </div>
 
-      {/* Pedigree */}
+      {/* Health info */}
+      <div className="mt-6">
+        <h3 className="text-base font-semibold text-foreground mb-3">Saúde</h3>
+
+        <div className="flex items-center justify-between p-3 rounded-lg border border-border mb-4">
+          <div>
+            <p className="text-sm font-medium text-foreground">Castrado(a)?</p>
+            <p className="text-xs text-muted-foreground">{form.name || "Seu pet"} foi castrado(a)?</p>
+          </div>
+          <Switch
+            checked={form.is_neutered}
+            onCheckedChange={(v) => setForm({ ...form, is_neutered: v })}
+          />
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label>Alergias conhecidas</Label>
+            <Textarea
+              value={form.allergies}
+              onChange={(e) => setForm({ ...form, allergies: e.target.value })}
+              placeholder="Ex: Alergia a frango, pólen..."
+              className="mt-1 min-h-[60px]"
+            />
+          </div>
+          <div>
+            <Label>Condições de saúde / Doenças crônicas</Label>
+            <Textarea
+              value={form.health_conditions}
+              onChange={(e) => setForm({ ...form, health_conditions: e.target.value })}
+              placeholder="Ex: Displasia coxofemoral, epilepsia..."
+              className="mt-1 min-h-[60px]"
+            />
+          </div>
+        </div>
+      </div>
       <div className="mt-6">
         <h3 className="text-base font-semibold text-foreground mb-3">Informações de Pedigree</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
