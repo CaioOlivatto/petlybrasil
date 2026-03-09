@@ -163,7 +163,7 @@ export default function Prontuario() {
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Prontuário</h1>
-              <p className="text-sm text-muted-foreground">Histórico completo de Lilly</p>
+              <p className="text-sm text-muted-foreground">Histórico completo de {pet?.name || "seu pet"}</p>
             </div>
           </div>
         </div>
