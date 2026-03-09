@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   FileText,
   ArrowLeft,
@@ -19,6 +19,9 @@ import {
   ImageOff,
   Upload,
   Camera,
+  Loader2,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,9 +33,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { toast } from "@/components/ui/sonner";
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
@@ -46,16 +59,17 @@ const categories = [
   { key: "observacao", label: "Observação", icon: MessageSquare },
 ];
 
-interface Record {
+interface MedicalRecord {
   id: string;
   category: string;
   name: string;
   date: string;
-  validity: string;
-  notes: string;
+  validity_date: string | null;
+  notes: string | null;
+  attachment_url: string | null;
+  attachment_name: string | null;
+  pet_id: string;
 }
-
-const mockRecords: Record[] = [];
 
 export default function Prontuario() {
   const navigate = useNavigate();
@@ -63,9 +77,14 @@ export default function Prontuario() {
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pet, setPet] = useState<any>(null);
+  const [records, setRecords] = useState<MedicalRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Form state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [newDate, setNewDate] = useState("");
@@ -73,6 +92,27 @@ export default function Prontuario() {
   const [validityDate, setValidityDate] = useState("");
   const [observations, setObservations] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+
+  // Delete state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<MedicalRecord | null>(null);
+
+  const fetchRecords = useCallback(async () => {
+    if (!user || !pet) return;
+    const { data, error } = await supabase
+      .from("medical_records")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("pet_id", pet.id)
+      .order("date", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao buscar registros:", error);
+    } else {
+      setRecords(data || []);
+    }
+    setLoading(false);
+  }, [user, pet]);
 
   useEffect(() => {
     if (!user) return;
@@ -84,8 +124,13 @@ export default function Prontuario() {
       .maybeSingle()
       .then(({ data }) => {
         if (data) setPet(data);
+        else setLoading(false);
       });
   }, [user]);
+
+  useEffect(() => {
+    if (pet) fetchRecords();
+  }, [pet, fetchRecords]);
 
   const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
 
@@ -106,27 +151,119 @@ export default function Prontuario() {
     setAttachedFile(null);
   };
 
-  const filteredRecords = mockRecords.filter((r) => {
+  const handleSave = async () => {
+    if (!user || !pet || !selectedCategory || !newName || !newDate) return;
+    setSaving(true);
+
+    try {
+      let attachment_url: string | null = null;
+      let attachment_name: string | null = null;
+
+      // Upload attachment if present
+      if (attachedFile) {
+        const ext = attachedFile.name.split(".").pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("medical-attachments")
+          .upload(path, attachedFile, { upsert: true });
+
+        if (uploadError) {
+          toast.error("Erro ao enviar anexo: " + uploadError.message);
+        } else {
+          const { data } = supabase.storage.from("medical-attachments").getPublicUrl(path);
+          attachment_url = data.publicUrl;
+          attachment_name = attachedFile.name;
+        }
+      }
+
+      const { error } = await supabase.from("medical_records").insert({
+        user_id: user.id,
+        pet_id: pet.id,
+        category: selectedCategory,
+        name: newName,
+        date: newDate,
+        validity_date: hasValidity && validityDate ? validityDate : null,
+        notes: observations || null,
+        attachment_url,
+        attachment_name,
+      });
+
+      if (error) throw error;
+
+      toast.success("Registro salvo com sucesso!");
+      resetForm();
+      fetchRecords();
+    } catch (error: any) {
+      toast.error("Erro ao salvar: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!recordToDelete) return;
+    const { error } = await supabase
+      .from("medical_records")
+      .delete()
+      .eq("id", recordToDelete.id);
+
+    if (error) {
+      toast.error("Erro ao excluir: " + error.message);
+    } else {
+      toast.success("Registro excluído!");
+      fetchRecords();
+    }
+    setRecordToDelete(null);
+    setDeleteConfirmOpen(false);
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr + "T12:00:00");
+    return d.toLocaleDateString("pt-BR");
+  };
+
+  const isExpired = (validityDate: string | null) => {
+    if (!validityDate) return false;
+    return new Date(validityDate) < new Date();
+  };
+
+  const isExpiringSoon = (validityDate: string | null) => {
+    if (!validityDate) return false;
+    const d = new Date(validityDate);
+    const now = new Date();
+    const diff = d.getTime() - now.getTime();
+    return diff > 0 && diff < 7 * 24 * 60 * 60 * 1000;
+  };
+
+  const filteredRecords = records.filter((r) => {
     const matchCategory = activeFilter === "todas" || r.category === activeFilter;
     const matchSearch = r.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCategory && matchSearch;
   });
 
-  const groupedRecords = filteredRecords.reduce<{ [key: string]: Record[] }>((acc, r) => {
+  const groupedRecords = filteredRecords.reduce<{ [key: string]: MedicalRecord[] }>((acc, r) => {
     if (!acc[r.category]) acc[r.category] = [];
     acc[r.category].push(r);
     return acc;
   }, {});
 
   const categoryCount = (key: string) =>
-    mockRecords.filter((r) => key === "todas" || r.category === key).length;
+    records.filter((r) => key === "todas" || r.category === key).length;
 
   const getCategoryInfo = (key: string) => categories.find((c) => c.key === key);
 
   const filterTabs = [
     { key: "todas", label: "Todas" },
-    ...categories.filter((c) => mockRecords.some((r) => r.category === c.key)),
+    ...categories.filter((c) => records.some((r) => r.category === c.key)),
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
@@ -243,7 +380,7 @@ export default function Prontuario() {
                 />
               </div>
 
-              {/* Attachment - only for applicable categories */}
+              {/* Attachment */}
               {selectedCategory && categoriesWithAttachment.includes(selectedCategory) && (
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Anexo</label>
@@ -289,9 +426,10 @@ export default function Prontuario() {
                 </Button>
                 <Button
                   className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
-                  disabled={!selectedCategory || !newName || !newDate}
-                  onClick={resetForm}
+                  disabled={!selectedCategory || !newName || !newDate || saving}
+                  onClick={handleSave}
                 >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                   Salvar
                 </Button>
               </div>
@@ -369,14 +507,13 @@ export default function Prontuario() {
         </div>
       ) : (
         <div className="space-y-3">
-          {Object.entries(groupedRecords).map(([catKey, records]) => {
+          {Object.entries(groupedRecords).map(([catKey, catRecords]) => {
             const catInfo = getCategoryInfo(catKey);
             const isExpanded = expandedCategory === catKey;
             const Icon = catInfo?.icon || FileText;
 
             return (
               <div key={catKey} className="border-2 border-accent/20 rounded-2xl bg-background overflow-hidden">
-                {/* Category header */}
                 <button
                   onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                   className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-muted/30 transition-colors"
@@ -387,7 +524,7 @@ export default function Prontuario() {
                     </div>
                     <div className="text-left">
                       <p className="font-semibold text-foreground text-base">{catInfo?.label}</p>
-                      <p className="text-xs text-muted-foreground">{records.length} registro(s)</p>
+                      <p className="text-xs text-muted-foreground">{catRecords.length} registro(s)</p>
                     </div>
                   </div>
                   {isExpanded ? (
@@ -397,7 +534,6 @@ export default function Prontuario() {
                   )}
                 </button>
 
-                {/* Records table */}
                 {isExpanded && (
                   <div className="border-t border-border">
                     {/* Desktop table */}
@@ -410,20 +546,44 @@ export default function Prontuario() {
                             <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Validade</th>
                             <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Observações</th>
                             <th className="text-center px-5 py-3 font-semibold text-muted-foreground">Anexo</th>
+                            <th className="text-center px-5 py-3 font-semibold text-muted-foreground">Ações</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {records.map((record) => (
+                          {catRecords.map((record) => (
                             <tr
                               key={record.id}
-                              className="border-t border-border/50 hover:bg-accent/5 cursor-pointer transition-colors"
+                              className="border-t border-border/50 hover:bg-accent/5 transition-colors"
                             >
-                              <td className="px-5 py-4 font-medium text-foreground">{record.name}</td>
-                              <td className="px-5 py-4 text-muted-foreground">{record.date}</td>
-                              <td className="px-5 py-4 text-muted-foreground">{record.validity}</td>
-                              <td className="px-5 py-4 text-muted-foreground">{record.notes}</td>
+                              <td className="px-5 py-4 font-medium text-foreground">
+                                <div className="flex items-center gap-2">
+                                  {isExpired(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-destructive shrink-0" />}
+                                  {isExpiringSoon(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />}
+                                  {record.name}
+                                </div>
+                              </td>
+                              <td className="px-5 py-4 text-muted-foreground">{formatDate(record.date)}</td>
+                              <td className="px-5 py-4 text-muted-foreground">
+                                {record.validity_date ? formatDate(record.validity_date) : "-"}
+                              </td>
+                              <td className="px-5 py-4 text-muted-foreground max-w-[200px] truncate">{record.notes || "-"}</td>
                               <td className="px-5 py-4 text-center">
-                                <ImageOff className="h-4 w-4 text-muted-foreground/40 mx-auto" />
+                                {record.attachment_url ? (
+                                  <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent hover:underline text-xs">
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                    {record.attachment_name || "Ver"}
+                                  </a>
+                                ) : (
+                                  <ImageOff className="h-4 w-4 text-muted-foreground/40 mx-auto" />
+                                )}
+                              </td>
+                              <td className="px-5 py-4 text-center">
+                                <button
+                                  onClick={() => { setRecordToDelete(record); setDeleteConfirmOpen(true); }}
+                                  className="text-destructive hover:text-destructive/80 transition-colors"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
                               </td>
                             </tr>
                           ))}
@@ -433,20 +593,38 @@ export default function Prontuario() {
 
                     {/* Mobile cards */}
                     <div className="sm:hidden divide-y divide-border/50">
-                      {records.map((record) => (
-                        <div key={record.id} className="p-4 space-y-1 hover:bg-accent/5 cursor-pointer">
-                          <p className="font-medium text-foreground">{record.name}</p>
+                      {catRecords.map((record) => (
+                        <div key={record.id} className="p-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {isExpired(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-destructive shrink-0" />}
+                              {isExpiringSoon(record.validity_date) && <span className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />}
+                              <p className="font-medium text-foreground">{record.name}</p>
+                            </div>
+                            <button
+                              onClick={() => { setRecordToDelete(record); setDeleteConfirmOpen(true); }}
+                              className="text-destructive hover:text-destructive/80"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {record.date}
+                              {formatDate(record.date)}
                             </span>
-                            {record.validity !== "-" && (
-                              <span>Val: {record.validity}</span>
+                            {record.validity_date && (
+                              <span>Val: {formatDate(record.validity_date)}</span>
                             )}
                           </div>
-                          {record.notes !== "-" && (
+                          {record.notes && (
                             <p className="text-xs text-muted-foreground">{record.notes}</p>
+                          )}
+                          {record.attachment_url && (
+                            <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent text-xs hover:underline">
+                              <ExternalLink className="h-3 w-3" />
+                              {record.attachment_name || "Ver anexo"}
+                            </a>
                           )}
                         </div>
                       ))}
@@ -458,6 +636,24 @@ export default function Prontuario() {
           })}
         </div>
       )}
+
+      {/* Delete confirmation */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir registro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O registro "{recordToDelete?.name}" será excluído permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
