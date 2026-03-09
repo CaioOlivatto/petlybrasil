@@ -325,17 +325,14 @@ export default function Prontuario() {
     return d.toLocaleDateString("pt-BR");
   };
 
-  const isExpired = (validityDate: string | null) => {
-    if (!validityDate) return false;
-    return new Date(validityDate) < new Date();
+  const isRealized = (dateStr: string) => {
+    return new Date(dateStr + "T12:00:00") < new Date();
   };
 
-  const isExpiringSoon = (validityDate: string | null) => {
-    if (!validityDate) return false;
-    const d = new Date(validityDate);
+  const isUpcoming = (dateStr: string) => {
+    const d = new Date(dateStr + "T12:00:00");
     const now = new Date();
-    const diff = d.getTime() - now.getTime();
-    return diff > 0 && diff < 7 * 24 * 60 * 60 * 1000;
+    return d >= now;
   };
 
   const filteredRecords = records.filter((r) => {
