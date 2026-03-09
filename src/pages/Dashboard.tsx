@@ -72,7 +72,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       const [profileRes, petRes] = await Promise.all([
         supabase.from("profiles").select("name").eq("user_id", user.id).maybeSingle(),
-        supabase.from("pets").select("name, species, breed, weight, sex, birth_date, photo_url").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle(),
+        supabase.from("pets").select("id, name, species, breed, weight, sex, birth_date, photo_url").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle(),
       ]);
 
       setProfile(profileRes.data);
