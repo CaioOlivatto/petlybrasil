@@ -386,6 +386,30 @@ export default function Prontuario() {
                 />
               </div>
 
+              {/* Medication-specific fields */}
+              {selectedCategory === "medicacao" && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Utilizar até quando?</label>
+                    <Input
+                      type="date"
+                      value={usageEndDate}
+                      onChange={(e) => setUsageEndDate(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Instruções (quantas vezes por dia)</label>
+                    <Input
+                      placeholder="Ex: 2x ao dia, de 12 em 12 horas"
+                      value={frequency}
+                      onChange={(e) => setFrequency(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+                </>
+              )}
+
               {/* Attachment */}
               {selectedCategory && categoriesWithAttachment.includes(selectedCategory) && (
                 <div className="space-y-2">
