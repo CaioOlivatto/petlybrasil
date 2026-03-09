@@ -41,6 +41,7 @@ export default function Onboarding() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [breedOpen, setBreedOpen] = useState(false);
   const [customBreed, setCustomBreed] = useState(false);
 
