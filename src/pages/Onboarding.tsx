@@ -42,6 +42,7 @@ export default function Onboarding() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [breedOpen, setBreedOpen] = useState(false);
+  const [customBreed, setCustomBreed] = useState(false);
 
   const [tutorForm, setTutorForm] = useState({
     tutor_name: "",
@@ -377,6 +378,7 @@ export default function Onboarding() {
                               value={breed}
                               onSelect={(v) => {
                                 setForm({ ...form, breed: v });
+                                setCustomBreed(false);
                                 setBreedOpen(false);
                               }}
                             >
@@ -384,11 +386,30 @@ export default function Onboarding() {
                               {breed}
                             </CommandItem>
                           ))}
+                          <CommandItem
+                            value="outra"
+                            onSelect={() => {
+                              setForm({ ...form, breed: "" });
+                              setCustomBreed(true);
+                              setBreedOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", customBreed ? "opacity-100" : "opacity-0")} />
+                            Outra (digitar manualmente)
+                          </CommandItem>
                         </CommandGroup>
                       </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
+                {customBreed && (
+                  <Input
+                    value={form.breed}
+                    onChange={(e) => setForm({ ...form, breed: e.target.value })}
+                    placeholder="Digite a raça do seu pet"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
           )}
