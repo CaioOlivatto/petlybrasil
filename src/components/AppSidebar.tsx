@@ -107,7 +107,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        {!collapsed && (
+        {!collapsed ? (
           <>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center text-xs font-bold text-sidebar-foreground">
@@ -125,6 +125,14 @@ export function AppSidebar() {
               🐾 A IA é educativa e preventiva. Não substitui diagnóstico veterinário.
             </p>
           </>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="mx-auto flex items-center justify-center h-9 w-9 rounded-lg text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            title="Sair"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
         )}
       </SidebarFooter>
     </Sidebar>
