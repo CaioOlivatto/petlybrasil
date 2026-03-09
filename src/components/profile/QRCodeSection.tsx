@@ -25,6 +25,9 @@ export function QRCodeSection({ pet, profile }: Props) {
       birth_date: pet.birth_date,
       weight: pet.weight,
       blood_type: pet.blood_type,
+      allergies: pet.allergies,
+      health_conditions: pet.health_conditions,
+      is_neutered: pet.is_neutered,
     } : null,
     tutor: profile ? {
       name: profile.name,
