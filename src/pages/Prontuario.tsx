@@ -190,7 +190,9 @@ export default function Prontuario() {
         notes: observations || null,
         attachment_url,
         attachment_name,
-      });
+        usage_end_date: selectedCategory === "medicacao" && usageEndDate ? usageEndDate : null,
+        frequency: selectedCategory === "medicacao" && frequency ? frequency : null,
+      } as any);
 
       if (error) throw error;
 
