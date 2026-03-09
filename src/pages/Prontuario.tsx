@@ -199,11 +199,11 @@ export default function Prontuario() {
       if (error) throw error;
 
       // Auto-create agenda events for medications with frequency
-      if (selectedCategory === "medicacao" && frequency && frequency !== "sob_demanda" && usageEndDate) {
+      if (selectedCategory === "medicacao" && frequency && frequency !== "sob_demanda" && usageEndDate && startTime) {
         const agendaEvents: any[] = [];
         const startDate = new Date(newDate + "T12:00:00");
         const endDate = new Date(usageEndDate + "T12:00:00");
-        
+
         const frequencyLabels: Record<string, string> = {
           "1x_dia": "1x/dia",
           "2x_dia": "2x/dia (12/12h)",
@@ -211,26 +211,45 @@ export default function Prontuario() {
           "4x_dia": "4x/dia (6/6h)",
           "semanal": "1x/semana",
         };
-        
+
+        // Calculate times based on frequency and start time
+        const calcTimes = (freq: string, start: string): string[] => {
+          const [h, m] = start.split(":").map(Number);
+          const pad = (n: number) => String(n).padStart(2, "0");
+          switch (freq) {
+            case "1x_dia": return [start];
+            case "2x_dia": return [start, `${pad((h + 12) % 24)}:${pad(m)}`];
+            case "3x_dia": return [start, `${pad((h + 8) % 24)}:${pad(m)}`, `${pad((h + 16) % 24)}:${pad(m)}`];
+            case "4x_dia": return [start, `${pad((h + 6) % 24)}:${pad(m)}`, `${pad((h + 12) % 24)}:${pad(m)}`, `${pad((h + 18) % 24)}:${pad(m)}`];
+            default: return [start];
+          }
+        };
+
+        const times = calcTimes(frequency, startTime);
         let intervalDays = 1;
         if (frequency === "semanal") intervalDays = 7;
-        
+
         const current = new Date(startDate);
         while (current <= endDate) {
-          agendaEvents.push({
-            user_id: user.id,
-            pet_id: pet.id,
-            title: `💊 ${newName} - ${frequencyLabels[frequency] || frequency}`,
-            category: "medicacao",
-            date: current.toISOString().split("T")[0],
-            notes: observations || null,
-            source: "medicacao",
-          });
+          const dateStr = current.toISOString().split("T")[0];
+          for (const t of times) {
+            agendaEvents.push({
+              user_id: user.id,
+              pet_id: pet.id,
+              title: `💊 ${newName} - ${t}`,
+              category: "medicacao",
+              date: dateStr,
+              time: t,
+              notes: `${frequencyLabels[frequency] || frequency}${observations ? " | " + observations : ""}`,
+              source: "medicacao",
+            });
+          }
           current.setDate(current.getDate() + intervalDays);
         }
 
-        if (agendaEvents.length > 0 && agendaEvents.length <= 365) {
+        if (agendaEvents.length > 0 && agendaEvents.length <= 1000) {
           await supabase.from("agenda_events").insert(agendaEvents as any);
+          toast.success(`${agendaEvents.length} lembretes adicionados à agenda!`);
         }
       }
 
