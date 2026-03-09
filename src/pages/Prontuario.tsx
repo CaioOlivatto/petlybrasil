@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   FileText,
   ArrowLeft,
@@ -30,6 +30,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
@@ -73,10 +76,13 @@ const mockRecords: Record[] = [
 
 export default function Prontuario() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>("exame");
+  const [showVaccineSchedule, setShowVaccineSchedule] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [pet, setPet] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const [newDate, setNewDate] = useState("");
@@ -84,6 +90,19 @@ export default function Prontuario() {
   const [validityDate, setValidityDate] = useState("");
   const [observations, setObservations] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("pets")
+      .select("*")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setPet(data);
+      });
+  }, [user]);
 
   const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
 
@@ -144,12 +163,22 @@ export default function Prontuario() {
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Prontuário</h1>
-              <p className="text-sm text-muted-foreground">Histórico completo de Lilly</p>
+              <p className="text-sm text-muted-foreground">Histórico completo de {pet?.name || "seu pet"}</p>
             </div>
           </div>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <div className="flex gap-3">
+          <Button
+            variant={showVaccineSchedule ? "default" : "outline"}
+            className={`h-12 px-5 text-base font-semibold rounded-xl ${showVaccineSchedule ? "bg-accent text-accent-foreground" : ""}`}
+            onClick={() => setShowVaccineSchedule(!showVaccineSchedule)}
+          >
+            <Syringe className="h-5 w-5 mr-2" />
+            Vacinas
+          </Button>
+
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
               <Plus className="h-5 w-5 mr-2" />
@@ -296,9 +325,17 @@ export default function Prontuario() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
-      {/* Filter tabs */}
+      {/* Vaccination Schedule */}
+      {showVaccineSchedule && pet && (
+        <VaccinationSchedule pet={pet} />
+      )}
+
+      {/* Show regular content only when not viewing vaccines */}
+      {!showVaccineSchedule && (
+      <>
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
@@ -455,6 +492,8 @@ export default function Prontuario() {
             );
           })}
         </div>
+      )}
+      </>
       )}
     </div>
   );

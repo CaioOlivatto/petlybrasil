@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      pet_vaccinations: {
+        Row: {
+          created_at: string
+          date_taken: string | null
+          id: string
+          notes: string | null
+          pet_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          vaccine_key: string
+        }
+        Insert: {
+          created_at?: string
+          date_taken?: string | null
+          id?: string
+          notes?: string | null
+          pet_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          vaccine_key: string
+        }
+        Update: {
+          created_at?: string
+          date_taken?: string | null
+          id?: string
+          notes?: string | null
+          pet_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vaccine_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_vaccinations_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pets: {
         Row: {
           allergies: string | null
