@@ -49,13 +49,6 @@ export default function Emergency() {
 
     const fetchData = async () => {
       try {
-        const { data: result, error: fnError } = await supabase.functions.invoke("emergency-data", {
-          body: null,
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        // Edge functions via invoke don't support query params easily, use fetch directly
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/emergency-data?pet_id=${petId}`,
           {
