@@ -80,8 +80,8 @@ export default function Onboarding() {
   };
 
   const handleFinish = async () => {
-    if (!user || !form.name || !tutorForm.tutor_name) {
-      toast.error("Nome do tutor e do pet são obrigatórios");
+    if (!user || !form.name || !tutorForm.tutor_name || !form.weight) {
+      toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
