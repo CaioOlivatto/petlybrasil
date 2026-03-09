@@ -26,7 +26,6 @@ const quickActions = [
   { title: "Vet. Perguntas", icon: HelpCircle, url: "/questoes-veterinario" },
 ];
 
-const periodTabs = ["Hoje", "7 dias", "30 dias"];
 
 function formatAge(birthDate: string | null): string {
   if (!birthDate) return "";
