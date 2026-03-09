@@ -2,3 +2,6 @@ project_id = "rtlbnrgszuwdpvmquyis"
 
 [functions.organize-questions]
 verify_jwt = false
+
+[functions.treino-dicas]
+verify_jwt = false
