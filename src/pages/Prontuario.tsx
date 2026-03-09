@@ -399,13 +399,33 @@ export default function Prontuario() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground">Instruções (quantas vezes por dia)</label>
-                    <Input
-                      placeholder="Ex: 2x ao dia, de 12 em 12 horas"
-                      value={frequency}
-                      onChange={(e) => setFrequency(e.target.value)}
-                      className="h-12"
-                    />
+                    <label className="text-sm font-semibold text-foreground">Frequência de uso *</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: "1x_dia", label: "1x ao dia" },
+                        { value: "2x_dia", label: "2x ao dia (12/12h)" },
+                        { value: "3x_dia", label: "3x ao dia (8/8h)" },
+                        { value: "4x_dia", label: "4x ao dia (6/6h)" },
+                        { value: "semanal", label: "1x por semana" },
+                        { value: "sob_demanda", label: "Sob demanda" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setFrequency(opt.value)}
+                          className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-center ${
+                            frequency === opt.value
+                              ? "border-accent bg-accent/10 text-accent"
+                              : "border-border text-muted-foreground hover:border-accent/50"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      💡 Os lembretes serão adicionados automaticamente à sua agenda
+                    </p>
                   </div>
                 </>
               )}
