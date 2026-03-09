@@ -266,11 +266,19 @@ export default function Prontuario() {
   const handleDelete = async () => {
     if (!recordToDelete) return;
 
-    // First delete associated agenda events
+    // Delete associated agenda events by source_record_id
     await supabase
       .from("agenda_events")
       .delete()
       .eq("source_record_id", recordToDelete.id);
+
+    // Also delete by name match as fallback (for records created before source_record_id was added)
+    await supabase
+      .from("agenda_events")
+      .delete()
+      .eq("source", "medicacao")
+      .like("title", `%${recordToDelete.name}%`)
+      .eq("user_id", user!.id);
 
     const { error } = await supabase
       .from("medical_records")
