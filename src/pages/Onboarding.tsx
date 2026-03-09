@@ -275,7 +275,7 @@ export default function Onboarding() {
               </p>
 
               <div className="text-left mb-6">
-                <Label className="font-semibold">Qual é o nome do seu pet?</Label>
+                <Label className="font-semibold">Qual é o nome do seu pet? *</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
