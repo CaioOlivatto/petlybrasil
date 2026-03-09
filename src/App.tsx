@@ -17,6 +17,7 @@ import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
 import PetzinhoIA from "./pages/PetzinhoIA";
+import Treino from "./pages/Treino";
 import Emergency from "./pages/Emergency";
 import Vacinas from "./pages/Vacinas";
 
