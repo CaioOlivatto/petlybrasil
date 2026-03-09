@@ -380,18 +380,18 @@ export default function Onboarding() {
                       <CommandList>
                         <CommandEmpty>Nenhuma raça encontrada</CommandEmpty>
                         <CommandGroup>
-                          {breeds.map((breed) => (
+                          {breeds.map((breedItem) => (
                             <CommandItem
-                              key={breed}
-                              value={breed}
-                              onSelect={(v) => {
-                                setForm({ ...form, breed: v });
+                              key={breedItem}
+                              value={breedItem}
+                              onSelect={() => {
+                                setForm((prev) => ({ ...prev, breed: breedItem }));
                                 setCustomBreed(false);
                                 setBreedOpen(false);
                               }}
                             >
-                              <Check className={cn("mr-2 h-4 w-4", form.breed === breed ? "opacity-100" : "opacity-0")} />
-                              {breed}
+                              <Check className={cn("mr-2 h-4 w-4", form.breed === breedItem ? "opacity-100" : "opacity-0")} />
+                              {breedItem}
                             </CommandItem>
                           ))}
                           <CommandItem
