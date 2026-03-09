@@ -319,6 +319,7 @@ export default function Prontuario() {
       </div>
 
       {/* Filter tabs */}
+      <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
           Filtrar por categoria:
