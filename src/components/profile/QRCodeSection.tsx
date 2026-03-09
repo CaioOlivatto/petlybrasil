@@ -25,6 +25,9 @@ export function QRCodeSection({ pet, profile }: Props) {
       birth_date: pet.birth_date,
       weight: pet.weight,
       blood_type: pet.blood_type,
+      allergies: pet.allergies,
+      health_conditions: pet.health_conditions,
+      is_neutered: pet.is_neutered,
     } : null,
     tutor: profile ? {
       name: profile.name,
@@ -33,7 +36,7 @@ export function QRCodeSection({ pet, profile }: Props) {
     } : null,
   });
 
-  const qrValue = `https://petly.app/emergency?data=${encodeURIComponent(btoa(emergencyData))}`;
+  const qrValue = `${window.location.origin}/emergency?data=${encodeURIComponent(btoa(emergencyData))}`;
 
   const handlePrint = () => {
     window.print();

@@ -17,6 +17,7 @@ import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
 import PetzinhoIA from "./pages/PetzinhoIA";
+import Emergency from "./pages/Emergency";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/emergency" element={<Emergency />} />
             <Route path="/onboarding" element={
               <ProtectedRoute><Onboarding /></ProtectedRoute>
             } />
