@@ -33,7 +33,7 @@ export function QRCodeSection({ pet, profile }: Props) {
     } : null,
   });
 
-  const qrValue = `https://petly.app/emergency?data=${encodeURIComponent(btoa(emergencyData))}`;
+  const qrValue = `${window.location.origin}/emergency?data=${encodeURIComponent(btoa(emergencyData))}`;
 
   const handlePrint = () => {
     window.print();
