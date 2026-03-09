@@ -325,9 +325,17 @@ export default function Prontuario() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
-      {/* Filter tabs */}
+      {/* Vaccination Schedule */}
+      {showVaccineSchedule && pet && (
+        <VaccinationSchedule pet={pet} />
+      )}
+
+      {/* Show regular content only when not viewing vaccines */}
+      {!showVaccineSchedule && (
+      <>
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Filter className="h-4 w-4" />
