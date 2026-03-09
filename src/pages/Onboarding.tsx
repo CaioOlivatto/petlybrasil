@@ -474,7 +474,7 @@ export default function Onboarding() {
 
               <div className="text-left space-y-4 max-h-[50vh] overflow-y-auto pr-1">
                 <div>
-                  <Label className="font-semibold">Peso atual (kg)</Label>
+                  <Label className="font-semibold">Peso atual (kg) *</Label>
                   <Input
                     type="number"
                     step="0.1"
