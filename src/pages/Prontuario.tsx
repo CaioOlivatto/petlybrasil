@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   FileText,
   ArrowLeft,
@@ -30,6 +30,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
