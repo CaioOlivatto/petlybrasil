@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.treino-dicas]
 verify_jwt = false
+
+[functions.emergency-data]
+verify_jwt = false
+
+[functions.petzinho-ia]
+verify_jwt = false
