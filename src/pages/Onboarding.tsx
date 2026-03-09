@@ -249,7 +249,7 @@ export default function Onboarding() {
                   />
                 </div>
                 <div>
-                  <Label className="font-semibold">Data de nascimento</Label>
+                  <Label className="font-semibold">Data de nascimento *</Label>
                   <Input
                     type="date"
                     value={tutorForm.tutor_birthday}
