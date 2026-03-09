@@ -148,7 +148,7 @@ const PetzinhoIA = () => {
   const showWelcome = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto">
+    <div className="flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto bg-card rounded-2xl border border-primary/20 shadow-md p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
