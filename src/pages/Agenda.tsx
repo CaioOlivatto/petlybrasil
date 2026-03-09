@@ -378,11 +378,11 @@ export default function Agenda() {
           }`}
         >
           <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-            <Clock className="h-6 w-6 text-destructive" />
+            <Clock className="h-6 w-6 text-muted-foreground" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-destructive">{overdue.length}</p>
-            <p className="text-sm font-medium text-foreground">Atrasadas</p>
+            <p className="text-2xl font-bold text-muted-foreground">{realized.length}</p>
+            <p className="text-sm font-medium text-foreground">Realizadas</p>
           </div>
         </button>
 
