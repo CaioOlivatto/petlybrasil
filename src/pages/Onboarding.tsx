@@ -433,7 +433,7 @@ export default function Onboarding() {
                 </div>
 
                 <div>
-                  <Label className="font-semibold mb-3 block">Sexo</Label>
+                  <Label className="font-semibold mb-3 block">Sexo *</Label>
                   <div className="grid grid-cols-2 gap-4">
                     {[
                       { value: "male", label: "Macho", emoji: "♂" },
