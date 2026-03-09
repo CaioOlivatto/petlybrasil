@@ -18,7 +18,7 @@ export const dogBreeds = [
   "Schnauzer Gigante", "Setter Irlandês", "Shar-Pei", "Shiba Inu", "Shih Tzu",
   "Staffordshire Bull Terrier", "Terra Nova", "Vizsla", "Weimaraner",
   "West Highland White Terrier", "Whippet", "Yorkshire Terrier",
-  "SRD (Sem Raça Definida)", "Outra"
+  "SRD (Sem Raça Definida)"
 ];
 
 export const catBreeds = [
