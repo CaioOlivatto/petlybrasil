@@ -18,6 +18,7 @@ import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
 import PetzinhoIA from "./pages/PetzinhoIA";
 import Emergency from "./pages/Emergency";
+import Vacinas from "./pages/Vacinas";
 
 const queryClient = new QueryClient();
 
