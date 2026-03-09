@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInYears, differenceInMonths, parseISO } from "date-fns";
+import { PetStatusCard } from "@/components/dashboard/PetStatusCard";
 
 const quickActions = [
   { title: "Prontuário", icon: FileText, url: "/prontuario" },
@@ -25,7 +26,6 @@ const quickActions = [
   { title: "Vet. Perguntas", icon: HelpCircle, url: "/questoes-veterinario" },
 ];
 
-const periodTabs = ["Hoje", "7 dias", "30 dias"];
 
 function formatAge(birthDate: string | null): string {
   if (!birthDate) return "";
@@ -54,6 +54,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ name: string | null } | null>(null);
   const [pet, setPet] = useState<{
+    id: string;
     name: string;
     species: string;
     breed: string | null;
@@ -70,7 +71,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       const [profileRes, petRes] = await Promise.all([
         supabase.from("profiles").select("name").eq("user_id", user.id).maybeSingle(),
-        supabase.from("pets").select("name, species, breed, weight, sex, birth_date, photo_url").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle(),
+        supabase.from("pets").select("id, name, species, breed, weight, sex, birth_date, photo_url").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle(),
       ]);
 
       setProfile(profileRes.data);
@@ -159,24 +160,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Status Section */}
-      <div className="border-2 border-accent/30 rounded-2xl p-4 sm:p-6 bg-background/80 backdrop-blur-sm">
-        <h3 className="text-base sm:text-lg font-bold text-foreground mb-3 sm:mb-4">Como {petName} está?</h3>
-        <div className="flex gap-2">
-          {periodTabs.map((tab, i) => (
-            <button
-              key={tab}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
-                i === 0
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Pet Status */}
+      {pet && <PetStatusCard petName={petName} petId={pet.id} />}
     </div>
   );
 }
