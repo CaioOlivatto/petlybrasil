@@ -88,7 +88,7 @@ export default function Perfil() {
               <QRCodeSection pet={pet} profile={profile} />
             )}
             {activeTab === "export" && (
-              <ExportDataSection />
+              <ExportDataSection pet={pet} profile={profile} />
             )}
           </div>
         </div>
