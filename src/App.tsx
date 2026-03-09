@@ -17,6 +17,7 @@ import QuestoesVeterinario from "./pages/QuestoesVeterinario";
 import Perfil from "./pages/Perfil";
 import Onboarding from "./pages/Onboarding";
 import PetzinhoIA from "./pages/PetzinhoIA";
+import Emergency from "./pages/Emergency";
 
 const queryClient = new QueryClient();
 
