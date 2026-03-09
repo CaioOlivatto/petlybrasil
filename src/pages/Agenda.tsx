@@ -175,9 +175,15 @@ export default function Agenda() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   const isMedication = (e: AgendaEvent) => e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
-  const overdue = eventos.filter((e) => e.date < todayStr && !isMedication(e));
-  const nextWeek = eventos.filter((e) => e.date >= todayStr && isNextWeek(e.date) && !isMedication(e));
-  const nextMonth = eventos.filter((e) => isNextMonth(e.date) && !isMedication(e));
+  const realized = eventos.filter((e) => e.date < todayStr && !isMedication(e));
+  const nextWeek = eventos.filter((e) => {
+    const days = daysFromNow(e.date);
+    return days >= 0 && days <= 7 && !isMedication(e);
+  });
+  const nextMonth = eventos.filter((e) => {
+    const days = daysFromNow(e.date);
+    return days > 7 && days <= 37 && !isMedication(e);
+  });
 
   const selectedDayEvents = eventos.filter(
     (e) => selectedDate && e.date === selectedDate.toISOString().split("T")[0]
