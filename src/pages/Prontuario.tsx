@@ -55,24 +55,7 @@ interface Record {
   notes: string;
 }
 
-const mockRecords: Record[] = [
-  {
-    id: "1",
-    category: "exame",
-    name: "Cardíaco",
-    date: "08/01/2026",
-    validity: "-",
-    notes: "-",
-  },
-  {
-    id: "2",
-    category: "vacina",
-    name: "V10 - Polivalente",
-    date: "15/02/2026",
-    validity: "15/02/2027",
-    notes: "Aplicada no pet shop",
-  },
-];
+const mockRecords: Record[] = [];
 
 export default function Prontuario() {
   const navigate = useNavigate();
