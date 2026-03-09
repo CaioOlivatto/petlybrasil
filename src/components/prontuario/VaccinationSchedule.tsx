@@ -180,7 +180,7 @@ export function VaccinationSchedule({ pet }: Props) {
   return (
     <div className="space-y-4">
       {/* Header info */}
-      <div className="bg-card border border-accent/20 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-carder border-accent/20 rounded-xl p-4 flex items-start gap-3">
         <Shield className="h-5 w-5 text-accent mt-0.5 shrink-0" />
         <div className="text-sm">
           <p className="font-semibold text-foreground">
@@ -195,7 +195,7 @@ export function VaccinationSchedule({ pet }: Props) {
       </div>
 
       {/* Tip */}
-      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-primacarder border-primary/20 rounded-xl p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
         <p className="text-xs text-muted-foreground">
           <strong>Dica veterinária:</strong> Nunca deixe filhotes pisarem no chão da rua antes da 3ª dose da vacina. Parvovirose e cinomose matam muitos filhotes.
