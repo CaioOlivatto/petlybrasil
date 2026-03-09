@@ -30,7 +30,7 @@ export const catBreeds = [
   "Ragdoll", "Russian Blue", "Savannah", "Scottish Fold",
   "Siamês", "Siberiano", "Singapura", "Somali",
   "Sphynx", "Tonquinês", "Turkish Van",
-  "SRD (Sem Raça Definida)", "Outra"
+  "SRD (Sem Raça Definida)"
 ];
 
 export const bloodTypes = [
