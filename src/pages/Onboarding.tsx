@@ -363,7 +363,7 @@ export default function Onboarding() {
               </div>
 
               <div className="text-left">
-                <Label className="font-semibold mb-2 block">Qual é a raça?</Label>
+                <Label className="font-semibold mb-2 block">Qual é a raça? *</Label>
                 <Popover open={breedOpen} onOpenChange={setBreedOpen}>
                   <PopoverTrigger asChild>
                     <Button
