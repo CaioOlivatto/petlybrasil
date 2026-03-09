@@ -9,6 +9,7 @@ import {
   HelpCircle,
   User,
   LogOut,
+  FolderOpen,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -38,6 +39,7 @@ const menuItems = [
   { title: "Treino", url: "/treino", icon: Dumbbell },
   { title: "Petlyzinho IA", url: "/petzinho-ia", icon: Bot },
   { title: "Questões Veterinário", url: "/questoes-veterinario", icon: HelpCircle },
+  { title: "Documentos", url: "/documentos", icon: FolderOpen },
   { title: "Perfil", url: "/perfil", icon: User },
 ];
 

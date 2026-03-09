@@ -20,6 +20,7 @@ import PetzinhoIA from "./pages/PetzinhoIA";
 import Treino from "./pages/Treino";
 import Emergency from "./pages/Emergency";
 import Vacinas from "./pages/Vacinas";
+import Documentos from "./pages/Documentos";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/treino" element={<Treino />} />
               <Route path="/petzinho-ia" element={<PetzinhoIA />} />
               <Route path="/questoes-veterinario" element={<QuestoesVeterinario />} />
+              <Route path="/documentos" element={<Documentos />} />
               <Route path="/perfil" element={<Perfil />} />
             </Route>
             <Route path="*" element={<NotFound />} />
