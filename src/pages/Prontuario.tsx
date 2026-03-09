@@ -62,7 +62,7 @@ export default function Prontuario() {
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedCategory, setExpandedCategory] = useState<string | null>("exame");
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pet, setPet] = useState<any>(null);
