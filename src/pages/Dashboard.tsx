@@ -161,24 +161,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Status Section */}
-      <div className="border-2 border-accent/30 rounded-2xl p-4 sm:p-6 bg-background/80 backdrop-blur-sm">
-        <h3 className="text-base sm:text-lg font-bold text-foreground mb-3 sm:mb-4">Como {petName} está?</h3>
-        <div className="flex gap-2">
-          {periodTabs.map((tab, i) => (
-            <button
-              key={tab}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
-                i === 0
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Pet Status */}
+      {pet && <PetStatusCard petName={petName} petId={pet.id} />}
     </div>
   );
 }
