@@ -196,6 +196,42 @@ export default function Prontuario() {
 
       if (error) throw error;
 
+      // Auto-create agenda events for medications with frequency
+      if (selectedCategory === "medicacao" && frequency && frequency !== "sob_demanda" && usageEndDate) {
+        const agendaEvents: any[] = [];
+        const startDate = new Date(newDate + "T12:00:00");
+        const endDate = new Date(usageEndDate + "T12:00:00");
+        
+        const frequencyLabels: Record<string, string> = {
+          "1x_dia": "1x/dia",
+          "2x_dia": "2x/dia (12/12h)",
+          "3x_dia": "3x/dia (8/8h)",
+          "4x_dia": "4x/dia (6/6h)",
+          "semanal": "1x/semana",
+        };
+        
+        let intervalDays = 1;
+        if (frequency === "semanal") intervalDays = 7;
+        
+        const current = new Date(startDate);
+        while (current <= endDate) {
+          agendaEvents.push({
+            user_id: user.id,
+            pet_id: pet.id,
+            title: `💊 ${newName} - ${frequencyLabels[frequency] || frequency}`,
+            category: "medicacao",
+            date: current.toISOString().split("T")[0],
+            notes: observations || null,
+            source: "medicacao",
+          });
+          current.setDate(current.getDate() + intervalDays);
+        }
+
+        if (agendaEvents.length > 0 && agendaEvents.length <= 365) {
+          await supabase.from("agenda_events").insert(agendaEvents as any);
+        }
+      }
+
       toast.success("Registro salvo com sucesso!");
       resetForm();
       fetchRecords();
