@@ -41,6 +41,7 @@ export default function Onboarding() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [breedOpen, setBreedOpen] = useState(false);
   const [customBreed, setCustomBreed] = useState(false);
 
@@ -291,7 +292,7 @@ export default function Onboarding() {
                   </div>
                 </div>
                 <div className="flex justify-center gap-3 mb-2">
-                  <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+                  <Button variant="outline" size="sm" onClick={() => cameraRef.current?.click()}>
                     <Camera className="h-4 w-4 mr-2" /> Tirar foto
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
@@ -300,10 +301,17 @@ export default function Onboarding() {
                 </div>
                 <p className="text-xs text-muted-foreground">Opcional - Máximo 5MB (JPG, PNG, WebP)</p>
                 <input
-                  ref={fileRef}
+                  ref={cameraRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   capture="environment"
+                  className="hidden"
+                  onChange={handlePhotoSelect}
+                />
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
                   className="hidden"
                   onChange={handlePhotoSelect}
                 />
