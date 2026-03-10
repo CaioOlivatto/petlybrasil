@@ -195,6 +195,8 @@ const Diario = () => {
       atividade_mental: checkIn.atividadeMental,
       mudanca_rotina: checkIn.mudancaRotina,
       observacoes: checkIn.observacoes,
+      convulsao: checkIn.convulsao,
+      convulsao_quantidade: checkIn.convulsao ? checkIn.convulsaoQuantidade : 0,
     };
 
     const { error } = await supabase
