@@ -19,6 +19,8 @@ type CheckInData = {
   humor: string;
   alteracoes: string[];
   passeio: boolean | null;
+  passeioQuantidade: number;
+  passeioDuracao: string;
   atividadeMental: boolean | null;
   mudancaRotina: string;
   observacoes: string;
