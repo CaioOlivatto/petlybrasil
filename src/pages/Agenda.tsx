@@ -64,6 +64,9 @@ const typeToCategory: Record<string, string> = {
   vermifugo: "Vermífugo",
   medicacao: "Medicação",
   procedimento: "Procedimento",
+  "banho-tosa": "Banho / Tosa",
+  "atividade-semanal": "Atividade Semanal",
+  "atividade-mensal": "Atividade Mensal",
   outro: "Outro",
 };
 
@@ -74,6 +77,9 @@ const typeToIcon: Record<string, typeof Syringe> = {
   vermifugo: CalendarIcon,
   medicacao: Pill,
   procedimento: CalendarIcon,
+  "banho-tosa": Scissors,
+  "atividade-semanal": Repeat,
+  "atividade-mensal": Repeat,
   outro: CalendarIcon,
 };
 
