@@ -405,7 +405,7 @@ const Diario = () => {
               ].map((opt) => (
                 <button
                   key={String(opt.value)}
-                  onClick={() => setCheckIn((p) => ({ ...p, passeio: opt.value }))}
+                  onClick={() => setCheckIn((p) => ({ ...p, passeio: opt.value, passeioQuantidade: opt.value ? Math.max(p.passeioQuantidade, 1) : 0, passeioDuracao: opt.value ? p.passeioDuracao : "" }))}
                   className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                     checkIn.passeio === opt.value
                       ? "border-secondary bg-secondary/10 text-secondary"
@@ -416,6 +416,40 @@ const Diario = () => {
                 </button>
               ))}
             </div>
+            {checkIn.passeio && (
+              <div className="mt-3 space-y-3 p-3 rounded-xl border-2 border-secondary/20 bg-secondary/5">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-foreground">Quantos passeios?</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: Math.max(1, p.passeioQuantidade - 1) }))}
+                      className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
+                    >−</button>
+                    <span className="text-lg font-bold text-secondary min-w-[2rem] text-center">{checkIn.passeioQuantidade}</span>
+                    <button
+                      onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: p.passeioQuantidade + 1 }))}
+                      className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
+                    >+</button>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-foreground block mb-1">Duração (opcional)</span>
+                  <div className="flex flex-wrap gap-2">
+                    {["15 min", "30 min", "45 min", "1h", "1h30", "2h+"].map((dur) => (
+                      <button
+                        key={dur}
+                        onClick={() => setCheckIn((p) => ({ ...p, passeioDuracao: p.passeioDuracao === dur ? "" : dur }))}
+                        className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                          checkIn.passeioDuracao === dur
+                            ? "border-secondary bg-secondary/10 text-secondary font-medium"
+                            : "border-border bg-background hover:border-secondary/40"
+                        }`}
+                      >{dur}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Atividade Mental */}
