@@ -72,6 +72,8 @@ export type Database = {
           alteracoes: string[] | null
           apetite: string | null
           atividade_mental: boolean | null
+          convulsao: boolean | null
+          convulsao_quantidade: number | null
           created_at: string
           date: string
           energia: string | null
@@ -89,6 +91,8 @@ export type Database = {
           alteracoes?: string[] | null
           apetite?: string | null
           atividade_mental?: boolean | null
+          convulsao?: boolean | null
+          convulsao_quantidade?: number | null
           created_at?: string
           date?: string
           energia?: string | null
@@ -106,6 +110,8 @@ export type Database = {
           alteracoes?: string[] | null
           apetite?: string | null
           atividade_mental?: boolean | null
+          convulsao?: boolean | null
+          convulsao_quantidade?: number | null
           created_at?: string
           date?: string
           energia?: string | null
