@@ -19,6 +19,8 @@ type CheckInData = {
   humor: string;
   alteracoes: string[];
   passeio: boolean | null;
+  passeioQuantidade: number;
+  passeioDuracao: string;
   atividadeMental: boolean | null;
   mudancaRotina: string;
   observacoes: string;
@@ -87,6 +89,8 @@ const Diario = () => {
     humor: "",
     alteracoes: [],
     passeio: null,
+    passeioQuantidade: 0,
+    passeioDuracao: "",
     atividadeMental: null,
     mudancaRotina: "nenhuma",
     observacoes: "",
@@ -132,6 +136,8 @@ const Diario = () => {
           humor: row.humor || "",
           alteracoes: row.alteracoes || [],
           passeio: row.passeio,
+          passeioQuantidade: row.passeio_quantidade || 0,
+          passeioDuracao: row.passeio_duracao || "",
           atividadeMental: row.atividade_mental,
           mudancaRotina: row.mudanca_rotina || "nenhuma",
           observacoes: row.observacoes || "",
@@ -192,6 +198,8 @@ const Diario = () => {
       humor: checkIn.humor,
       alteracoes: checkIn.alteracoes,
       passeio: checkIn.passeio,
+      passeio_quantidade: checkIn.passeio ? checkIn.passeioQuantidade : 0,
+      passeio_duracao: checkIn.passeio ? checkIn.passeioDuracao || null : null,
       atividade_mental: checkIn.atividadeMental,
       mudanca_rotina: checkIn.mudancaRotina,
       observacoes: checkIn.observacoes,
@@ -221,6 +229,8 @@ const Diario = () => {
       humor: "",
       alteracoes: [],
       passeio: null,
+      passeioQuantidade: 0,
+      passeioDuracao: "",
       atividadeMental: null,
       mudancaRotina: "nenhuma",
       observacoes: "",
@@ -394,7 +404,7 @@ const Diario = () => {
               ].map((opt) => (
                 <button
                   key={String(opt.value)}
-                  onClick={() => setCheckIn((p) => ({ ...p, passeio: opt.value }))}
+                  onClick={() => setCheckIn((p) => ({ ...p, passeio: opt.value, passeioQuantidade: opt.value ? Math.max(p.passeioQuantidade, 1) : 0, passeioDuracao: opt.value ? p.passeioDuracao : "" }))}
                   className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                     checkIn.passeio === opt.value
                       ? "border-secondary bg-secondary/10 text-secondary"
@@ -405,6 +415,40 @@ const Diario = () => {
                 </button>
               ))}
             </div>
+            {checkIn.passeio && (
+              <div className="mt-3 space-y-3 p-3 rounded-xl border-2 border-secondary/20 bg-secondary/5">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-foreground">Quantos passeios?</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: Math.max(1, p.passeioQuantidade - 1) }))}
+                      className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
+                    >−</button>
+                    <span className="text-lg font-bold text-secondary min-w-[2rem] text-center">{checkIn.passeioQuantidade}</span>
+                    <button
+                      onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: p.passeioQuantidade + 1 }))}
+                      className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
+                    >+</button>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-foreground block mb-1">Duração (opcional)</span>
+                  <div className="flex flex-wrap gap-2">
+                    {["15 min", "30 min", "45 min", "1h", "1h30", "2h+"].map((dur) => (
+                      <button
+                        key={dur}
+                        onClick={() => setCheckIn((p) => ({ ...p, passeioDuracao: p.passeioDuracao === dur ? "" : dur }))}
+                        className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                          checkIn.passeioDuracao === dur
+                            ? "border-secondary bg-secondary/10 text-secondary font-medium"
+                            : "border-border bg-background hover:border-secondary/40"
+                        }`}
+                      >{dur}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Atividade Mental */}
@@ -593,7 +637,9 @@ const Diario = () => {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs">
                     <span className={`px-2 py-1 rounded-md ${entry.passeio ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                      {entry.passeio ? "🐕 Passeou" : "Sem passeio"}
+                      {entry.passeio 
+                        ? `🐕 ${entry.passeioQuantidade || 1}x passeio${entry.passeioDuracao ? ` (${entry.passeioDuracao})` : ""}` 
+                        : "Sem passeio"}
                     </span>
                     <span className={`px-2 py-1 rounded-md ${entry.atividadeMental ? "bg-blue-100 text-blue-700" : "bg-muted text-muted-foreground"}`}>
                       {entry.atividadeMental ? "🧠 Atividade mental" : "Sem atividade mental"}
