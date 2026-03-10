@@ -22,6 +22,8 @@ type CheckInData = {
   atividadeMental: boolean | null;
   mudancaRotina: string;
   observacoes: string;
+  convulsao: boolean;
+  convulsaoQuantidade: number;
 };
 
 type HistoryEntry = CheckInData & {
