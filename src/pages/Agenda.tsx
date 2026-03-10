@@ -13,6 +13,8 @@ import {
   Pencil,
   Loader2,
   Pill,
+  Scissors,
+  Repeat,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -62,6 +64,9 @@ const typeToCategory: Record<string, string> = {
   vermifugo: "Vermífugo",
   medicacao: "Medicação",
   procedimento: "Procedimento",
+  "banho-tosa": "Banho / Tosa",
+  "atividade-semanal": "Atividade Semanal",
+  "atividade-mensal": "Atividade Mensal",
   outro: "Outro",
 };
 
@@ -72,6 +77,9 @@ const typeToIcon: Record<string, typeof Syringe> = {
   vermifugo: CalendarIcon,
   medicacao: Pill,
   procedimento: CalendarIcon,
+  "banho-tosa": Scissors,
+  "atividade-semanal": Repeat,
+  "atividade-mensal": Repeat,
   outro: CalendarIcon,
 };
 
@@ -126,6 +134,7 @@ export default function Agenda() {
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
   const [eventNotes, setEventNotes] = useState("");
+  const [repeatEnabled, setRepeatEnabled] = useState(false);
 
   // Detail dialog
   const [detailEvent, setDetailEvent] = useState<AgendaEvent | null>(null);
@@ -199,6 +208,7 @@ export default function Agenda() {
     setEventDate("");
     setEventTime("");
     setEventNotes("");
+    setRepeatEnabled(false);
   };
 
   const openCreateDialog = () => {
@@ -238,18 +248,33 @@ export default function Agenda() {
         if (error) throw error;
         toast({ title: "Evento atualizado", description: `"${eventTitle}" foi atualizado.` });
       } else {
-        const { error } = await supabase.from("agenda_events").insert({
-          user_id: user.id,
-          pet_id: pet.id,
-          title: eventTitle,
-          category,
-          date: eventDate,
-          time: eventTime || null,
-          notes: eventNotes || null,
-          source: "manual",
-        } as any);
+        const isWeekly = eventType === "atividade-semanal" && repeatEnabled;
+        const isMonthly = eventType === "atividade-mensal" && repeatEnabled;
+        const occurrences = isWeekly ? 12 : isMonthly ? 6 : 1;
+        
+        const eventsToInsert = [];
+        for (let i = 0; i < occurrences; i++) {
+          const baseDate = new Date(eventDate + "T12:00:00");
+          if (isWeekly) baseDate.setDate(baseDate.getDate() + i * 7);
+          if (isMonthly) baseDate.setMonth(baseDate.getMonth() + i);
+          eventsToInsert.push({
+            user_id: user.id,
+            pet_id: pet.id,
+            title: eventTitle,
+            category,
+            date: baseDate.toISOString().split("T")[0],
+            time: eventTime || null,
+            notes: eventNotes || null,
+            source: "manual",
+          });
+        }
+        
+        const { error } = await supabase.from("agenda_events").insert(eventsToInsert as any);
         if (error) throw error;
-        toast({ title: "Evento criado", description: `"${eventTitle}" foi adicionado à agenda.` });
+        const desc = occurrences > 1 
+          ? `"${eventTitle}" — ${occurrences} eventos criados.`
+          : `"${eventTitle}" foi adicionado à agenda.`;
+        toast({ title: "Evento criado", description: desc });
       }
       resetEventForm();
       fetchEvents();
@@ -653,6 +678,9 @@ export default function Agenda() {
                   <SelectItem value="vermifugo">Vermífugo</SelectItem>
                   <SelectItem value="medicacao">Medicação</SelectItem>
                   <SelectItem value="procedimento">Procedimento</SelectItem>
+                  <SelectItem value="banho-tosa">Banho / Tosa</SelectItem>
+                  <SelectItem value="atividade-semanal">Atividade Semanal</SelectItem>
+                  <SelectItem value="atividade-mensal">Atividade Mensal</SelectItem>
                   <SelectItem value="outro">Outro</SelectItem>
                 </SelectContent>
               </Select>
@@ -688,6 +716,28 @@ export default function Agenda() {
                 />
               </div>
             </div>
+
+            {(eventType === "atividade-semanal" || eventType === "atividade-mensal") && !editingEvent && (
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-accent/20 bg-accent/5">
+                <Repeat className="h-5 w-5 text-accent shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Repetir {eventType === "atividade-semanal" ? "toda semana" : "todo mês"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {eventType === "atividade-semanal"
+                      ? "Cria 12 eventos semanais no mesmo horário"
+                      : "Cria 6 eventos mensais no mesmo horário"}
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={repeatEnabled}
+                  onChange={(e) => setRepeatEnabled(e.target.checked)}
+                  className="h-5 w-5 accent-accent rounded"
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">Observações (opcional)</label>
