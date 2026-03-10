@@ -224,6 +224,8 @@ const Diario = () => {
       atividadeMental: null,
       mudancaRotina: "nenhuma",
       observacoes: "",
+      convulsao: false,
+      convulsaoQuantidade: 0,
     });
     toast({
       title: "Check-in salvo! 🐾",
