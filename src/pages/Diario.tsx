@@ -198,6 +198,8 @@ const Diario = () => {
       humor: checkIn.humor,
       alteracoes: checkIn.alteracoes,
       passeio: checkIn.passeio,
+      passeio_quantidade: checkIn.passeio ? checkIn.passeioQuantidade : 0,
+      passeio_duracao: checkIn.passeio ? checkIn.passeioDuracao || null : null,
       atividade_mental: checkIn.atividadeMental,
       mudanca_rotina: checkIn.mudancaRotina,
       observacoes: checkIn.observacoes,
