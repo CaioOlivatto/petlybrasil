@@ -23,24 +23,36 @@ const PetzinhoIA = () => {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [petName, setPetName] = useState("");
-  const [petSpecies, setPetSpecies] = useState("");
+  const [petContext, setPetContext] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("pets")
-      .select("name, species")
-      .eq("user_id", user.id)
-      .limit(1)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setPetName(data.name);
-          setPetSpecies(data.species);
-        }
+    const fetchContext = async () => {
+      const [petRes, profileRes] = await Promise.all([
+        supabase.from("pets").select("*").eq("user_id", user.id).limit(1).maybeSingle(),
+        supabase.from("profiles").select("name").eq("user_id", user.id).maybeSingle(),
+      ]);
+      const pet = petRes.data;
+      if (!pet) return;
+
+      const [checkinsRes, medicalRes, vaccinesRes, agendaRes] = await Promise.all([
+        supabase.from("daily_checkins").select("*").eq("pet_id", pet.id).order("date", { ascending: false }).limit(7),
+        supabase.from("medical_records").select("*").eq("pet_id", pet.id).order("date", { ascending: false }).limit(20),
+        supabase.from("pet_vaccinations").select("*").eq("pet_id", pet.id),
+        supabase.from("agenda_events").select("*").eq("pet_id", pet.id).order("date", { ascending: true }).limit(10),
+      ]);
+
+      setPetContext({
+        pet,
+        tutorName: profileRes.data?.name || "",
+        recentCheckins: checkinsRes.data || [],
+        medicalRecords: medicalRes.data || [],
+        vaccinations: vaccinesRes.data || [],
+        upcomingEvents: agendaRes.data || [],
       });
+    };
+    fetchContext();
   }, [user]);
 
   useEffect(() => {
