@@ -135,6 +135,8 @@ const Diario = () => {
           atividadeMental: row.atividade_mental,
           mudancaRotina: row.mudanca_rotina || "nenhuma",
           observacoes: row.observacoes || "",
+          convulsao: row.convulsao || false,
+          convulsaoQuantidade: row.convulsao_quantidade || 0,
         }))
       );
     }
