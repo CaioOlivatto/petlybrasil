@@ -90,6 +90,8 @@ const Diario = () => {
     atividadeMental: null,
     mudancaRotina: "nenhuma",
     observacoes: "",
+    convulsao: false,
+    convulsaoQuantidade: 0,
   });
 
   const [historyFilter, setHistoryFilter] = useState<"hoje" | "semana" | "mes">("hoje");
