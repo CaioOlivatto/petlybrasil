@@ -127,19 +127,91 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, petName, petSpecies } = await req.json();
+    const { messages, petContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const speciesLabel = petSpecies === "dog" ? "cachorro" : petSpecies === "cat" ? "gato" : "pet";
+    const pet = petContext?.pet || {};
+    const petName = pet.name || "pet";
+    const speciesLabel = pet.species === "dog" ? "cachorro" : pet.species === "cat" ? "gato" : "pet";
+
+    // Build pet profile summary
+    const profileParts: string[] = [];
+    profileParts.push(`Nome: ${petName}`);
+    profileParts.push(`Espécie: ${speciesLabel}`);
+    if (pet.breed) profileParts.push(`Raça: ${pet.breed}`);
+    if (pet.sex) profileParts.push(`Sexo: ${pet.sex === "male" ? "Macho" : "Fêmea"}`);
+    if (pet.birth_date) profileParts.push(`Data de nascimento: ${pet.birth_date}`);
+    if (pet.weight) profileParts.push(`Peso: ${pet.weight} kg`);
+    if (pet.blood_type) profileParts.push(`Tipo sanguíneo: ${pet.blood_type}`);
+    if (pet.is_neutered) profileParts.push(`Castrado(a): Sim`);
+    if (pet.allergies) profileParts.push(`Alergias: ${pet.allergies}`);
+    if (pet.health_conditions) profileParts.push(`Condições de saúde/doenças crônicas: ${pet.health_conditions}`);
+
+    // Recent checkins
+    const checkins = petContext?.recentCheckins || [];
+    let checkinSummary = "";
+    if (checkins.length > 0) {
+      checkinSummary = "\n\n== ÚLTIMOS CHECK-INS DO DIÁRIO ==\n";
+      checkins.forEach((c: any) => {
+        const parts = [`Data: ${c.date}`];
+        if (c.energia) parts.push(`Energia: ${c.energia}`);
+        if (c.apetite) parts.push(`Apetite: ${c.apetite}`);
+        if (c.sono) parts.push(`Sono: ${c.sono}`);
+        if (c.humor) parts.push(`Humor: ${c.humor}`);
+        if (c.passeio !== null) parts.push(`Passeio: ${c.passeio ? "Sim" : "Não"}`);
+        if (c.convulsao) parts.push(`⚠️ CONVULSÃO: ${c.convulsao_quantidade || 1}x`);
+        if (c.alteracoes?.length > 0) parts.push(`Alterações: ${c.alteracoes.join(", ")}`);
+        if (c.observacoes) parts.push(`Obs: ${c.observacoes}`);
+        checkinSummary += parts.join(" | ") + "\n";
+      });
+    }
+
+    // Medical records
+    const records = petContext?.medicalRecords || [];
+    let medicalSummary = "";
+    if (records.length > 0) {
+      medicalSummary = "\n\n== PRONTUÁRIO MÉDICO ==\n";
+      records.forEach((r: any) => {
+        medicalSummary += `- ${r.date}: [${r.category}] ${r.name}${r.notes ? ` (${r.notes})` : ""}\n`;
+      });
+    }
+
+    // Vaccinations
+    const vaccines = petContext?.vaccinations || [];
+    let vaccineSummary = "";
+    if (vaccines.length > 0) {
+      vaccineSummary = "\n\n== VACINAS ==\n";
+      vaccines.forEach((v: any) => {
+        vaccineSummary += `- ${v.vaccine_key}: ${v.status}${v.date_taken ? ` (${v.date_taken})` : ""}\n`;
+      });
+    }
+
+    // Upcoming events
+    const events = petContext?.upcomingEvents || [];
+    let eventsSummary = "";
+    if (events.length > 0) {
+      eventsSummary = "\n\n== PRÓXIMOS EVENTOS NA AGENDA ==\n";
+      events.forEach((e: any) => {
+        eventsSummary += `- ${e.date}: ${e.title} [${e.category}]${e.time ? ` às ${e.time}` : ""}\n`;
+      });
+    }
+
+    const petDataContext = `\n\n=== DADOS COMPLETOS DO PET ===\n${profileParts.join("\n")}${checkinSummary}${medicalSummary}${vaccineSummary}${eventsSummary}`;
+
+    const tutorName = petContext?.tutorName || "Tutor";
 
     const systemPrompt = `Você é o Petlyzinho, um assistente veterinário virtual especializado em cães e gatos. Você é carinhoso, profissional e direto.
 
-CONTEXTO: O tutor tem um ${speciesLabel} chamado ${petName || "pet"}.
+CONTEXTO: O tutor "${tutorName}" tem um ${speciesLabel} chamado ${petName}.
+
+${petDataContext}
 
 REGRAS FUNDAMENTAIS DE VERACIDADE:
 - NUNCA invente, fabrique ou alucine informações. Se não souber a resposta com certeza, diga claramente "Não tenho certeza sobre isso" ou "Não possuo informação suficiente para responder com segurança".
-- Baseie TODAS as respostas prioritariamente na BASE DE CONHECIMENTO fornecida abaixo e em conhecimento veterinário consolidado e amplamente aceito.
+- Baseie TODAS as respostas prioritariamente na BASE DE CONHECIMENTO fornecida abaixo, nos DADOS DO PET acima, e em conhecimento veterinário consolidado e amplamente aceito.
+- Use os dados do pet (check-ins, prontuário, alergias, condições de saúde) para contextualizar suas respostas. Por exemplo, se o pet tem alergias registradas, leve isso em conta ao recomendar alimentação.
+- Se notar padrões preocupantes nos check-ins (ex: convulsões recorrentes, energia baixa por vários dias), alerte o tutor proativamente.
 - Quando a informação estiver na base de conhecimento, use-a como fonte principal.
 - NUNCA cite estudos, artigos, livros ou fontes específicas a menos que tenha certeza absoluta de que existem.
 - Se a pergunta estiver fora do seu conhecimento E fora da base de conhecimento, recomende que o tutor consulte um veterinário presencialmente.
