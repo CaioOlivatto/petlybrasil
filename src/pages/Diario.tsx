@@ -637,7 +637,9 @@ const Diario = () => {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2 text-xs">
                     <span className={`px-2 py-1 rounded-md ${entry.passeio ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                      {entry.passeio ? "🐕 Passeou" : "Sem passeio"}
+                      {entry.passeio 
+                        ? `🐕 ${entry.passeioQuantidade || 1}x passeio${entry.passeioDuracao ? ` (${entry.passeioDuracao})` : ""}` 
+                        : "Sem passeio"}
                     </span>
                     <span className={`px-2 py-1 rounded-md ${entry.atividadeMental ? "bg-blue-100 text-blue-700" : "bg-muted text-muted-foreground"}`}>
                       {entry.atividadeMental ? "🧠 Atividade mental" : "Sem atividade mental"}
