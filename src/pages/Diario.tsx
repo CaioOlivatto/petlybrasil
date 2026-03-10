@@ -229,11 +229,14 @@ const Diario = () => {
       humor: "",
       alteracoes: [],
       passeio: null,
+      passeioQuantidade: 0,
+      passeioDuracao: "",
       atividadeMental: null,
       mudancaRotina: "nenhuma",
       observacoes: "",
       convulsao: false,
       convulsaoQuantidade: 0,
+    });
     });
     toast({
       title: "Check-in salvo! 🐾",
