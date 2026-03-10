@@ -82,6 +82,8 @@ export type Database = {
           mudanca_rotina: string | null
           observacoes: string | null
           passeio: boolean | null
+          passeio_duracao: string | null
+          passeio_quantidade: number | null
           pet_id: string
           sono: string | null
           updated_at: string
@@ -101,6 +103,8 @@ export type Database = {
           mudanca_rotina?: string | null
           observacoes?: string | null
           passeio?: boolean | null
+          passeio_duracao?: string | null
+          passeio_quantidade?: number | null
           pet_id: string
           sono?: string | null
           updated_at?: string
@@ -120,6 +124,8 @@ export type Database = {
           mudanca_rotina?: string | null
           observacoes?: string | null
           passeio?: boolean | null
+          passeio_duracao?: string | null
+          passeio_quantidade?: number | null
           pet_id?: string
           sono?: string | null
           updated_at?: string
