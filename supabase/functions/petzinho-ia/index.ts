@@ -141,7 +141,18 @@ serve(async (req) => {
     profileParts.push(`Espécie: ${speciesLabel}`);
     if (pet.breed) profileParts.push(`Raça: ${pet.breed}`);
     if (pet.sex) profileParts.push(`Sexo: ${pet.sex === "male" ? "Macho" : "Fêmea"}`);
-    if (pet.birth_date) profileParts.push(`Data de nascimento: ${pet.birth_date}`);
+    if (pet.birth_date) {
+      profileParts.push(`Data de nascimento: ${pet.birth_date}`);
+      const birth = new Date(pet.birth_date);
+      const now = new Date();
+      const totalMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+      const years = Math.floor(totalMonths / 12);
+      const months = totalMonths % 12;
+      const ageStr = years >= 1 
+        ? `${years} ano${years > 1 ? "s" : ""}${months > 0 ? ` e ${months} ${months > 1 ? "meses" : "mês"}` : ""}`
+        : totalMonths > 0 ? `${totalMonths} ${totalMonths > 1 ? "meses" : "mês"}` : "Filhote (menos de 1 mês)";
+      profileParts.push(`Idade: ${ageStr}`);
+    }
     if (pet.weight) profileParts.push(`Peso: ${pet.weight} kg`);
     if (pet.blood_type) profileParts.push(`Tipo sanguíneo: ${pet.blood_type}`);
     if (pet.is_neutered) profileParts.push(`Castrado(a): Sim`);
