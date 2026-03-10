@@ -195,7 +195,7 @@ const PetzinhoIA = () => {
             </p>
             <p className="text-muted-foreground text-sm mb-8 max-w-md">
               Estou aqui para ajudar com dúvidas sobre cuidados, alimentação,
-              comportamento e bem-estar de {petName || "seu pet"}.
+              comportamento e bem-estar de {petContext?.pet?.name || "seu pet"}.
             </p>
 
             <div className="w-full max-w-md space-y-2">
