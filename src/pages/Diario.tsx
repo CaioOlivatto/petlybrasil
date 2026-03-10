@@ -237,7 +237,6 @@ const Diario = () => {
       convulsao: false,
       convulsaoQuantidade: 0,
     });
-    });
     toast({
       title: "Check-in salvo! 🐾",
       description: "O registro de hoje foi salvo com sucesso.",
