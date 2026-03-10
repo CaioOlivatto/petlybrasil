@@ -717,6 +717,28 @@ export default function Agenda() {
               </div>
             </div>
 
+            {(eventType === "atividade-semanal" || eventType === "atividade-mensal") && !editingEvent && (
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-accent/20 bg-accent/5">
+                <Repeat className="h-5 w-5 text-accent shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Repetir {eventType === "atividade-semanal" ? "toda semana" : "todo mês"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {eventType === "atividade-semanal"
+                      ? "Cria 12 eventos semanais no mesmo horário"
+                      : "Cria 6 eventos mensais no mesmo horário"}
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={repeatEnabled}
+                  onChange={(e) => setRepeatEnabled(e.target.checked)}
+                  className="h-5 w-5 accent-accent rounded"
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">Observações (opcional)</label>
               <textarea
