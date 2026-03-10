@@ -671,17 +671,17 @@ export default function Agenda() {
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="vacina">Vacina</SelectItem>
-                  <SelectItem value="consulta">Consulta</SelectItem>
-                  <SelectItem value="exame">Exame</SelectItem>
-                  <SelectItem value="vermifugo">Vermífugo</SelectItem>
-                  <SelectItem value="medicacao">Medicação</SelectItem>
-                  <SelectItem value="procedimento">Procedimento</SelectItem>
-                  <SelectItem value="banho-tosa">Banho / Tosa</SelectItem>
-                  <SelectItem value="atividade-semanal">Atividade Semanal</SelectItem>
-                  <SelectItem value="atividade-mensal">Atividade Mensal</SelectItem>
-                  <SelectItem value="outro">Outro</SelectItem>
+                <SelectContent className="max-h-[300px] overflow-y-auto">
+                  <SelectItem value="vacina">🩺 Vacina</SelectItem>
+                  <SelectItem value="consulta">📋 Consulta</SelectItem>
+                  <SelectItem value="exame">🔬 Exame</SelectItem>
+                  <SelectItem value="vermifugo">💊 Vermífugo</SelectItem>
+                  <SelectItem value="medicacao">💉 Medicação</SelectItem>
+                  <SelectItem value="procedimento">🏥 Procedimento</SelectItem>
+                  <SelectItem value="banho-tosa">✂️ Banho / Tosa</SelectItem>
+                  <SelectItem value="atividade-semanal">🔄 Atividade Semanal</SelectItem>
+                  <SelectItem value="atividade-mensal">📅 Atividade Mensal</SelectItem>
+                  <SelectItem value="outro">📌 Outro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
