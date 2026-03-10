@@ -81,8 +81,7 @@ const PetzinhoIA = () => {
           },
           body: JSON.stringify({
             messages: allMessages,
-            petName,
-            petSpecies,
+            petContext,
           }),
         }
       );
