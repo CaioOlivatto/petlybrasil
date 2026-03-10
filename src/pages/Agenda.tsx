@@ -248,18 +248,33 @@ export default function Agenda() {
         if (error) throw error;
         toast({ title: "Evento atualizado", description: `"${eventTitle}" foi atualizado.` });
       } else {
-        const { error } = await supabase.from("agenda_events").insert({
-          user_id: user.id,
-          pet_id: pet.id,
-          title: eventTitle,
-          category,
-          date: eventDate,
-          time: eventTime || null,
-          notes: eventNotes || null,
-          source: "manual",
-        } as any);
+        const isWeekly = eventType === "atividade-semanal" && repeatEnabled;
+        const isMonthly = eventType === "atividade-mensal" && repeatEnabled;
+        const occurrences = isWeekly ? 12 : isMonthly ? 6 : 1;
+        
+        const eventsToInsert = [];
+        for (let i = 0; i < occurrences; i++) {
+          const baseDate = new Date(eventDate + "T12:00:00");
+          if (isWeekly) baseDate.setDate(baseDate.getDate() + i * 7);
+          if (isMonthly) baseDate.setMonth(baseDate.getMonth() + i);
+          eventsToInsert.push({
+            user_id: user.id,
+            pet_id: pet.id,
+            title: eventTitle,
+            category,
+            date: baseDate.toISOString().split("T")[0],
+            time: eventTime || null,
+            notes: eventNotes || null,
+            source: "manual",
+          });
+        }
+        
+        const { error } = await supabase.from("agenda_events").insert(eventsToInsert as any);
         if (error) throw error;
-        toast({ title: "Evento criado", description: `"${eventTitle}" foi adicionado à agenda.` });
+        const desc = occurrences > 1 
+          ? `"${eventTitle}" — ${occurrences} eventos criados.`
+          : `"${eventTitle}" foi adicionado à agenda.`;
+        toast({ title: "Evento criado", description: desc });
       }
       resetEventForm();
       fetchEvents();
