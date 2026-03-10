@@ -147,7 +147,7 @@ const PetzinhoIA = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, petName, petSpecies, isLoading, toast]);
+  }, [messages, petContext, isLoading, toast]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
