@@ -13,6 +13,8 @@ import {
   Pencil,
   Loader2,
   Pill,
+  Scissors,
+  Repeat,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
