@@ -136,6 +136,8 @@ const Diario = () => {
           humor: row.humor || "",
           alteracoes: row.alteracoes || [],
           passeio: row.passeio,
+          passeioQuantidade: row.passeio_quantidade || 0,
+          passeioDuracao: row.passeio_duracao || "",
           atividadeMental: row.atividade_mental,
           mudancaRotina: row.mudanca_rotina || "nenhuma",
           observacoes: row.observacoes || "",
