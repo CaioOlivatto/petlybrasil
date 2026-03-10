@@ -208,6 +208,7 @@ export default function Agenda() {
     setEventDate("");
     setEventTime("");
     setEventNotes("");
+    setRepeatEnabled(false);
   };
 
   const openCreateDialog = () => {
