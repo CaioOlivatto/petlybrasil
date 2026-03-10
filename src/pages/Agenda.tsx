@@ -678,6 +678,9 @@ export default function Agenda() {
                   <SelectItem value="vermifugo">Vermífugo</SelectItem>
                   <SelectItem value="medicacao">Medicação</SelectItem>
                   <SelectItem value="procedimento">Procedimento</SelectItem>
+                  <SelectItem value="banho-tosa">Banho / Tosa</SelectItem>
+                  <SelectItem value="atividade-semanal">Atividade Semanal</SelectItem>
+                  <SelectItem value="atividade-mensal">Atividade Mensal</SelectItem>
                   <SelectItem value="outro">Outro</SelectItem>
                 </SelectContent>
               </Select>
