@@ -558,10 +558,19 @@ const Diario = () => {
                     <span className="font-semibold text-foreground">
                       {format(entry.date, "dd 'de' MMMM, yyyy", { locale: ptBR })}
                     </span>
-                    {entry.alteracoes.length > 0 && (
-                      <Badge variant="destructive" className="text-xs">
-                        ⚠ Alterações
-                      </Badge>
+                    {(entry.alteracoes.length > 0 || entry.convulsao) && (
+                      <div className="flex gap-1">
+                        {entry.convulsao && (
+                          <Badge variant="destructive" className="text-xs">
+                            ⚡ Convulsão ({entry.convulsaoQuantidade}x)
+                          </Badge>
+                        )}
+                        {entry.alteracoes.length > 0 && (
+                          <Badge variant="destructive" className="text-xs">
+                            ⚠ Alterações
+                          </Badge>
+                        )}
+                      </div>
                     )}
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
