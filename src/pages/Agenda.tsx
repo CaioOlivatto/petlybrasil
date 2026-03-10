@@ -134,6 +134,7 @@ export default function Agenda() {
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("");
   const [eventNotes, setEventNotes] = useState("");
+  const [repeatEnabled, setRepeatEnabled] = useState(false);
 
   // Detail dialog
   const [detailEvent, setDetailEvent] = useState<AgendaEvent | null>(null);
