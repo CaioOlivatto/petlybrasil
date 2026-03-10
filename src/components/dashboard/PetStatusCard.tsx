@@ -209,7 +209,7 @@ export function PetStatusCard({ petName, petId }: Props) {
 
           {/* Score */}
           <div className="flex items-center justify-between mt-5 pt-4 border-t border-border">
-            <span className="text-sm font-semibold text-foreground">Score Médio</span>
+            <span className="text-sm font-semibold text-foreground">Pontuação do Pet</span>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-foreground">{score}%</span>
               <span className={`text-sm font-medium ${scoreInfo.color}`}>{scoreInfo.text}</span>
