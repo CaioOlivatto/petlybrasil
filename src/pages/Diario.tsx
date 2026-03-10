@@ -433,6 +433,54 @@ const Diario = () => {
             </div>
           </div>
 
+          {/* Convulsão */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-lg">⚡</span>
+              <span className="font-medium text-foreground">Teve convulsão?</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: true, label: "Sim" },
+                { value: false, label: "Não" },
+              ].map((opt) => (
+                <button
+                  key={String(opt.value)}
+                  onClick={() => setCheckIn((p) => ({ ...p, convulsao: opt.value, convulsaoQuantidade: opt.value ? Math.max(p.convulsaoQuantidade, 1) : 0 }))}
+                  className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                    checkIn.convulsao === opt.value
+                      ? opt.value
+                        ? "border-destructive bg-destructive/10 text-destructive"
+                        : "border-secondary bg-secondary/10 text-secondary"
+                      : "border-border bg-background hover:border-secondary/40"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {checkIn.convulsao && (
+              <div className="mt-3 flex items-center gap-3 p-3 rounded-xl border-2 border-destructive/30 bg-destructive/5">
+                <span className="text-sm font-medium text-foreground">Quantas vezes?</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCheckIn((p) => ({ ...p, convulsaoQuantidade: Math.max(1, p.convulsaoQuantidade - 1) }))}
+                    className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
+                  >
+                    −
+                  </button>
+                  <span className="text-lg font-bold text-destructive min-w-[2rem] text-center">{checkIn.convulsaoQuantidade}</span>
+                  <button
+                    onClick={() => setCheckIn((p) => ({ ...p, convulsaoQuantidade: p.convulsaoQuantidade + 1 }))}
+                    className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Mudança na rotina */}
           <div>
             <div className="flex items-center gap-2 mb-3">
