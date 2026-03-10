@@ -201,7 +201,7 @@ const Diario = () => {
 
     const { error } = await supabase
       .from("daily_checkins")
-      .upsert(payload, { onConflict: "pet_id,date" });
+      .upsert(payload as any, { onConflict: "pet_id,date" });
 
     setSaving(false);
 
