@@ -20,7 +20,8 @@ const SUGGESTIONS = [
 
 const PetzinhoIA = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, hasIAAccess } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
