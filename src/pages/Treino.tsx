@@ -212,7 +212,7 @@ const Treino = () => {
                   <selectedCat.icon className="h-5 w-5 text-primary" />
                   <h2 className="font-bold text-foreground">{selectedCat.label}</h2>
                   {petBreed && (
-                    <span className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                       {petBreed}
                     </span>
                   )}

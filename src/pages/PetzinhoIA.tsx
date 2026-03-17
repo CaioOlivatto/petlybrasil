@@ -244,7 +244,7 @@ const PetzinhoIA = () => {
       </div>
 
       {/* Input area - prominent */}
-      <div className="bg-background border-2 border-secondary/40 rounded-2xl p-3 shadow-md">
+      <div className="bg-background border-2 border-primary/40 rounded-2xl p-3 shadow-md">
         <div className="flex gap-2 items-end">
           <Textarea
             value={input}
