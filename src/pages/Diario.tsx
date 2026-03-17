@@ -293,7 +293,7 @@ const Diario = () => {
           {/* Apetite */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <UtensilsCrossed className="h-4 w-4 text-secondary" />
+              <UtensilsCrossed className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Apetite</span>
             </div>
             <div className="grid grid-cols-3 gap-3">
