@@ -254,8 +254,8 @@ const Diario = () => {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <BookOpen className="h-7 w-7 text-secondary" />
-          <h1 className="text-2xl font-bold text-foreground">Diário do Pet</h1>
+          <BookOpen className="h-7 w-7 text-primary" />
+          <h1 className="text-2xl font-bold font-display text-foreground">Diário do Pet</h1>
         </div>
         <p className="text-muted-foreground">Como seu pet está hoje?</p>
       </div>
