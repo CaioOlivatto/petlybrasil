@@ -60,12 +60,13 @@ const plans = [
     icon: Crown,
     features: [
       "Tudo do plano Pro",
+      "Petzinho IA incluso",
       "Economia de 39%",
-      "Acesso antecipado a novidades",
       "Suporte VIP",
       "Histórico ilimitado",
       "Compartilhamento familiar",
     ],
+    excluded: [],
     popular: false,
   },
 ];
