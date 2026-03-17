@@ -343,7 +343,7 @@ export default function Agenda() {
           <p className="text-xs text-muted-foreground">{evento.category}</p>
         </div>
         <div className="text-right shrink-0">
-          <p className={`text-sm font-bold ${isOverdue ? "text-destructive" : "text-accent"}`}>
+          <p className={`text-sm font-bold ${isOverdue ? "text-destructive" : "text-primary"}`}>
             {isOverdue ? `Há ${Math.abs(days)} dias` : days === 0 ? "Hoje" : `Em ${days} dias`}
           </p>
           <p className="text-xs text-muted-foreground">{formatDate(evento.date)}</p>
