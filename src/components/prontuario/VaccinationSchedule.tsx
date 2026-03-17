@@ -216,8 +216,8 @@ export function VaccinationSchedule({ pet }: Props) {
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
-                    <Syringe className="h-4 w-4 text-accent" />
+                  <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Syringe className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">
