@@ -172,7 +172,7 @@ export function VaccinationSchedule({ pet }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-6 w-6 border-2 border-accent border-t-transparent rounded-full" />
+        <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -180,8 +180,8 @@ export function VaccinationSchedule({ pet }: Props) {
   return (
     <div className="space-y-4">
       {/* Header info */}
-      <div className="bg-cardrder-accent/20 rounded-xl p-4 flex items-start gap-3">
-        <Shield className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+      <div className="bg-card border border-border rounded-xl p-4 flex items-start gap-3">
+        <Shield className="h-5 w-5 text-primary mt-0.5 shrink-0" />
         <div className="text-sm">
           <p className="font-semibold text-foreground">
             Calendário de Vacinação — {pet?.species === "cat" ? "Gato" : "Cachorro"}
@@ -195,7 +195,7 @@ export function VaccinationSchedule({ pet }: Props) {
       </div>
 
       {/* Tip */}
-      <div className="bg-primacardecardprimary/20 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-card border border-border rounded-xl p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
         <p className="text-xs text-muted-foreground">
           <strong>Dica veterinária:</strong> Nunca deixe filhotes pisarem no chão da rua antes da 3ª dose da vacina. Parvovirose e cinomose matam muitos filhotes.
@@ -216,8 +216,8 @@ export function VaccinationSchedule({ pet }: Props) {
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
-                    <Syringe className="h-4 w-4 text-accent" />
+                  <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <Syringe className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <p className="font-semibold text-foreground text-sm">
@@ -238,7 +238,7 @@ export function VaccinationSchedule({ pet }: Props) {
                     {vaccine.protectsAgainst && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {vaccine.protectsAgainst.map((p) => (
-                          <span key={p} className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded">
+                          <span key={p} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                             {p}
                           </span>
                         ))}
@@ -314,7 +314,7 @@ export function VaccinationSchedule({ pet }: Props) {
       </div>
 
       {/* Annual reminder */}
-      <div className="bg-muted/30 bcardrder-border rounded-xl p-4 text-xs text-muted-foreground">
+      <div className="bg-muted/30 border border-border rounded-xl p-4 text-xs text-muted-foreground">
         <p className="font-semibold text-foreground mb-1">📆 Reforços Anuais</p>
         <p>Após 1 ano de idade, seu pet precisa de reforço anual de V8/V10 (ou V3/V4/V5 para gatos) + Antirrábica.</p>
       </div>

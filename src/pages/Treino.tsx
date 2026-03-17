@@ -164,18 +164,18 @@ const Treino = () => {
               disabled={isLoading}
               className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center
                 ${isSelected
-                  ? "border-secondary bg-secondary/10 shadow-md"
-                  : "border-border bg-card hover:border-secondary/40 hover:bg-secondary/5"
+                  ? "border-primary bg-primary/10 shadow-md"
+                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
                 }
                 ${isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
               `}
             >
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                isSelected ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground"
+                isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
               }`}>
                 <Icon className="h-5 w-5" />
               </div>
-              <span className={`text-sm font-semibold ${isSelected ? "text-secondary" : "text-foreground"}`}>
+              <span className={`text-sm font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
                 {cat.label}
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight">
@@ -190,7 +190,7 @@ const Treino = () => {
       {!selectedCategory && !content && (
         <Card className="bg-card border-dashed border-2">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Sparkles className="h-10 w-10 text-secondary/40 mb-4" />
+            <Sparkles className="h-10 w-10 text-primary/40 mb-4" />
             <p className="text-base font-semibold text-foreground mb-1">
               Escolha uma categoria acima
             </p>
@@ -209,10 +209,10 @@ const Treino = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <selectedCat.icon className="h-5 w-5 text-secondary" />
+                  <selectedCat.icon className="h-5 w-5 text-primary" />
                   <h2 className="font-bold text-foreground">{selectedCat.label}</h2>
                   {petBreed && (
-                    <span className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                       {petBreed}
                     </span>
                   )}

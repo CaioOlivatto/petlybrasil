@@ -222,7 +222,7 @@ export default function Documentos() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -240,8 +240,8 @@ export default function Documentos() {
             Voltar ao início
           </button>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-accent" />
+            <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Documentos</h1>
@@ -264,14 +264,14 @@ export default function Documentos() {
               onClick={() => openCreateDialog(type)}
               className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left cursor-pointer hover:shadow-md ${
                 count > 0
-                  ? "border-accent/30 bg-accent/5 hover:border-accent/60"
-                  : "border-border bg-background hover:border-accent/40 hover:bg-accent/5"
+                  ? "border-primary/30 bg-primary/5 hover:border-primary/60"
+                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
               }`}
             >
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
-                count > 0 ? "bg-accent/15" : "bg-muted"
+                count > 0 ? "bg-primary/15" : "bg-muted"
               }`}>
-                <Icon className={`h-5 w-5 ${count > 0 ? "text-accent" : "text-muted-foreground"}`} />
+                <Icon className={`h-5 w-5 ${count > 0 ? "text-primary" : "text-muted-foreground"}`} />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground text-sm truncate">{type.label}</p>
@@ -317,16 +317,16 @@ export default function Documentos() {
             return (
               <div
                 key={doc.id}
-                className="flex items-center gap-4 p-4 rounded-2xl border-2 border-accent/20 bg-background hover:border-accent/40 transition-colors"
+                className="flex items-center gap-4 p-4 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary/40 transition-colors"
               >
-                <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Icon className="h-5 w-5 text-accent" />
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm sm:text-base truncate">{doc.name}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{formatDate(doc.date)}</span>
-                    {typeInfo && <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-medium">{typeInfo.label}</span>}
+                    {typeInfo && <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">{typeInfo.label}</span>}
                   </div>
                   {doc.notes && (
                     <p className="text-xs text-muted-foreground mt-1 truncate">{doc.notes}</p>
@@ -338,7 +338,7 @@ export default function Documentos() {
                       href={doc.attachment_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-accent hover:underline text-xs font-medium"
+                      className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium"
                     >
                       <ExternalLink className="h-4 w-4" />
                       <span className="hidden sm:inline">Ver</span>
@@ -364,7 +364,7 @@ export default function Documentos() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              {selectedType && <selectedType.icon className="h-5 w-5 text-accent" />}
+              {selectedType && <selectedType.icon className="h-5 w-5 text-primary" />}
               {selectedType?.label || "Novo Documento"}
             </DialogTitle>
           </DialogHeader>
@@ -403,7 +403,7 @@ export default function Documentos() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-foreground">Anexo</label>
               <div className="grid grid-cols-2 gap-3">
-                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
                   <Upload className="h-6 w-6 text-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">Enviar Arquivo</span>
                   <input
@@ -413,7 +413,7 @@ export default function Documentos() {
                     className="hidden"
                   />
                 </label>
-                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
                   <Camera className="h-6 w-6 text-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">Tirar Foto</span>
                   <input
@@ -426,7 +426,7 @@ export default function Documentos() {
                 </label>
               </div>
               {attachedFile && (
-                <p className="text-xs text-accent font-medium mt-1">
+                <p className="text-xs text-primary font-medium mt-1">
                   📎 {attachedFile.name}
                 </p>
               )}
@@ -437,7 +437,7 @@ export default function Documentos() {
                 Cancelar
               </Button>
               <Button
-                className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                className="h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={!docName || !docDate || saving}
                 onClick={handleSave}
               >

@@ -38,8 +38,8 @@ export default function Vacinas() {
             Voltar ao início
           </button>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
-              <Syringe className="h-5 w-5 text-accent" />
+            <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <Syringe className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Vacinas</h1>
@@ -54,7 +54,7 @@ export default function Vacinas() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="animate-spin h-6 w-6 border-2 border-accent border-t-transparent rounded-full" />
+          <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       ) : !pet ? (
         <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl bg-background">

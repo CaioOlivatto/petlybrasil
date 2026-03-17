@@ -43,7 +43,7 @@ export default function Perfil() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Settings className="h-7 w-7 text-accent" />
+        <Settings className="h-7 w-7 text-primary" />
         <div>
           <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
           <p className="text-sm text-muted-foreground">Gerencie seu perfil e preferências</p>
@@ -62,7 +62,7 @@ export default function Perfil() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors ${
                     isActive
-                      ? "bg-accent text-accent-foreground font-semibold"
+                      ? "bg-primary text-primary-foreground font-semibold"
                       : "text-foreground hover:bg-muted"
                   }`}
                 >

@@ -226,14 +226,14 @@ const QuestoesVeterinario = () => {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Stethoscope className="h-7 w-7 text-secondary" />
-          <h1 className="text-2xl font-bold text-foreground">Questões para o Veterinário</h1>
+          <Stethoscope className="h-7 w-7 text-primary" />
+          <h1 className="text-2xl font-bold font-display text-foreground">Preparo para Consulta</h1>
         </div>
-        <p className="text-muted-foreground">Prepare suas perguntas antes da consulta</p>
+        <p className="text-muted-foreground">Organizo suas dúvidas e sintomas para você não esquecer nada na consulta</p>
       </div>
 
       {/* Input area */}
-      <Card className="bg-background border-border">
+      <Card className="bg-card border-border">
         <CardContent className="p-5 space-y-4">
           <Textarea
             placeholder={"Descreva sintomas, comportamentos ou qualquer dúvida que você queira discutir com o veterinário...\n\nExemplo: Notei que ela está coçando muito a orelha e tem um cheiro diferente. Também está bebendo mais água que o normal."}
@@ -259,7 +259,7 @@ const QuestoesVeterinario = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-secondary" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
                 Suas Perguntas ({organizedQuestions.length})
               </CardTitle>
               <Button
@@ -318,7 +318,7 @@ const QuestoesVeterinario = () => {
           return (
             <div key={category}>
               <div className="flex items-center gap-2 mb-3">
-                <Icon className="h-5 w-5 text-secondary" />
+                <Icon className="h-5 w-5 text-primary" />
                 <h2 className="text-base font-bold text-foreground">{config.label}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -326,11 +326,11 @@ const QuestoesVeterinario = () => {
                   <button
                     key={i}
                     onClick={() => handleAddSuggested(q)}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border border-border bg-background text-left transition-all hover:border-secondary/50 hover:bg-secondary/5 ${
-                      organizedQuestions.includes(q) ? "opacity-50 border-secondary/30 bg-secondary/5" : ""
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border border-border bg-card text-left transition-all hover:border-primary/50 hover:bg-primary/5 ${
+                      organizedQuestions.includes(q) ? "opacity-50 border-primary/30 bg-primary/5" : ""
                     }`}
                   >
-                    <Badge variant="outline" className="mt-0.5 shrink-0 text-xs min-w-[28px] justify-center text-secondary border-secondary/30">
+                    <Badge variant="outline" className="mt-0.5 shrink-0 text-xs min-w-[28px] justify-center text-primary border-primary/30">
                       {i + 1}
                     </Badge>
                     <span className="text-sm text-foreground">{q}</span>
@@ -349,7 +349,7 @@ const QuestoesVeterinario = () => {
           <h2 className="text-lg font-bold text-foreground mb-4">📋 Listas salvas</h2>
           <div className="space-y-4">
             {savedLists.map((list) => (
-              <Card key={list.id} className="bg-background border-border">
+              <Card key={list.id} className="bg-card border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -400,8 +400,8 @@ const QuestoesVeterinario = () => {
                 onClick={() => setEditMode("add")}
                 className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                   editMode === "add"
-                    ? "border-secondary bg-secondary/10 text-secondary"
-                    : "border-border bg-background hover:border-secondary/40"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background hover:border-primary/40"
                 }`}
               >
                 <Plus className="h-4 w-4 mx-auto mb-1" />
@@ -411,8 +411,8 @@ const QuestoesVeterinario = () => {
                 onClick={() => setEditMode("replace")}
                 className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                   editMode === "replace"
-                    ? "border-secondary bg-secondary/10 text-secondary"
-                    : "border-border bg-background hover:border-secondary/40"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background hover:border-primary/40"
                 }`}
               >
                 <Edit3 className="h-4 w-4 mx-auto mb-1" />

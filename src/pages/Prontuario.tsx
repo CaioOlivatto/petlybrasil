@@ -360,7 +360,7 @@ export default function Prontuario() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -378,8 +378,8 @@ export default function Prontuario() {
             Voltar ao início
           </button>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-accent" />
+            <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Prontuário</h1>
@@ -390,7 +390,7 @@ export default function Prontuario() {
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg">
+            <Button className="h-12 px-6 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
               <Plus className="h-5 w-5 mr-2" />
               Novo Registro
             </Button>
@@ -398,7 +398,7 @@ export default function Prontuario() {
           <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-xl">
-                <Plus className="h-5 w-5 text-accent" />
+                <Plus className="h-5 w-5 text-primary" />
                 Novo Registro
               </DialogTitle>
             </DialogHeader>
@@ -413,8 +413,8 @@ export default function Prontuario() {
                       onClick={() => setSelectedCategory(cat.key)}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center ${
                         selectedCategory === cat.key
-                          ? "border-accent bg-accent/10 text-accent"
-                          : "border-border bg-background text-muted-foreground hover:border-accent/50"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground hover:border-primary/50"
                       }`}
                     >
                       <cat.icon className="h-5 w-5" />
@@ -504,8 +504,8 @@ export default function Prontuario() {
                         onClick={() => setFrequency(opt.value)}
                         className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-center ${
                           frequency === opt.value
-                            ? "border-accent bg-accent/10 text-accent"
-                            : "border-border text-muted-foreground hover:border-accent/50"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:border-primary/50"
                         }`}
                       >
                         {opt.label}
@@ -525,7 +525,7 @@ export default function Prontuario() {
                     <label className="text-sm font-semibold text-foreground">Tem validade?</label>
                     <button
                       onClick={() => setHasValidity(!hasValidity)}
-                      className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-accent" : "bg-muted"}`}
+                      className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-primary" : "bg-muted"}`}
                     >
                       <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-background shadow transition-transform ${hasValidity ? "translate-x-5" : ""}`} />
                     </button>
@@ -558,7 +558,7 @@ export default function Prontuario() {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Anexo</label>
                   <div className="grid grid-cols-2 gap-3">
-                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
                       <Upload className="h-6 w-6 text-muted-foreground" />
                       <span className="text-xs font-medium text-muted-foreground">Enviar Arquivo</span>
                       <input
@@ -568,7 +568,7 @@ export default function Prontuario() {
                         className="hidden"
                       />
                     </label>
-                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
                       <Camera className="h-6 w-6 text-muted-foreground" />
                       <span className="text-xs font-medium text-muted-foreground">Tirar Foto</span>
                       <input
@@ -581,7 +581,7 @@ export default function Prontuario() {
                     </label>
                   </div>
                   {attachedFile && (
-                    <p className="text-xs text-accent font-medium mt-1">
+                    <p className="text-xs text-primary font-medium mt-1">
                       📎 {attachedFile.name}
                     </p>
                   )}
@@ -598,7 +598,7 @@ export default function Prontuario() {
                   Cancelar
                 </Button>
                 <Button
-                  className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                  className="h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                   disabled={!selectedCategory || !newName || !newDate || saving}
                   onClick={handleSave}
                 >
@@ -627,12 +627,12 @@ export default function Prontuario() {
                 onClick={() => setActiveFilter(tab.key)}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-accent text-accent-foreground shadow-sm"
-                    : "bg-background text-muted-foreground border border-border hover:border-accent/50"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-background text-muted-foreground border border-border hover:border-primary/50"
                 }`}
               >
                 {tab.label}
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? "bg-accent-foreground/20" : "bg-muted"}`}>
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? "bg-primary-foreground/20" : "bg-muted"}`}>
                   {count}
                 </span>
               </button>
@@ -664,7 +664,7 @@ export default function Prontuario() {
             Previsto para próximos dias
           </span>
         </div>
-        <span className="hidden sm:inline text-accent italic">
+        <span className="hidden sm:inline text-primary italic">
           Clique em um registro para ver detalhes e baixar anexos
         </span>
       </div>
@@ -686,14 +686,14 @@ export default function Prontuario() {
             const Icon = catInfo?.icon || FileText;
 
             return (
-              <div key={catKey} className="border-2 border-accent/20 rounded-2xl bg-background overflow-hidden">
+              <div key={catKey} className="border-2 border-primary/20 rounded-2xl bg-card overflow-hidden">
                 <button
                   onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                   className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-muted/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center">
-                      <Icon className="h-5 w-5 text-accent" />
+                    <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                      <Icon className="h-5 w-5 text-primary" />
                     </div>
                     <div className="text-left">
                       <p className="font-semibold text-foreground text-base">{catInfo?.label}</p>
@@ -726,7 +726,7 @@ export default function Prontuario() {
                           {catRecords.map((record) => (
                             <tr
                               key={record.id}
-                              className="border-t border-border/50 hover:bg-accent/5 transition-colors"
+                              className="border-t border-border/50 hover:bg-primary/5 transition-colors"
                             >
                               <td className="px-5 py-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
@@ -742,7 +742,7 @@ export default function Prontuario() {
                               <td className="px-5 py-4 text-muted-foreground max-w-[200px] truncate">{record.notes || "-"}</td>
                               <td className="px-5 py-4 text-center">
                                 {record.attachment_url ? (
-                                  <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent hover:underline text-xs">
+                                  <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
                                     <ExternalLink className="h-3.5 w-3.5" />
                                     {record.attachment_name || "Ver"}
                                   </a>
@@ -794,7 +794,7 @@ export default function Prontuario() {
                             <p className="text-xs text-muted-foreground">{record.notes}</p>
                           )}
                           {record.attachment_url && (
-                            <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent text-xs hover:underline">
+                            <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary text-xs hover:underline">
                               <ExternalLink className="h-3 w-3" />
                               {record.attachment_name || "Ver anexo"}
                             </a>

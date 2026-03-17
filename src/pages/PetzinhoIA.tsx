@@ -166,11 +166,11 @@ const PetzinhoIA = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-secondary/15 flex items-center justify-center">
-            <Bot className="h-5 w-5 text-secondary" />
+          <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
+            <Bot className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Petlyzinho IA</h1>
+            <h1 className="text-lg font-bold font-display text-foreground">Petlinho IA</h1>
             <p className="text-xs text-muted-foreground">
               Assistente de {petContext?.pet?.name || "seu pet"}
             </p>
@@ -209,7 +209,7 @@ const PetzinhoIA = () => {
                 <button
                   key={i}
                   onClick={() => sendMessage(s)}
-                  className="w-full text-left px-4 py-3 rounded-xl border border-border bg-background text-sm text-foreground hover:border-secondary/50 hover:bg-secondary/5 transition-colors"
+                  className="w-full text-left px-4 py-3 rounded-xl border border-border bg-background text-sm text-foreground hover:border-primary/50 hover:bg-primary/5 transition-colors"
                 >
                   {s}
                 </button>
@@ -226,7 +226,7 @@ const PetzinhoIA = () => {
             <div
               className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm ${
                 msg.role === "user"
-                  ? "bg-secondary text-secondary-foreground rounded-br-md"
+                  ? "bg-primary text-primary-foreground rounded-br-md"
                   : "bg-muted text-foreground rounded-bl-md"
               }`}
             >
@@ -244,7 +244,7 @@ const PetzinhoIA = () => {
       </div>
 
       {/* Input area - prominent */}
-      <div className="bg-background border-2 border-secondary/40 rounded-2xl p-3 shadow-md">
+      <div className="bg-background border-2 border-primary/40 rounded-2xl p-3 shadow-md">
         <div className="flex gap-2 items-end">
           <Textarea
             value={input}

@@ -254,14 +254,14 @@ const Diario = () => {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <BookOpen className="h-7 w-7 text-secondary" />
-          <h1 className="text-2xl font-bold text-foreground">Diário do Pet</h1>
+          <BookOpen className="h-7 w-7 text-primary" />
+          <h1 className="text-2xl font-bold font-display text-foreground">Diário do Pet</h1>
         </div>
         <p className="text-muted-foreground">Como seu pet está hoje?</p>
       </div>
 
       {/* Check-in de hoje */}
-      <Card className="bg-background border-border">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-lg text-foreground">Check-in de hoje</CardTitle>
         </CardHeader>
@@ -269,7 +269,7 @@ const Diario = () => {
           {/* Energia */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Zap className="h-4 w-4 text-secondary" />
+              <Zap className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Energia</span>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -279,8 +279,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, energia: opt.value }))}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                     checkIn.energia === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary font-semibold"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span className="text-2xl">{opt.emoji}</span>
@@ -293,7 +293,7 @@ const Diario = () => {
           {/* Apetite */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <UtensilsCrossed className="h-4 w-4 text-secondary" />
+              <UtensilsCrossed className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Apetite</span>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -303,8 +303,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, apetite: opt.value }))}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                     checkIn.apetite === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary font-semibold"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span className="text-2xl">{opt.emoji}</span>
@@ -317,7 +317,7 @@ const Diario = () => {
           {/* Sono */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Moon className="h-4 w-4 text-secondary" />
+              <Moon className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Sono</span>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -327,8 +327,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, sono: opt.value }))}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                     checkIn.sono === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary font-semibold"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span className="text-2xl">{opt.emoji}</span>
@@ -341,7 +341,7 @@ const Diario = () => {
           {/* Humor */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Heart className="h-4 w-4 text-secondary" />
+              <Heart className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Humor</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -351,8 +351,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, humor: opt.value }))}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                     checkIn.humor === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary font-semibold"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span className="text-2xl">{opt.emoji}</span>
@@ -367,7 +367,7 @@ const Diario = () => {
           {/* Alterações de fezes e urina */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Droplets className="h-4 w-4 text-secondary" />
+              <Droplets className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Alteração de fezes e urina</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3">Selecione se houve alguma alteração (pode marcar várias)</p>
@@ -378,8 +378,8 @@ const Diario = () => {
                   onClick={() => toggleAlteracao(opt.value)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-sm ${
                     checkIn.alteracoes.includes(opt.value)
-                      ? "border-secondary bg-secondary/10 text-secondary font-medium"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span>{opt.emoji}</span>
@@ -394,7 +394,7 @@ const Diario = () => {
           {/* Passeio */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Footprints className="h-4 w-4 text-secondary" />
+              <Footprints className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Passeio hoje?</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -407,8 +407,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, passeio: opt.value, passeioQuantidade: opt.value ? Math.max(p.passeioQuantidade, 1) : 0, passeioDuracao: opt.value ? p.passeioDuracao : "" }))}
                   className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                     checkIn.passeio === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   {opt.label}
@@ -416,7 +416,7 @@ const Diario = () => {
               ))}
             </div>
             {checkIn.passeio && (
-              <div className="mt-3 space-y-3 p-3 rounded-xl border-2 border-secondary/20 bg-secondary/5">
+              <div className="mt-3 space-y-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-foreground">Quantos passeios?</span>
                   <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ const Diario = () => {
                       onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: Math.max(1, p.passeioQuantidade - 1) }))}
                       className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
                     >−</button>
-                    <span className="text-lg font-bold text-secondary min-w-[2rem] text-center">{checkIn.passeioQuantidade}</span>
+                    <span className="text-lg font-bold text-primary min-w-[2rem] text-center">{checkIn.passeioQuantidade}</span>
                     <button
                       onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: p.passeioQuantidade + 1 }))}
                       className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
@@ -440,8 +440,8 @@ const Diario = () => {
                         onClick={() => setCheckIn((p) => ({ ...p, passeioDuracao: p.passeioDuracao === dur ? "" : dur }))}
                         className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
                           checkIn.passeioDuracao === dur
-                            ? "border-secondary bg-secondary/10 text-secondary font-medium"
-                            : "border-border bg-background hover:border-secondary/40"
+                            ? "border-primary bg-primary/10 text-primary font-medium"
+                            : "border-border bg-background hover:border-primary/40"
                         }`}
                       >{dur}</button>
                     ))}
@@ -454,7 +454,7 @@ const Diario = () => {
           {/* Atividade Mental */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Brain className="h-4 w-4 text-secondary" />
+              <Brain className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Atividade mental?</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -467,8 +467,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, atividadeMental: opt.value }))}
                   className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                     checkIn.atividadeMental === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   {opt.label}
@@ -495,8 +495,8 @@ const Diario = () => {
                     checkIn.convulsao === opt.value
                       ? opt.value
                         ? "border-destructive bg-destructive/10 text-destructive"
-                        : "border-secondary bg-secondary/10 text-secondary"
-                      : "border-border bg-background hover:border-secondary/40"
+                        : "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   {opt.label}
@@ -528,7 +528,7 @@ const Diario = () => {
           {/* Mudança na rotina */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <RefreshCw className="h-4 w-4 text-secondary" />
+              <RefreshCw className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Mudança na rotina?</span>
             </div>
             <Select
@@ -582,7 +582,7 @@ const Diario = () => {
                 onClick={() => setHistoryFilter(opt.value)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   historyFilter === opt.value
-                    ? "bg-secondary text-secondary-foreground shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -596,7 +596,7 @@ const Diario = () => {
             <p className="text-muted-foreground text-center py-8">Nenhum check-in neste período.</p>
           ) : (
             filteredHistory.map((entry, idx) => (
-              <Card key={idx} className="bg-background border-border">
+              <Card key={idx} className="bg-card border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-semibold text-foreground">

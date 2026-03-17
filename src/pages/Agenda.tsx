@@ -326,14 +326,14 @@ export default function Agenda() {
         onClick={() => openEventDetail(evento)}
         className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors cursor-pointer ${
           isOverdue
-            ? "border-destructive/30 bg-background hover:border-destructive/50"
-            : "border-accent/20 bg-background hover:border-accent/40"
+            ? "border-destructive/30 bg-card hover:border-destructive/50"
+            : "border-primary/20 bg-card hover:border-primary/40"
         }`}
       >
         <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
-          isOverdue ? "bg-destructive/10" : "bg-accent/10"
+          isOverdue ? "bg-destructive/10" : "bg-primary/10"
         }`}>
-          <Icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-accent"}`} />
+          <Icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-primary"}`} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -343,7 +343,7 @@ export default function Agenda() {
           <p className="text-xs text-muted-foreground">{evento.category}</p>
         </div>
         <div className="text-right shrink-0">
-          <p className={`text-sm font-bold ${isOverdue ? "text-destructive" : "text-accent"}`}>
+          <p className={`text-sm font-bold ${isOverdue ? "text-destructive" : "text-primary"}`}>
             {isOverdue ? `Há ${Math.abs(days)} dias` : days === 0 ? "Hoje" : `Em ${days} dias`}
           </p>
           <p className="text-xs text-muted-foreground">{formatDate(evento.date)}</p>
@@ -356,7 +356,7 @@ export default function Agenda() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -374,8 +374,8 @@ export default function Agenda() {
             Voltar ao início
           </button>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center">
-              <CalendarIcon className="h-5 w-5 text-accent" />
+            <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <CalendarIcon className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Agenda</h1>
@@ -385,7 +385,7 @@ export default function Agenda() {
         </div>
         <Button
           onClick={openCreateDialog}
-          className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg"
+          className="h-12 px-6 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
         >
           <Plus className="h-5 w-5 mr-2" />
           Novo Evento
@@ -432,15 +432,15 @@ export default function Agenda() {
           onClick={() => handleCardClick("proximo-mes")}
           className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${
             activeSection === "proximo-mes"
-              ? "border-accent bg-accent/10 shadow-md"
-              : "border-accent/30 bg-background hover:border-accent/50"
+              ? "border-primary bg-primary/10 shadow-md"
+              : "border-primary/30 bg-card hover:border-primary/50"
           }`}
         >
-          <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-            <CalendarClock className="h-6 w-6 text-accent" />
+          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <CalendarClock className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-accent">{nextMonth.length}</p>
+            <p className="text-2xl font-bold text-primary">{nextMonth.length}</p>
             <p className="text-sm font-medium text-foreground">Próximo mês</p>
           </div>
         </button>
@@ -449,17 +449,17 @@ export default function Agenda() {
       {/* Calendar + Events */}
       <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-5">
         <div className="space-y-4">
-          <div className="border-2 border-accent/20 rounded-2xl p-4 bg-background">
+          <div className="border-2 border-primary/20 rounded-2xl p-4 bg-card">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
               modifiers={{ event: eventDates }}
-              modifiersClassNames={{ event: "bg-accent/20 font-bold" }}
+              modifiersClassNames={{ event: "bg-primary/20 font-bold" }}
               className="rounded-xl"
             />
           </div>
-          <div className="border-2 border-accent/20 rounded-2xl p-4 bg-background">
+          <div className="border-2 border-primary/20 rounded-2xl p-4 bg-card">
             <h3 className="font-bold text-foreground mb-2">
               {selectedDate?.toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })}
             </h3>
@@ -496,9 +496,9 @@ export default function Agenda() {
                                   <div
                                     key={e.id}
                                     onClick={() => openEventDetail(e)}
-                                    className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-accent transition-colors py-0.5"
+                                   className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-0.5"
                                   >
-                                    <span className="h-2 w-2 rounded-full bg-accent shrink-0" />
+                                    <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                                     <span className="font-medium">{e.title}</span>
                                   </div>
                                 ))}
@@ -515,7 +515,7 @@ export default function Agenda() {
                             <div
                               key={e.id}
                               onClick={() => openEventDetail(e)}
-                              className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-accent transition-colors py-0.5"
+                              className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-0.5"
                             >
                               <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                               {e.title}
@@ -561,7 +561,7 @@ export default function Agenda() {
           </div>
 
           <div ref={sectionRefs["proximo-mes"]}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-accent mb-3">
+            <h2 className="flex items-center gap-2 text-base font-bold text-primary mb-3">
               <CalendarClock className="h-4 w-4" />
               Próximo mês ({nextMonth.length})
             </h2>
@@ -614,9 +614,9 @@ export default function Agenda() {
                   </div>
                 )}
                 {detailEvent.source && detailEvent.source !== "manual" && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/10 border border-accent/20">
-                    <Pill className="h-4 w-4 text-accent" />
-                    <p className="text-sm text-accent font-medium">Criado automaticamente via prontuário</p>
+                   <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                    <Pill className="h-4 w-4 text-primary" />
+                    <p className="text-sm text-primary font-medium">Criado automaticamente via prontuário</p>
                   </div>
                 )}
                 {daysFromNow(detailEvent.date) < 0 && (
@@ -660,7 +660,7 @@ export default function Agenda() {
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <CalendarIcon className="h-5 w-5 text-accent" />
+              <CalendarIcon className="h-5 w-5 text-primary" />
               {editingEvent ? "Editar Evento" : "Novo Evento"}
             </DialogTitle>
           </DialogHeader>
@@ -718,8 +718,8 @@ export default function Agenda() {
             </div>
 
             {(eventType === "atividade-semanal" || eventType === "atividade-mensal") && !editingEvent && (
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-accent/20 bg-accent/5">
-                <Repeat className="h-5 w-5 text-accent shrink-0" />
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
+                <Repeat className="h-5 w-5 text-primary shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-foreground">
                     Repetir {eventType === "atividade-semanal" ? "toda semana" : "todo mês"}
@@ -734,7 +734,7 @@ export default function Agenda() {
                   type="checkbox"
                   checked={repeatEnabled}
                   onChange={(e) => setRepeatEnabled(e.target.checked)}
-                  className="h-5 w-5 accent-accent rounded"
+                  className="h-5 w-5 accent-primary rounded"
                 />
               </div>
             )}
@@ -754,7 +754,7 @@ export default function Agenda() {
                 Cancelar
               </Button>
               <Button
-                className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                className="h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={!eventType || !eventTitle || !eventDate || saving}
                 onClick={handleSaveEvent}
               >
