@@ -314,7 +314,7 @@ export function VaccinationSchedule({ pet }: Props) {
       </div>
 
       {/* Annual reminder */}
-      <div className="bg-muted/30 bcardrder-border rounded-xl p-4 text-xs text-muted-foreground">
+      <div className="bg-muted/30 border border-border rounded-xl p-4 text-xs text-muted-foreground">
         <p className="font-semibold text-foreground mb-1">📆 Reforços Anuais</p>
         <p>Após 1 ano de idade, seu pet precisa de reforço anual de V8/V10 (ou V3/V4/V5 para gatos) + Antirrábica.</p>
       </div>
