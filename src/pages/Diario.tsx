@@ -528,7 +528,7 @@ const Diario = () => {
           {/* Mudança na rotina */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <RefreshCw className="h-4 w-4 text-secondary" />
+              <RefreshCw className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Mudança na rotina?</span>
             </div>
             <Select
