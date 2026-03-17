@@ -317,7 +317,7 @@ const Diario = () => {
           {/* Sono */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Moon className="h-4 w-4 text-secondary" />
+              <Moon className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Sono</span>
             </div>
             <div className="grid grid-cols-3 gap-3">
