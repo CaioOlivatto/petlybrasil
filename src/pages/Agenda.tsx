@@ -455,7 +455,7 @@ export default function Agenda() {
               selected={selectedDate}
               onSelect={setSelectedDate}
               modifiers={{ event: eventDates }}
-              modifiersClassNames={{ event: "bg-accent/20 font-bold" }}
+              modifiersClassNames={{ event: "bg-primary/20 font-bold" }}
               className="rounded-xl"
             />
           </div>
