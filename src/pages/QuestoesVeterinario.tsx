@@ -330,7 +330,7 @@ const QuestoesVeterinario = () => {
                       organizedQuestions.includes(q) ? "opacity-50 border-primary/30 bg-primary/5" : ""
                     }`}
                   >
-                    <Badge variant="outline" className="mt-0.5 shrink-0 text-xs min-w-[28px] justify-center text-secondary border-secondary/30">
+                    <Badge variant="outline" className="mt-0.5 shrink-0 text-xs min-w-[28px] justify-center text-primary border-primary/30">
                       {i + 1}
                     </Badge>
                     <span className="text-sm text-foreground">{q}</span>
