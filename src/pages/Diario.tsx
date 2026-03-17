@@ -303,8 +303,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, apetite: opt.value }))}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                     checkIn.apetite === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary font-semibold"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span className="text-2xl">{opt.emoji}</span>
