@@ -754,7 +754,7 @@ export default function Agenda() {
                 Cancelar
               </Button>
               <Button
-                className="h-12 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+                className="h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={!eventType || !eventTitle || !eventDate || saving}
                 onClick={handleSaveEvent}
               >
