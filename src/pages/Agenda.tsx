@@ -660,7 +660,7 @@ export default function Agenda() {
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <CalendarIcon className="h-5 w-5 text-accent" />
+              <CalendarIcon className="h-5 w-5 text-primary" />
               {editingEvent ? "Editar Evento" : "Novo Evento"}
             </DialogTitle>
           </DialogHeader>
