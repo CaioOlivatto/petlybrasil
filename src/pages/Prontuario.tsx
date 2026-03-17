@@ -686,7 +686,7 @@ export default function Prontuario() {
             const Icon = catInfo?.icon || FileText;
 
             return (
-              <div key={catKey} className="border-2 border-accent/20 rounded-2xl bg-background overflow-hidden">
+              <div key={catKey} className="border-2 border-primary/20 rounded-2xl bg-card overflow-hidden">
                 <button
                   onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                   className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-muted/30 transition-colors"
