@@ -400,8 +400,8 @@ const QuestoesVeterinario = () => {
                 onClick={() => setEditMode("add")}
                 className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${
                   editMode === "add"
-                    ? "border-secondary bg-secondary/10 text-secondary"
-                    : "border-border bg-background hover:border-secondary/40"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background hover:border-primary/40"
                 }`}
               >
                 <Plus className="h-4 w-4 mx-auto mb-1" />
