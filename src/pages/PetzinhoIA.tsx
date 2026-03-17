@@ -166,8 +166,8 @@ const PetzinhoIA = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-secondary/15 flex items-center justify-center">
-            <Bot className="h-5 w-5 text-secondary" />
+          <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
+            <Bot className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-foreground">Petlyzinho IA</h1>
