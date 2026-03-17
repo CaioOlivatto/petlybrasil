@@ -320,6 +320,7 @@ export type Database = {
           name: string | null
           onboarding_completed: boolean
           phone: string | null
+          trial_ends_at: string | null
           updated_at: string
           user_id: string
         }
@@ -332,6 +333,7 @@ export type Database = {
           name?: string | null
           onboarding_completed?: boolean
           phone?: string | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -344,6 +346,7 @@ export type Database = {
           name?: string | null
           onboarding_completed?: boolean
           phone?: string | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
         }
