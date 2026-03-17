@@ -664,7 +664,7 @@ export default function Prontuario() {
             Previsto para próximos dias
           </span>
         </div>
-        <span className="hidden sm:inline text-accent italic">
+        <span className="hidden sm:inline text-primary italic">
           Clique em um registro para ver detalhes e baixar anexos
         </span>
       </div>
