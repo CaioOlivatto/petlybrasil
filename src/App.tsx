@@ -39,6 +39,9 @@ const App = () => (
             <Route path="/onboarding" element={
               <ProtectedRoute><Onboarding /></ProtectedRoute>
             } />
+            <Route path="/assinatura" element={
+              <ProtectedRoute><Assinatura /></ProtectedRoute>
+            } />
             <Route element={
               <ProtectedRoute><DashboardLayout /></ProtectedRoute>
             }>
