@@ -259,7 +259,7 @@ const QuestoesVeterinario = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-secondary" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
                 Suas Perguntas ({organizedQuestions.length})
               </CardTitle>
               <Button
