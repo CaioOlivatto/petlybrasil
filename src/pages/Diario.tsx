@@ -416,7 +416,7 @@ const Diario = () => {
               ))}
             </div>
             {checkIn.passeio && (
-              <div className="mt-3 space-y-3 p-3 rounded-xl border-2 border-secondary/20 bg-secondary/5">
+              <div className="mt-3 space-y-3 p-3 rounded-xl border-2 border-primary/20 bg-primary/5">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-foreground">Quantos passeios?</span>
                   <div className="flex items-center gap-2">
