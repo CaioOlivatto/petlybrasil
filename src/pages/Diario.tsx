@@ -261,7 +261,7 @@ const Diario = () => {
       </div>
 
       {/* Check-in de hoje */}
-      <Card className="bg-background border-border">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-lg text-foreground">Check-in de hoje</CardTitle>
         </CardHeader>
