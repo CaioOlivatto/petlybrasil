@@ -364,7 +364,7 @@ export default function Documentos() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              {selectedType && <selectedType.icon className="h-5 w-5 text-accent" />}
+              {selectedType && <selectedType.icon className="h-5 w-5 text-primary" />}
               {selectedType?.label || "Novo Documento"}
             </DialogTitle>
           </DialogHeader>
