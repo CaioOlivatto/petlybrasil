@@ -233,7 +233,7 @@ const QuestoesVeterinario = () => {
       </div>
 
       {/* Input area */}
-      <Card className="bg-background border-border">
+      <Card className="bg-card border-border">
         <CardContent className="p-5 space-y-4">
           <Textarea
             placeholder={"Descreva sintomas, comportamentos ou qualquer dúvida que você queira discutir com o veterinário...\n\nExemplo: Notei que ela está coçando muito a orelha e tem um cheiro diferente. Também está bebendo mais água que o normal."}
