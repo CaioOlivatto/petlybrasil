@@ -175,7 +175,7 @@ const Treino = () => {
               }`}>
                 <Icon className="h-5 w-5" />
               </div>
-              <span className={`text-sm font-semibold ${isSelected ? "text-secondary" : "text-foreground"}`}>
+              <span className={`text-sm font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
                 {cat.label}
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight">
