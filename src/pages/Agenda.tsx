@@ -614,9 +614,9 @@ export default function Agenda() {
                   </div>
                 )}
                 {detailEvent.source && detailEvent.source !== "manual" && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/10 border border-accent/20">
-                    <Pill className="h-4 w-4 text-accent" />
-                    <p className="text-sm text-accent font-medium">Criado automaticamente via prontuário</p>
+                   <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                    <Pill className="h-4 w-4 text-primary" />
+                    <p className="text-sm text-primary font-medium">Criado automaticamente via prontuário</p>
                   </div>
                 )}
                 {daysFromNow(detailEvent.date) < 0 && (
