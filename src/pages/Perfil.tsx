@@ -62,7 +62,7 @@ export default function Perfil() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors ${
                     isActive
-                      ? "bg-accent text-accent-foreground font-semibold"
+                      ? "bg-primary text-primary-foreground font-semibold"
                       : "text-foreground hover:bg-muted"
                   }`}
                 >
