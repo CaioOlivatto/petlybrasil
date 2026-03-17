@@ -413,8 +413,8 @@ export default function Prontuario() {
                       onClick={() => setSelectedCategory(cat.key)}
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-center ${
                         selectedCategory === cat.key
-                          ? "border-accent bg-accent/10 text-accent"
-                          : "border-border bg-background text-muted-foreground hover:border-accent/50"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground hover:border-primary/50"
                       }`}
                     >
                       <cat.icon className="h-5 w-5" />
