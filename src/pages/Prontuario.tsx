@@ -632,7 +632,7 @@ export default function Prontuario() {
                 }`}
               >
                 {tab.label}
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? "bg-accent-foreground/20" : "bg-muted"}`}>
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? "bg-primary-foreground/20" : "bg-muted"}`}>
                   {count}
                 </span>
               </button>
