@@ -367,7 +367,7 @@ const Diario = () => {
           {/* Alterações de fezes e urina */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Droplets className="h-4 w-4 text-secondary" />
+              <Droplets className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Alteração de fezes e urina</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3">Selecione se houve alguma alteração (pode marcar várias)</p>
