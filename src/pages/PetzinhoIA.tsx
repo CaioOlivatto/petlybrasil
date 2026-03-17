@@ -226,7 +226,7 @@ const PetzinhoIA = () => {
             <div
               className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm ${
                 msg.role === "user"
-                  ? "bg-secondary text-secondary-foreground rounded-br-md"
+                  ? "bg-primary text-primary-foreground rounded-br-md"
                   : "bg-muted text-foreground rounded-bl-md"
               }`}
             >
