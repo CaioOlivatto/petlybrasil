@@ -424,7 +424,7 @@ const Diario = () => {
                       onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: Math.max(1, p.passeioQuantidade - 1) }))}
                       className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
                     >−</button>
-                    <span className="text-lg font-bold text-secondary min-w-[2rem] text-center">{checkIn.passeioQuantidade}</span>
+                    <span className="text-lg font-bold text-primary min-w-[2rem] text-center">{checkIn.passeioQuantidade}</span>
                     <button
                       onClick={() => setCheckIn((p) => ({ ...p, passeioQuantidade: p.passeioQuantidade + 1 }))}
                       className="h-8 w-8 rounded-lg border border-border bg-background flex items-center justify-center text-foreground hover:bg-muted"
