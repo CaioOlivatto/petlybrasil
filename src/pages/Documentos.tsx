@@ -338,7 +338,7 @@ export default function Documentos() {
                       href={doc.attachment_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-accent hover:underline text-xs font-medium"
+                      className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium"
                     >
                       <ExternalLink className="h-4 w-4" />
                       <span className="hidden sm:inline">Ver</span>
