@@ -238,7 +238,7 @@ export function VaccinationSchedule({ pet }: Props) {
                     {vaccine.protectsAgainst && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {vaccine.protectsAgainst.map((p) => (
-                          <span key={p} className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded">
+                          <span key={p} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                             {p}
                           </span>
                         ))}
