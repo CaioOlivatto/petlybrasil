@@ -495,8 +495,8 @@ const Diario = () => {
                     checkIn.convulsao === opt.value
                       ? opt.value
                         ? "border-destructive bg-destructive/10 text-destructive"
-                        : "border-secondary bg-secondary/10 text-secondary"
-                      : "border-border bg-background hover:border-secondary/40"
+                        : "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   {opt.label}
