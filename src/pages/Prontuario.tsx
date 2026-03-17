@@ -504,8 +504,8 @@ export default function Prontuario() {
                         onClick={() => setFrequency(opt.value)}
                         className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-center ${
                           frequency === opt.value
-                            ? "border-accent bg-accent/10 text-accent"
-                            : "border-border text-muted-foreground hover:border-accent/50"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:border-primary/50"
                         }`}
                       >
                         {opt.label}
