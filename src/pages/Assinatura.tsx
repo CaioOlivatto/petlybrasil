@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Star, Zap, Loader2, LogOut, X } from "lucide-react";
+import { Check, Crown, Star, Zap, Loader2, LogOut, X, ArrowLeft } from "lucide-react";
 import petlyLogo from "@/assets/petly-logo.png";
 import pawPattern from "@/assets/paw-pattern.png";
 
@@ -78,6 +78,34 @@ export default function Assinatura() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const check = async () => {
+      // Check trial
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("trial_ends_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
+      if (trialEndsAt && trialEndsAt > new Date()) {
+        setCanGoBack(true);
+        return;
+      }
+      // Check subscription
+      try {
+        const { data: subData } = await supabase.functions.invoke("check-subscription");
+        if (subData?.subscribed === true) {
+          setCanGoBack(true);
+          return;
+        }
+      } catch {}
+      setCanGoBack(false);
+    };
+    void check();
+  }, [user?.id]);
 
   const handleSubscribe = async (priceId: string, planId: string) => {
     setLoadingPlan(planId);
@@ -114,11 +142,21 @@ export default function Assinatura() {
       <div className="absolute inset-0 bg-background/70" />
 
       <div className="relative z-10 w-full max-w-5xl space-y-8">
+        {/* Back button */}
+        {canGoBack && (
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" /> Voltar ao sistema
+          </button>
+        )}
+
         {/* Header */}
         <div className="text-center space-y-4">
           <img src={petlyLogo} alt="Petly" className="h-20 w-20 mx-auto object-contain" />
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Seu período de teste terminou
+            {canGoBack ? "Escolha seu plano" : "Seu período de teste terminou"}
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Escolha o plano ideal para continuar cuidando do seu pet com inteligência
