@@ -331,9 +331,9 @@ export default function Agenda() {
         }`}
       >
         <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
-          isOverdue ? "bg-destructive/10" : "bg-accent/10"
+          isOverdue ? "bg-destructive/10" : "bg-primary/10"
         }`}>
-          <Icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-accent"}`} />
+          <Icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-primary"}`} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
