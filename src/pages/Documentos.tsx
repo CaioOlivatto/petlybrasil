@@ -413,7 +413,7 @@ export default function Documentos() {
                     className="hidden"
                   />
                 </label>
-                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
                   <Camera className="h-6 w-6 text-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">Tirar Foto</span>
                   <input
