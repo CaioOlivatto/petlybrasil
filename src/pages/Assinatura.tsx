@@ -170,6 +170,12 @@ export default function Assinatura() {
                         {feature}
                       </li>
                     ))}
+                    {plan.excluded.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground line-through">
+                        <X className="h-4 w-4 flex-shrink-0 text-destructive/50" />
+                        {feature}
+                      </li>
+                    ))}
                   </ul>
                   <Button
                     onClick={() => handleSubscribe(plan.priceId, plan.id)}
