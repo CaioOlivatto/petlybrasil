@@ -378,8 +378,8 @@ const Diario = () => {
                   onClick={() => toggleAlteracao(opt.value)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all text-sm ${
                     checkIn.alteracoes.includes(opt.value)
-                      ? "border-secondary bg-secondary/10 text-secondary font-medium"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   <span>{opt.emoji}</span>
