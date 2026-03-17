@@ -190,7 +190,7 @@ const Treino = () => {
       {!selectedCategory && !content && (
         <Card className="bg-card border-dashed border-2">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Sparkles className="h-10 w-10 text-secondary/40 mb-4" />
+            <Sparkles className="h-10 w-10 text-primary/40 mb-4" />
             <p className="text-base font-semibold text-foreground mb-1">
               Escolha uma categoria acima
             </p>
