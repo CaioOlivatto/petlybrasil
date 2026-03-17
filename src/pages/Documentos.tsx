@@ -326,7 +326,7 @@ export default function Documentos() {
                   <p className="font-semibold text-foreground text-sm sm:text-base truncate">{doc.name}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{formatDate(doc.date)}</span>
-                    {typeInfo && <span className="px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-medium">{typeInfo.label}</span>}
+                    {typeInfo && <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">{typeInfo.label}</span>}
                   </div>
                   {doc.notes && (
                     <p className="text-xs text-muted-foreground mt-1 truncate">{doc.notes}</p>
