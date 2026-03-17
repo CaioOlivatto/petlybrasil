@@ -341,7 +341,7 @@ const Diario = () => {
           {/* Humor */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Heart className="h-4 w-4 text-secondary" />
+              <Heart className="h-4 w-4 text-primary" />
               <span className="font-medium text-foreground">Humor</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
