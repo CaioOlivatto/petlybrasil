@@ -525,7 +525,7 @@ export default function Prontuario() {
                     <label className="text-sm font-semibold text-foreground">Tem validade?</label>
                     <button
                       onClick={() => setHasValidity(!hasValidity)}
-                      className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-accent" : "bg-muted"}`}
+                      className={`relative w-12 h-7 rounded-full transition-colors ${hasValidity ? "bg-primary" : "bg-muted"}`}
                     >
                       <span className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-background shadow transition-transform ${hasValidity ? "translate-x-5" : ""}`} />
                     </button>
