@@ -718,8 +718,8 @@ export default function Agenda() {
             </div>
 
             {(eventType === "atividade-semanal" || eventType === "atividade-mensal") && !editingEvent && (
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-accent/20 bg-accent/5">
-                <Repeat className="h-5 w-5 text-accent shrink-0" />
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
+                <Repeat className="h-5 w-5 text-primary shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-foreground">
                     Repetir {eventType === "atividade-semanal" ? "toda semana" : "todo mês"}
