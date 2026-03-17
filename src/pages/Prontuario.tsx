@@ -794,7 +794,7 @@ export default function Prontuario() {
                             <p className="text-xs text-muted-foreground">{record.notes}</p>
                           )}
                           {record.attachment_url && (
-                            <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent text-xs hover:underline">
+                            <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary text-xs hover:underline">
                               <ExternalLink className="h-3 w-3" />
                               {record.attachment_name || "Ver anexo"}
                             </a>
