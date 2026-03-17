@@ -209,7 +209,7 @@ const PetzinhoIA = () => {
                 <button
                   key={i}
                   onClick={() => sendMessage(s)}
-                  className="w-full text-left px-4 py-3 rounded-xl border border-border bg-background text-sm text-foreground hover:border-secondary/50 hover:bg-secondary/5 transition-colors"
+                  className="w-full text-left px-4 py-3 rounded-xl border border-border bg-background text-sm text-foreground hover:border-primary/50 hover:bg-primary/5 transition-colors"
                 >
                   {s}
                 </button>
