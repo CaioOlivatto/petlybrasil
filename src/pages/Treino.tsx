@@ -171,7 +171,7 @@ const Treino = () => {
               `}
             >
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                isSelected ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground"
+                isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
               }`}>
                 <Icon className="h-5 w-5" />
               </div>
