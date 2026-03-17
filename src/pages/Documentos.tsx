@@ -264,14 +264,14 @@ export default function Documentos() {
               onClick={() => openCreateDialog(type)}
               className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left cursor-pointer hover:shadow-md ${
                 count > 0
-                  ? "border-accent/30 bg-accent/5 hover:border-accent/60"
-                  : "border-border bg-background hover:border-accent/40 hover:bg-accent/5"
+                  ? "border-primary/30 bg-primary/5 hover:border-primary/60"
+                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
               }`}
             >
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
-                count > 0 ? "bg-accent/15" : "bg-muted"
+                count > 0 ? "bg-primary/15" : "bg-muted"
               }`}>
-                <Icon className={`h-5 w-5 ${count > 0 ? "text-accent" : "text-muted-foreground"}`} />
+                <Icon className={`h-5 w-5 ${count > 0 ? "text-primary" : "text-muted-foreground"}`} />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground text-sm truncate">{type.label}</p>
