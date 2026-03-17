@@ -596,7 +596,7 @@ const Diario = () => {
             <p className="text-muted-foreground text-center py-8">Nenhum check-in neste período.</p>
           ) : (
             filteredHistory.map((entry, idx) => (
-              <Card key={idx} className="bg-background border-border">
+              <Card key={idx} className="bg-card border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-semibold text-foreground">
