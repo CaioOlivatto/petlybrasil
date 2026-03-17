@@ -467,8 +467,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, atividadeMental: opt.value }))}
                   className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                     checkIn.atividadeMental === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   {opt.label}
