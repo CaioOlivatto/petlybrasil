@@ -164,8 +164,8 @@ const Treino = () => {
               disabled={isLoading}
               className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center
                 ${isSelected
-                  ? "border-secondary bg-secondary/10 shadow-md"
-                  : "border-border bg-card hover:border-secondary/40 hover:bg-secondary/5"
+                  ? "border-primary bg-primary/10 shadow-md"
+                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
                 }
                 ${isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
               `}
