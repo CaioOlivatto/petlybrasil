@@ -742,7 +742,7 @@ export default function Prontuario() {
                               <td className="px-5 py-4 text-muted-foreground max-w-[200px] truncate">{record.notes || "-"}</td>
                               <td className="px-5 py-4 text-center">
                                 {record.attachment_url ? (
-                                  <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent hover:underline text-xs">
+                                  <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
                                     <ExternalLink className="h-3.5 w-3.5" />
                                     {record.attachment_name || "Ver"}
                                   </a>
