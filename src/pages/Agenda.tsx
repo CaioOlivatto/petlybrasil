@@ -459,7 +459,7 @@ export default function Agenda() {
               className="rounded-xl"
             />
           </div>
-          <div className="border-2 border-accent/20 rounded-2xl p-4 bg-background">
+          <div className="border-2 border-primary/20 rounded-2xl p-4 bg-card">
             <h3 className="font-bold text-foreground mb-2">
               {selectedDate?.toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })}
             </h3>
