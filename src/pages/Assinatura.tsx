@@ -78,6 +78,34 @@ export default function Assinatura() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const check = async () => {
+      // Check trial
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("trial_ends_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
+      if (trialEndsAt && trialEndsAt > new Date()) {
+        setCanGoBack(true);
+        return;
+      }
+      // Check subscription
+      try {
+        const { data: subData } = await supabase.functions.invoke("check-subscription");
+        if (subData?.subscribed === true) {
+          setCanGoBack(true);
+          return;
+        }
+      } catch {}
+      setCanGoBack(false);
+    };
+    void check();
+  }, [user?.id]);
 
   const handleSubscribe = async (priceId: string, planId: string) => {
     setLoadingPlan(planId);
