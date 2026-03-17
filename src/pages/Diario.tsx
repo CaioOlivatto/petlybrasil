@@ -582,7 +582,7 @@ const Diario = () => {
                 onClick={() => setHistoryFilter(opt.value)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   historyFilter === opt.value
-                    ? "bg-secondary text-secondary-foreground shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
