@@ -432,15 +432,15 @@ export default function Agenda() {
           onClick={() => handleCardClick("proximo-mes")}
           className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${
             activeSection === "proximo-mes"
-              ? "border-accent bg-accent/10 shadow-md"
-              : "border-accent/30 bg-background hover:border-accent/50"
+              ? "border-primary bg-primary/10 shadow-md"
+              : "border-primary/30 bg-card hover:border-primary/50"
           }`}
         >
-          <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-            <CalendarClock className="h-6 w-6 text-accent" />
+          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <CalendarClock className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-accent">{nextMonth.length}</p>
+            <p className="text-2xl font-bold text-primary">{nextMonth.length}</p>
             <p className="text-sm font-medium text-foreground">Próximo mês</p>
           </div>
         </button>
