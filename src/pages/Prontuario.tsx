@@ -581,7 +581,7 @@ export default function Prontuario() {
                     </label>
                   </div>
                   {attachedFile && (
-                    <p className="text-xs text-accent font-medium mt-1">
+                    <p className="text-xs text-primary font-medium mt-1">
                       📎 {attachedFile.name}
                     </p>
                   )}
