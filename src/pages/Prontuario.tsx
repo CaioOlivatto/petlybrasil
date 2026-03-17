@@ -398,7 +398,7 @@ export default function Prontuario() {
           <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-xl">
-                <Plus className="h-5 w-5 text-accent" />
+                <Plus className="h-5 w-5 text-primary" />
                 Novo Registro
               </DialogTitle>
             </DialogHeader>
