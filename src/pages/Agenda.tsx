@@ -561,7 +561,7 @@ export default function Agenda() {
           </div>
 
           <div ref={sectionRefs["proximo-mes"]}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-accent mb-3">
+            <h2 className="flex items-center gap-2 text-base font-bold text-primary mb-3">
               <CalendarClock className="h-4 w-4" />
               Próximo mês ({nextMonth.length})
             </h2>
