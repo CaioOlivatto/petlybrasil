@@ -627,8 +627,8 @@ export default function Prontuario() {
                 onClick={() => setActiveFilter(tab.key)}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-accent text-accent-foreground shadow-sm"
-                    : "bg-background text-muted-foreground border border-border hover:border-accent/50"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-background text-muted-foreground border border-border hover:border-primary/50"
                 }`}
               >
                 {tab.label}
