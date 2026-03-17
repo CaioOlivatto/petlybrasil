@@ -449,7 +449,7 @@ export default function Agenda() {
       {/* Calendar + Events */}
       <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-5">
         <div className="space-y-4">
-          <div className="border-2 border-accent/20 rounded-2xl p-4 bg-background">
+          <div className="border-2 border-primary/20 rounded-2xl p-4 bg-card">
             <Calendar
               mode="single"
               selected={selectedDate}
