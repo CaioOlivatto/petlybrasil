@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Star, Zap, Loader2, LogOut } from "lucide-react";
+import { Check, Crown, Star, Zap, Loader2, LogOut, X } from "lucide-react";
 import petlyLogo from "@/assets/petly-logo.png";
 import pawPattern from "@/assets/paw-pattern.png";
 
@@ -24,9 +24,9 @@ const plans = [
       "Diário do pet",
       "Agenda de consultas",
       "Alertas de vacinas",
-      "Petzinho IA",
       "Dicas de treino",
     ],
+    excluded: ["Petzinho IA"],
     popular: false,
   },
   {
@@ -40,12 +40,13 @@ const plans = [
     icon: Star,
     features: [
       "Tudo do plano Mensal",
+      "Petzinho IA incluso",
       "Economia de 23%",
       "Suporte prioritário",
       "Relatórios avançados",
       "Exportação de dados",
-      "Múltiplos pets",
     ],
+    excluded: [],
     popular: true,
   },
   {
@@ -59,12 +60,13 @@ const plans = [
     icon: Crown,
     features: [
       "Tudo do plano Pro",
+      "Petzinho IA incluso",
       "Economia de 39%",
-      "Acesso antecipado a novidades",
       "Suporte VIP",
       "Histórico ilimitado",
       "Compartilhamento familiar",
     ],
+    excluded: [],
     popular: false,
   },
 ];
@@ -165,6 +167,12 @@ export default function Assinatura() {
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2 text-sm text-foreground">
                         <Check className={`h-4 w-4 flex-shrink-0 ${plan.popular ? "text-accent" : "text-primary"}`} />
+                        {feature}
+                      </li>
+                    ))}
+                    {plan.excluded.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground line-through">
+                        <X className="h-4 w-4 flex-shrink-0 text-destructive/50" />
                         {feature}
                       </li>
                     ))}

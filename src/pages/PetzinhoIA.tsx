@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Bot, Send, Trash2 } from "lucide-react";
+import { Bot, Send, Trash2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
+import { useNavigate } from "react-router-dom";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -19,7 +20,8 @@ const SUGGESTIONS = [
 
 const PetzinhoIA = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, hasIAAccess } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -157,6 +159,23 @@ const PetzinhoIA = () => {
   };
 
   const showWelcome = messages.length === 0;
+
+  if (!hasIAAccess) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-8rem)] max-w-lg mx-auto text-center space-y-6">
+        <div className="h-20 w-20 rounded-2xl bg-muted flex items-center justify-center">
+          <Lock className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Petzinho IA é exclusivo dos planos Pro e Master</h2>
+        <p className="text-muted-foreground">
+          Faça upgrade do seu plano para ter acesso ao assistente inteligente que conhece tudo sobre seu pet.
+        </p>
+        <Button onClick={() => navigate("/assinatura")} className="bg-accent hover:bg-accent/90">
+          Ver planos disponíveis
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto bg-card rounded-2xl border border-primary/20 shadow-md p-4">
