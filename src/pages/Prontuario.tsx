@@ -558,7 +558,7 @@ export default function Prontuario() {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">Anexo</label>
                   <div className="grid grid-cols-2 gap-3">
-                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent/50 cursor-pointer transition-colors">
+                    <label className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors">
                       <Upload className="h-6 w-6 text-muted-foreground" />
                       <span className="text-xs font-medium text-muted-foreground">Enviar Arquivo</span>
                       <input
