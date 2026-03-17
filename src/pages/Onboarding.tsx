@@ -126,7 +126,10 @@ export default function Onboarding() {
 
       if (petError) throw petError;
 
-      // Save tutor profile + mark onboarding completed (upsert directly)
+      // Save tutor profile + mark onboarding completed + set 3-day trial
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 3);
+      
       const { error: profileError } = await supabase
         .from("profiles")
         .upsert({
@@ -136,7 +139,8 @@ export default function Onboarding() {
           birthday: tutorForm.tutor_birthday || null,
           onboarding_completed: true,
           email: user.email || null,
-        }, { onConflict: "user_id" });
+          trial_ends_at: trialEndsAt.toISOString(),
+        } as any, { onConflict: "user_id" });
 
       if (profileError) throw profileError;
 

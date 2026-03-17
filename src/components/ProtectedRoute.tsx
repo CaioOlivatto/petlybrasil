@@ -9,6 +9,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -18,15 +19,17 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         if (isMounted) {
           setCheckingOnboarding(false);
           setOnboardingCompleted(null);
+          setHasAccess(null);
         }
         return;
       }
 
       if (isMounted) setCheckingOnboarding(true);
 
+      // Check profile for onboarding and trial
       const { data, error } = await supabase
         .from("profiles")
-        .select("onboarding_completed")
+        .select("onboarding_completed, trial_ends_at")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -35,11 +38,42 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       if (error) {
         console.error("Erro ao verificar onboarding:", error);
         setOnboardingCompleted(false);
-      } else {
-        setOnboardingCompleted(data?.onboarding_completed ?? false);
+        setHasAccess(false);
+        setCheckingOnboarding(false);
+        return;
       }
 
-      setCheckingOnboarding(false);
+      setOnboardingCompleted(data?.onboarding_completed ?? false);
+
+      // Check if trial is still active
+      const trialEndsAt = (data as any)?.trial_ends_at ? new Date((data as any).trial_ends_at) : null;
+      const isTrialActive = trialEndsAt ? trialEndsAt > new Date() : false;
+
+      if (isTrialActive) {
+        setHasAccess(true);
+        setCheckingOnboarding(false);
+        return;
+      }
+
+      // If trial expired, check Stripe subscription
+      if (data?.onboarding_completed) {
+        try {
+          const { data: subData, error: subError } = await supabase.functions.invoke("check-subscription");
+          if (!isMounted) return;
+          if (subError) {
+            console.error("Erro ao verificar assinatura:", subError);
+            setHasAccess(false);
+          } else {
+            setHasAccess(subData?.subscribed === true || subData?.trial_active === true);
+          }
+        } catch {
+          if (isMounted) setHasAccess(false);
+        }
+      } else {
+        setHasAccess(true); // hasn't finished onboarding yet
+      }
+
+      if (isMounted) setCheckingOnboarding(false);
     };
 
     void checkOnboarding();
@@ -69,6 +103,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Redirect to subscription page if no access (trial expired + no subscription)
+  if (hasAccess === false && location.pathname !== "/assinatura" && location.pathname !== "/onboarding") {
+    return <Navigate to="/assinatura" replace />;
+  }
+
   return <>{children}</>;
 }
-

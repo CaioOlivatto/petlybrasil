@@ -21,6 +21,7 @@ import Treino from "./pages/Treino";
 import Emergency from "./pages/Emergency";
 import Vacinas from "./pages/Vacinas";
 import Documentos from "./pages/Documentos";
+import Assinatura from "./pages/Assinatura";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,9 @@ const App = () => (
             <Route path="/emergency" element={<Emergency />} />
             <Route path="/onboarding" element={
               <ProtectedRoute><Onboarding /></ProtectedRoute>
+            } />
+            <Route path="/assinatura" element={
+              <ProtectedRoute><Assinatura /></ProtectedRoute>
             } />
             <Route element={
               <ProtectedRoute><DashboardLayout /></ProtectedRoute>
