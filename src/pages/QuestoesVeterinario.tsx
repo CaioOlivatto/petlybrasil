@@ -318,7 +318,7 @@ const QuestoesVeterinario = () => {
           return (
             <div key={category}>
               <div className="flex items-center gap-2 mb-3">
-                <Icon className="h-5 w-5 text-secondary" />
+                <Icon className="h-5 w-5 text-primary" />
                 <h2 className="text-base font-bold text-foreground">{config.label}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
