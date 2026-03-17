@@ -407,8 +407,8 @@ const Diario = () => {
                   onClick={() => setCheckIn((p) => ({ ...p, passeio: opt.value, passeioQuantidade: opt.value ? Math.max(p.passeioQuantidade, 1) : 0, passeioDuracao: opt.value ? p.passeioDuracao : "" }))}
                   className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                     checkIn.passeio === opt.value
-                      ? "border-secondary bg-secondary/10 text-secondary"
-                      : "border-border bg-background hover:border-secondary/40"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background hover:border-primary/40"
                   }`}
                 >
                   {opt.label}
