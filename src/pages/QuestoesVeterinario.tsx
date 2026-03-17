@@ -326,8 +326,8 @@ const QuestoesVeterinario = () => {
                   <button
                     key={i}
                     onClick={() => handleAddSuggested(q)}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border border-border bg-background text-left transition-all hover:border-secondary/50 hover:bg-secondary/5 ${
-                      organizedQuestions.includes(q) ? "opacity-50 border-secondary/30 bg-secondary/5" : ""
+                    className={`flex items-start gap-3 p-3.5 rounded-xl border border-border bg-card text-left transition-all hover:border-primary/50 hover:bg-primary/5 ${
+                      organizedQuestions.includes(q) ? "opacity-50 border-primary/30 bg-primary/5" : ""
                     }`}
                   >
                     <Badge variant="outline" className="mt-0.5 shrink-0 text-xs min-w-[28px] justify-center text-secondary border-secondary/30">
