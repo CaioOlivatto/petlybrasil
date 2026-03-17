@@ -440,8 +440,8 @@ const Diario = () => {
                         onClick={() => setCheckIn((p) => ({ ...p, passeioDuracao: p.passeioDuracao === dur ? "" : dur }))}
                         className={`px-3 py-1.5 rounded-lg border text-sm transition-all ${
                           checkIn.passeioDuracao === dur
-                            ? "border-secondary bg-secondary/10 text-secondary font-medium"
-                            : "border-border bg-background hover:border-secondary/40"
+                            ? "border-primary bg-primary/10 text-primary font-medium"
+                            : "border-border bg-background hover:border-primary/40"
                         }`}
                       >{dur}</button>
                     ))}
