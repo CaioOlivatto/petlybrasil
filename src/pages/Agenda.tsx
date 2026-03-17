@@ -326,8 +326,8 @@ export default function Agenda() {
         onClick={() => openEventDetail(evento)}
         className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors cursor-pointer ${
           isOverdue
-            ? "border-destructive/30 bg-background hover:border-destructive/50"
-            : "border-accent/20 bg-background hover:border-accent/40"
+            ? "border-destructive/30 bg-card hover:border-destructive/50"
+            : "border-primary/20 bg-card hover:border-primary/40"
         }`}
       >
         <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
