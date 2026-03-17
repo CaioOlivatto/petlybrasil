@@ -734,7 +734,7 @@ export default function Agenda() {
                   type="checkbox"
                   checked={repeatEnabled}
                   onChange={(e) => setRepeatEnabled(e.target.checked)}
-                  className="h-5 w-5 accent-accent rounded"
+                  className="h-5 w-5 accent-primary rounded"
                 />
               </div>
             )}
