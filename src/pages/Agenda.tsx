@@ -498,7 +498,7 @@ export default function Agenda() {
                                     onClick={() => openEventDetail(e)}
                                    className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-0.5"
                                   >
-                                    <span className="h-2 w-2 rounded-full bg-accent shrink-0" />
+                                    <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                                     <span className="font-medium">{e.title}</span>
                                   </div>
                                 ))}
