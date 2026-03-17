@@ -317,10 +317,10 @@ export default function Documentos() {
             return (
               <div
                 key={doc.id}
-                className="flex items-center gap-4 p-4 rounded-2xl border-2 border-accent/20 bg-background hover:border-accent/40 transition-colors"
+                className="flex items-center gap-4 p-4 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary/40 transition-colors"
               >
-                <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Icon className="h-5 w-5 text-accent" />
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm sm:text-base truncate">{doc.name}</p>
