@@ -726,7 +726,7 @@ export default function Prontuario() {
                           {catRecords.map((record) => (
                             <tr
                               key={record.id}
-                              className="border-t border-border/50 hover:bg-accent/5 transition-colors"
+                              className="border-t border-border/50 hover:bg-primary/5 transition-colors"
                             >
                               <td className="px-5 py-4 font-medium text-foreground">
                                 <div className="flex items-center gap-2">
