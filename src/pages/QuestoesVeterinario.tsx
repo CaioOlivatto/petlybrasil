@@ -349,7 +349,7 @@ const QuestoesVeterinario = () => {
           <h2 className="text-lg font-bold text-foreground mb-4">📋 Listas salvas</h2>
           <div className="space-y-4">
             {savedLists.map((list) => (
-              <Card key={list.id} className="bg-background border-border">
+              <Card key={list.id} className="bg-card border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
