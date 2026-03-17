@@ -24,9 +24,9 @@ const plans = [
       "Diário do pet",
       "Agenda de consultas",
       "Alertas de vacinas",
-      "Petzinho IA",
       "Dicas de treino",
     ],
+    excluded: ["Petzinho IA"],
     popular: false,
   },
   {
@@ -40,12 +40,13 @@ const plans = [
     icon: Star,
     features: [
       "Tudo do plano Mensal",
+      "Petzinho IA incluso",
       "Economia de 23%",
       "Suporte prioritário",
       "Relatórios avançados",
       "Exportação de dados",
-      "Múltiplos pets",
     ],
+    excluded: [],
     popular: true,
   },
   {
