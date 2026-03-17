@@ -229,7 +229,7 @@ const QuestoesVeterinario = () => {
           <Stethoscope className="h-7 w-7 text-primary" />
           <h1 className="text-2xl font-bold font-display text-foreground">Preparo para Consulta</h1>
         </div>
-        <p className="text-muted-foreground">Prepare suas perguntas antes da consulta</p>
+        <p className="text-muted-foreground">Organizo suas dúvidas e sintomas para você não esquecer nada na consulta</p>
       </div>
 
       {/* Input area */}
