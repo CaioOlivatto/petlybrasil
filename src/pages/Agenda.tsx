@@ -385,7 +385,7 @@ export default function Agenda() {
         </div>
         <Button
           onClick={openCreateDialog}
-          className="h-12 px-6 text-base font-semibold rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg"
+          className="h-12 px-6 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
         >
           <Plus className="h-5 w-5 mr-2" />
           Novo Evento
