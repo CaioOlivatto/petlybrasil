@@ -545,9 +545,9 @@ export default function Agenda() {
               Realizadas ({realized.length})
             </h2>
             {realized.length === 0 ? (
-              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento realizado ainda
-              </p>
+              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+                <EmptyState icon={Clock} title="Nenhum evento realizado" description="Eventos passados aparecerão aqui." />
+              </div>
             ) : (
               <div className="space-y-2">{realized.map(renderEventCard)}</div>
             )}
