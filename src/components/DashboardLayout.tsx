@@ -34,7 +34,7 @@ export function DashboardLayout() {
           </header>
 
           <main className="flex-1 p-4 sm:p-6 overflow-auto pb-20 md:pb-6">
-            <Outlet />
+            <AnimatedOutlet />
           </main>
         </div>
 
