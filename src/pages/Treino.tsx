@@ -30,6 +30,9 @@ const Treino = () => {
   const [petBreed, setPetBreed] = useState("");
   const [petSpecies, setPetSpecies] = useState("");
   const [petName, setPetName] = useState("");
+  const [petBirthDate, setPetBirthDate] = useState<string | null>(null);
+  const [petAllergies, setPetAllergies] = useState<string | null>(null);
+  const [petHealthConditions, setPetHealthConditions] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
