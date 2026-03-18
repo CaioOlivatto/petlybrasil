@@ -52,7 +52,7 @@ const navSections = [
   {
     label: "Suporte IA",
     items: [
-      { title: "Petlinho IA", url: "/petzinho-ia", icon: Bot },
+      { title: "Petlyzinho IA", url: "/petzinho-ia", icon: Bot },
       { title: "Preparo p/ Consulta", url: "/questoes-veterinario", icon: Stethoscope },
     ],
   },

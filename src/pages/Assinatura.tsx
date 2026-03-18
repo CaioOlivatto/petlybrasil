@@ -65,7 +65,7 @@ const plans = [
       "Diário do pet",
       "Agenda de consultas",
       "Alertas de vacinas",
-      "Petzinho IA",
+      "Petlyzinho IA",
       "Dicas de treino",
       "Economia de 39%",
     ],
