@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   FileText,
   ArrowLeft,
   Plus,
   Search,
   Calendar,
-  Filter,
   Syringe,
   Stethoscope,
   Bug,
@@ -14,20 +13,21 @@ import {
   Plane,
   FileCheck,
   MessageSquare,
-  ChevronDown,
-  ChevronUp,
-  ImageOff,
   Upload,
   Camera,
   Loader2,
   Trash2,
   ExternalLink,
-  CheckCircle2,
-  Clock,
+  MoreVertical,
+  X,
+  ChevronRight,
+  ClipboardList,
+  Activity,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
@@ -53,16 +72,28 @@ import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
 
 const categories = [
-  { key: "vacina", label: "Vacina", icon: Syringe },
-  { key: "exame", label: "Exame", icon: FileCheck },
-  { key: "consulta", label: "Consulta", icon: Stethoscope },
-  { key: "vermifugo", label: "Vermífugo", icon: Bug },
-  { key: "medicacao", label: "Medicação", icon: Pill },
-  { key: "procedimento", label: "Procedimento", icon: Wrench },
-  { key: "viagem", label: "Viagem", icon: Plane },
-  { key: "documento", label: "Documento", icon: FileText },
-  { key: "observacao", label: "Observação", icon: MessageSquare },
+  { key: "consulta", label: "Consulta", icon: Stethoscope, color: "hsl(263, 84%, 58%)" },
+  { key: "exame", label: "Exame", icon: FileCheck, color: "hsl(217, 91%, 60%)" },
+  { key: "vacina", label: "Vacina", icon: Syringe, color: "hsl(160, 84%, 39%)" },
+  { key: "vermifugo", label: "Vermífugo", icon: Bug, color: "hsl(38, 92%, 50%)" },
+  { key: "medicacao", label: "Medicação", icon: Pill, color: "hsl(187, 96%, 42%)" },
+  { key: "procedimento", label: "Procedimento", icon: Wrench, color: "hsl(0, 84%, 60%)" },
+  { key: "viagem", label: "Viagem", icon: Plane, color: "hsl(258, 90%, 66%)" },
+  { key: "documento", label: "Documento", icon: FileText, color: "hsl(220, 9%, 46%)" },
+  { key: "observacao", label: "Observação", icon: MessageSquare, color: "hsl(330, 81%, 60%)" },
 ];
+
+const categoryColorMap: Record<string, { border: string; bg: string; text: string }> = {
+  consulta: { border: "hsl(263, 84%, 58%)", bg: "hsl(263, 87%, 96%)", text: "hsl(263, 84%, 58%)" },
+  exame: { border: "hsl(217, 91%, 60%)", bg: "hsl(214, 95%, 93%)", text: "hsl(217, 91%, 60%)" },
+  vacina: { border: "hsl(160, 84%, 39%)", bg: "hsl(152, 81%, 96%)", text: "hsl(160, 84%, 39%)" },
+  vermifugo: { border: "hsl(38, 92%, 50%)", bg: "hsl(48, 96%, 89%)", text: "hsl(38, 92%, 50%)" },
+  medicacao: { border: "hsl(187, 96%, 42%)", bg: "hsl(185, 96%, 90%)", text: "hsl(187, 96%, 42%)" },
+  procedimento: { border: "hsl(0, 84%, 60%)", bg: "hsl(0, 93%, 94%)", text: "hsl(0, 84%, 60%)" },
+  viagem: { border: "hsl(258, 90%, 66%)", bg: "hsl(258, 90%, 95%)", text: "hsl(258, 90%, 66%)" },
+  documento: { border: "hsl(220, 9%, 46%)", bg: "hsl(220, 14%, 96%)", text: "hsl(220, 9%, 46%)" },
+  observacao: { border: "hsl(330, 81%, 60%)", bg: "hsl(330, 81%, 96%)", text: "hsl(330, 81%, 60%)" },
+};
 
 interface MedicalRecord {
   id: string;
@@ -74,6 +105,8 @@ interface MedicalRecord {
   attachment_url: string | null;
   attachment_name: string | null;
   pet_id: string;
+  frequency: string | null;
+  usage_end_date: string | null;
 }
 
 export default function Prontuario() {
@@ -81,13 +114,20 @@ export default function Prontuario() {
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<"recent" | "oldest" | "category">("recent");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pet, setPet] = useState<any>(null);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Detail drawer
+  const [detailRecord, setDetailRecord] = useState<MedicalRecord | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  // Expanded notes
+  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
 
   // Form state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -170,7 +210,6 @@ export default function Prontuario() {
       let attachment_url: string | null = null;
       let attachment_name: string | null = null;
 
-      // Upload attachment if present
       if (attachedFile) {
         const ext = attachedFile.name.split(".").pop();
         const path = `${user.id}/${Date.now()}.${ext}`;
@@ -294,13 +333,11 @@ export default function Prontuario() {
   const handleDelete = async () => {
     if (!recordToDelete) return;
 
-    // Delete associated agenda events by source_record_id
     await supabase
       .from("agenda_events")
       .delete()
       .eq("source_record_id", recordToDelete.id);
 
-    // Also delete by name match as fallback (for records created before source_record_id was added)
     await supabase
       .from("agenda_events")
       .delete()
@@ -317,6 +354,8 @@ export default function Prontuario() {
       toast.error("Erro ao excluir: " + error.message);
     } else {
       toast.success("Registro e agenda excluídos!");
+      setDetailOpen(false);
+      setDetailRecord(null);
       fetchRecords();
     }
     setRecordToDelete(null);
@@ -328,41 +367,102 @@ export default function Prontuario() {
     return d.toLocaleDateString("pt-BR");
   };
 
-  const isRealized = (dateStr: string) => {
-    return new Date(dateStr + "T12:00:00") < new Date();
-  };
-
-  const isUpcoming = (dateStr: string) => {
-    const d = new Date(dateStr + "T12:00:00");
+  const getStatus = (record: MedicalRecord) => {
     const now = new Date();
-    return d >= now;
+    const recordDate = new Date(record.date + "T12:00:00");
+
+    if (record.category === "medicacao" && record.usage_end_date) {
+      const endDate = new Date(record.usage_end_date + "T12:00:00");
+      if (now >= recordDate && now <= endDate) return "em_andamento";
+      if (now > endDate) return "realizado";
+      return "previsto";
+    }
+
+    return recordDate < now ? "realizado" : "previsto";
   };
 
-  const filteredRecords = records.filter((r) => {
-    const matchCategory = activeFilter === "todas" || r.category === activeFilter;
-    const matchSearch = r.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCategory && matchSearch;
-  });
+  const statusConfig: Record<string, { label: string; bg: string; text: string; icon: string }> = {
+    realizado: { label: "Realizado", bg: "hsl(152, 81%, 96%)", text: "hsl(155, 100%, 19%)", icon: "✓" },
+    previsto: { label: "Previsto", bg: "hsl(263, 87%, 96%)", text: "hsl(263, 67%, 35%)", icon: "🕐" },
+    em_andamento: { label: "Em andamento", bg: "hsl(48, 96%, 89%)", text: "hsl(26, 90%, 37%)", icon: "⚡" },
+  };
 
-  const groupedRecords = filteredRecords.reduce<{ [key: string]: MedicalRecord[] }>((acc, r) => {
-    if (!acc[r.category]) acc[r.category] = [];
-    acc[r.category].push(r);
-    return acc;
-  }, {});
+  // Filtered & sorted records
+  const processedRecords = useMemo(() => {
+    let filtered = records.filter((r) => {
+      const matchCategory = activeFilter === "todas" || r.category === activeFilter;
+      const query = searchQuery.toLowerCase();
+      const matchSearch =
+        r.name.toLowerCase().includes(query) ||
+        r.category.toLowerCase().includes(query) ||
+        formatDate(r.date).includes(query);
+      return matchCategory && matchSearch;
+    });
 
-  const categoryCount = (key: string) =>
-    records.filter((r) => key === "todas" || r.category === key).length;
+    if (sortOrder === "oldest") {
+      filtered = [...filtered].sort((a, b) => a.date.localeCompare(b.date));
+    } else if (sortOrder === "category") {
+      filtered = [...filtered].sort((a, b) => a.category.localeCompare(b.category) || b.date.localeCompare(a.date));
+    } else {
+      filtered = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    return filtered;
+  }, [records, activeFilter, searchQuery, sortOrder]);
+
+  // Group by month/year for timeline
+  const groupedByMonth = useMemo(() => {
+    const groups: { label: string; key: string; records: MedicalRecord[] }[] = [];
+    const map = new Map<string, MedicalRecord[]>();
+
+    for (const r of processedRecords) {
+      const d = new Date(r.date + "T12:00:00");
+      const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, "0")}`;
+      const label = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+
+      if (!map.has(key)) {
+        map.set(key, []);
+        groups.push({ label, key, records: map.get(key)! });
+      }
+      map.get(key)!.push(r);
+    }
+
+    return groups;
+  }, [processedRecords]);
+
+  // Summary stats
+  const totalRecords = records.length;
+  const activeMeds = records.filter((r) => r.category === "medicacao" && getStatus(r) === "em_andamento").length;
+  const totalExams = records.filter((r) => r.category === "exame").length;
+  const lastConsulta = records.find((r) => r.category === "consulta" && new Date(r.date + "T12:00:00") < new Date());
 
   const getCategoryInfo = (key: string) => categories.find((c) => c.key === key);
 
-  const filterTabs = [
-    { key: "todas", label: "Todas" },
-    ...categories.filter((c) => records.some((r) => r.category === c.key)),
-  ];
+  const getFrequencyLabel = (freq: string | null) => {
+    const map: Record<string, string> = {
+      "1x_dia": "1x ao dia",
+      "2x_dia": "2x ao dia (12/12h)",
+      "3x_dia": "3x ao dia (8/8h)",
+      "4x_dia": "4x ao dia (6/6h)",
+      "semanal": "1x por semana",
+      "sob_demanda": "Sob demanda",
+    };
+    return freq ? map[freq] || freq : null;
+  };
+
+  const toggleNotes = (id: string) => {
+    setExpandedNotes((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto space-y-5">
+      <div className="max-w-[860px] mx-auto space-y-5">
         <Skeleton className="h-10 w-48" />
         <div className="flex gap-2 overflow-x-auto">
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-20 rounded-full" />)}
@@ -373,7 +473,7 @@ export default function Prontuario() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
+    <div className="max-w-[860px] mx-auto space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -389,7 +489,7 @@ export default function Prontuario() {
               <FileText className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Prontuário</h1>
+              <h1 className="font-display text-[28px] font-bold text-foreground">Prontuário</h1>
               <p className="text-sm text-muted-foreground">Histórico completo de {pet?.name || "seu pet"}</p>
             </div>
           </div>
@@ -618,204 +718,340 @@ export default function Prontuario() {
         </Dialog>
       </div>
 
-      {/* Filter tabs */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Filter className="h-4 w-4" />
-          Filtrar por categoria:
+      {/* Summary Bar */}
+      <div className="rounded-[20px] bg-secondary p-4 flex flex-wrap items-center gap-3 sm:gap-0 sm:divide-x sm:divide-border">
+        <div className="flex items-center gap-2 px-3 text-[13px] text-foreground">
+          <ClipboardList className="h-4 w-4 text-primary" />
+          <span className="font-semibold">{totalRecords}</span> registros totais
         </div>
-        <div className="flex flex-wrap gap-2">
-          {filterTabs.map((tab) => {
-            const count = categoryCount(tab.key);
-            const isActive = activeFilter === tab.key;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setActiveFilter(tab.key)}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-background text-muted-foreground border border-border hover:border-primary/50"
-                }`}
-              >
-                {tab.label}
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${isActive ? "bg-primary-foreground/20" : "bg-muted"}`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+        <div className="flex items-center gap-2 px-3 text-[13px] text-foreground">
+          <Pill className="h-4 w-4" style={{ color: categoryColorMap.medicacao.border }} />
+          <span className="font-semibold">{activeMeds}</span> medicação ativa
+        </div>
+        <div className="flex items-center gap-2 px-3 text-[13px] text-foreground">
+          <FileCheck className="h-4 w-4" style={{ color: categoryColorMap.exame.border }} />
+          <span className="font-semibold">{totalExams}</span> exame{totalExams !== 1 ? "s" : ""}
+        </div>
+        <div className="flex items-center gap-2 px-3 text-[13px] text-foreground">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          Última consulta: {lastConsulta ? formatDate(lastConsulta.date) : "—"}
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          placeholder="Buscar registros..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-12 pl-12 bg-background rounded-xl text-base"
-        />
+      {/* Filter chips */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {[{ key: "todas", label: "Todas" }, ...categories].map((tab) => {
+          const isActive = activeFilter === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveFilter(tab.key)}
+              className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-background text-muted-foreground border border-border hover:border-primary/50"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-            Realizado
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-primary" />
-            Previsto para próximos dias
-          </span>
+      {/* Search + Sort */}
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome, data ou categoria..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-12 pl-12 bg-background rounded-xl text-base"
+          />
         </div>
-        <span className="hidden sm:inline text-primary italic">
-          Clique em um registro para ver detalhes e baixar anexos
-        </span>
+        <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as any)}>
+          <SelectTrigger className="w-[160px] h-12 rounded-xl">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Mais recente</SelectItem>
+            <SelectItem value="oldest">Mais antigo</SelectItem>
+            <SelectItem value="category">Por categoria</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Records grouped by category */}
-      {Object.keys(groupedRecords).length === 0 ? (
+      {/* Timeline */}
+      {processedRecords.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="Nenhum registro ainda"
-          description="Comece adicionando vacinas, exames, consultas e outros registros do seu pet."
+          title={activeFilter === "todas" ? "Nenhum registro ainda" : `Nenhum registro de ${getCategoryInfo(activeFilter)?.label || activeFilter} ainda`}
+          description="Adicione o primeiro registro para começar o histórico"
           actionLabel="+ Novo Registro"
           onAction={() => setDialogOpen(true)}
         />
       ) : (
-        <div className="space-y-3">
-          {Object.entries(groupedRecords).map(([catKey, catRecords]) => {
-            const catInfo = getCategoryInfo(catKey);
-            const isExpanded = expandedCategory === catKey;
-            const Icon = catInfo?.icon || FileText;
+        <div className="relative">
+          {/* Timeline vertical line */}
+          <div className="absolute left-[18px] top-0 bottom-0 w-[2px] bg-border hidden sm:block" />
 
-            return (
-              <div key={catKey} className="border-2 border-primary/20 rounded-2xl bg-card overflow-hidden">
-                <button
-                  onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
-                  className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-muted/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-foreground text-base">{catInfo?.label}</p>
-                      <p className="text-xs text-muted-foreground">{catRecords.length} registro(s)</p>
-                    </div>
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
+          {groupedByMonth.map((group) => (
+            <div key={group.key} className="mb-6">
+              {/* Month marker */}
+              <div className="sticky top-0 z-10 flex items-center gap-3 mb-4 py-2 bg-background">
+                <div className="hidden sm:block w-[38px] shrink-0">
+                  <div className="h-[2px] bg-border w-full" />
+                </div>
+                <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
+                  {group.label}
+                </span>
+                <div className="flex-1 h-[1px] bg-border" />
+              </div>
 
-                {isExpanded && (
-                  <div className="border-t border-border">
-                    {/* Desktop table */}
-                    <div className="hidden sm:block overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-muted/30">
-                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Nome</th>
-                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Data</th>
-                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Validade</th>
-                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Observações</th>
-                            <th className="text-center px-5 py-3 font-semibold text-muted-foreground">Anexo</th>
-                            <th className="text-center px-5 py-3 font-semibold text-muted-foreground">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {catRecords.map((record) => (
-                            <tr
-                              key={record.id}
-                              className="border-t border-border/50 hover:bg-primary/5 transition-colors"
-                            >
-                              <td className="px-5 py-4 font-medium text-foreground">
-                                <div className="flex items-center gap-2">
-                                  {isRealized(record.date) && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
-                                  {isUpcoming(record.date) && <Clock className="h-4 w-4 text-primary shrink-0" />}
-                                  {record.name}
-                                </div>
-                              </td>
-                              <td className="px-5 py-4 text-muted-foreground">{formatDate(record.date)}</td>
-                              <td className="px-5 py-4 text-muted-foreground">
-                                {record.validity_date ? formatDate(record.validity_date) : "-"}
-                              </td>
-                              <td className="px-5 py-4 text-muted-foreground max-w-[200px] truncate">{record.notes || "-"}</td>
-                              <td className="px-5 py-4 text-center">
-                                {record.attachment_url ? (
-                                  <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
-                                    <ExternalLink className="h-3.5 w-3.5" />
-                                    {record.attachment_name || "Ver"}
-                                  </a>
-                                ) : (
-                                  <ImageOff className="h-4 w-4 text-muted-foreground/40 mx-auto" />
-                                )}
-                              </td>
-                              <td className="px-5 py-4 text-center">
-                                <button
-                                  onClick={() => { setRecordToDelete(record); setDeleteConfirmOpen(true); }}
-                                  className="text-destructive hover:text-destructive/80 transition-colors"
-                                >
-                                  <Trash2 className="h-4 w-4" />
+              {/* Records */}
+              <div className="space-y-3">
+                {group.records.map((record, idx) => {
+                  const catInfo = getCategoryInfo(record.category);
+                  const colors = categoryColorMap[record.category] || categoryColorMap.documento;
+                  const status = getStatus(record);
+                  const statusInfo = statusConfig[status];
+                  const Icon = catInfo?.icon || FileText;
+                  const freqLabel = getFrequencyLabel(record.frequency);
+                  const isNotesExpanded = expandedNotes.has(record.id);
+                  const notesLong = record.notes && record.notes.length > 120;
+
+                  return (
+                    <div
+                      key={record.id}
+                      className="flex gap-3 sm:gap-4 animate-fade-up"
+                      style={{ animationDelay: `${idx * 60}ms`, animationFillMode: "both" }}
+                    >
+                      {/* Timeline dot */}
+                      <div className="hidden sm:flex flex-col items-center shrink-0 w-[38px]">
+                        <div
+                          className="w-[10px] h-[10px] rounded-full mt-5 ring-2 ring-background"
+                          style={{ backgroundColor: colors.border, animation: "scalePop 400ms ease-out both", animationDelay: `${idx * 60}ms` }}
+                        />
+                      </div>
+
+                      {/* Card */}
+                      <div
+                        className="flex-1 bg-card rounded-[14px] shadow-sm border border-border/50 p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] cursor-pointer"
+                        style={{ borderLeftWidth: "4px", borderLeftColor: colors.border }}
+                        onClick={() => { setDetailRecord(record); setDetailOpen(true); }}
+                      >
+                        {/* Row 1: Title + Date + Menu */}
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Icon className="h-5 w-5 shrink-0" style={{ color: colors.text }} />
+                            <span className="font-semibold text-foreground text-[16px] truncate">{record.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[13px] text-muted-foreground">{formatDate(record.date)}</span>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                <button className="p-1 rounded-md hover:bg-muted transition-colors">
+                                  <MoreVertical className="h-4 w-4 text-muted-foreground" />
                                 </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setRecordToDelete(record); setDeleteConfirmOpen(true); }} className="text-destructive">
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Excluir
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
 
-                    {/* Mobile cards */}
-                    <div className="sm:hidden divide-y divide-border/50">
-                      {catRecords.map((record) => (
-                        <div key={record.id} className="p-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              {isRealized(record.date) && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
-                              {isUpcoming(record.date) && <Clock className="h-4 w-4 text-primary shrink-0" />}
-                              <p className="font-medium text-foreground">{record.name}</p>
-                            </div>
-                            <button
-                              onClick={() => { setRecordToDelete(record); setDeleteConfirmOpen(true); }}
-                              className="text-destructive hover:text-destructive/80"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(record.date)}
+                        {/* Row 2: Badges */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                            style={{ backgroundColor: colors.bg, color: colors.text }}
+                          >
+                            {catInfo?.label}
+                          </span>
+                          <span
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                            style={{ backgroundColor: statusInfo.bg, color: statusInfo.text }}
+                          >
+                            {statusInfo.icon} {statusInfo.label}
+                          </span>
+                          {status === "em_andamento" && (
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "hsl(160, 84%, 39%)" }} />
+                              <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: "hsl(160, 84%, 39%)" }} />
                             </span>
-                            {record.validity_date && (
-                              <span>Val: {formatDate(record.validity_date)}</span>
-                            )}
-                          </div>
-                          {record.notes && (
-                            <p className="text-xs text-muted-foreground">{record.notes}</p>
-                          )}
-                          {record.attachment_url && (
-                            <a href={record.attachment_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary text-xs hover:underline">
-                              <ExternalLink className="h-3 w-3" />
-                              {record.attachment_name || "Ver anexo"}
-                            </a>
                           )}
                         </div>
-                      ))}
+
+                        {/* Row 3: Contextual info */}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted-foreground mb-2">
+                          {record.category === "medicacao" && (
+                            <>
+                              {freqLabel && (
+                                <span className="flex items-center gap-1">🕐 {freqLabel}</span>
+                              )}
+                              {record.usage_end_date && (
+                                <span className="flex items-center gap-1">📅 {formatDate(record.date)} → {formatDate(record.usage_end_date)}</span>
+                              )}
+                            </>
+                          )}
+                          {record.category === "vacina" && record.validity_date && (
+                            <span className="flex items-center gap-1">📅 Próxima dose: {formatDate(record.validity_date)}</span>
+                          )}
+                          {record.category === "vermifugo" && record.validity_date && (
+                            <span className="flex items-center gap-1">🔄 Próximo: {formatDate(record.validity_date)}</span>
+                          )}
+                          {(record.category === "consulta" || record.category === "exame" || record.category === "procedimento") && record.validity_date && (
+                            <span className="flex items-center gap-1">📅 Validade: {formatDate(record.validity_date)}</span>
+                          )}
+                          {record.attachment_url && (
+                            <span className="flex items-center gap-1">📎 1 anexo</span>
+                          )}
+                        </div>
+
+                        {/* Row 4: Notes */}
+                        {record.notes && (
+                          <div className="mb-2">
+                            <p className={`text-sm text-muted-foreground italic ${!isNotesExpanded && notesLong ? "line-clamp-2" : ""}`}>
+                              {record.notes}
+                            </p>
+                            {notesLong && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleNotes(record.id); }}
+                                className="text-primary text-xs mt-1 hover:underline"
+                              >
+                                {isNotesExpanded ? "Ver menos" : "Ver mais"}
+                              </button>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Footer: attachments + details link */}
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-2">
+                            {record.attachment_url && (
+                              <a
+                                href={record.attachment_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted text-xs text-muted-foreground hover:border-primary/50 border border-transparent transition-colors"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                                {record.attachment_name ? (record.attachment_name.length > 20 ? record.attachment_name.slice(0, 20) + "..." : record.attachment_name) : "Ver anexo"}
+                              </a>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setDetailRecord(record); setDetailOpen(true); }}
+                            className="text-primary text-[13px] font-medium hover:underline inline-flex items-center gap-1"
+                          >
+                            Ver detalhes <ChevronRight className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
+
+      {/* Detail Drawer */}
+      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              {detailRecord && (() => {
+                const catInfo = getCategoryInfo(detailRecord.category);
+                const Icon = catInfo?.icon || FileText;
+                const colors = categoryColorMap[detailRecord.category];
+                return (
+                  <>
+                    <Icon className="h-5 w-5" style={{ color: colors?.text }} />
+                    {detailRecord.name}
+                  </>
+                );
+              })()}
+            </SheetTitle>
+          </SheetHeader>
+
+          {detailRecord && (() => {
+            const colors = categoryColorMap[detailRecord.category] || categoryColorMap.documento;
+            const status = getStatus(detailRecord);
+            const statusInfo = statusConfig[status];
+            const catInfo = getCategoryInfo(detailRecord.category);
+            const freqLabel = getFrequencyLabel(detailRecord.frequency);
+
+            return (
+              <div className="mt-6 space-y-5">
+                {/* Badges */}
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+                    style={{ backgroundColor: colors.bg, color: colors.text }}
+                  >
+                    {catInfo?.label}
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                    style={{ backgroundColor: statusInfo.bg, color: statusInfo.text }}
+                  >
+                    {statusInfo.icon} {statusInfo.label}
+                  </span>
+                </div>
+
+                {/* Fields */}
+                <div className="space-y-4">
+                  <DetailField label="Data" value={formatDate(detailRecord.date)} />
+                  {detailRecord.validity_date && <DetailField label="Validade / Próxima dose" value={formatDate(detailRecord.validity_date)} />}
+                  {detailRecord.category === "medicacao" && detailRecord.usage_end_date && (
+                    <DetailField label="Período de uso" value={`${formatDate(detailRecord.date)} → ${formatDate(detailRecord.usage_end_date)}`} />
+                  )}
+                  {freqLabel && <DetailField label="Frequência" value={freqLabel} />}
+                  {detailRecord.notes && <DetailField label="Observações" value={detailRecord.notes} />}
+                </div>
+
+                {/* Attachment */}
+                {detailRecord.attachment_url && (
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-2">Anexo</p>
+                    <a
+                      href={detailRecord.attachment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted/50 text-sm text-foreground hover:border-primary/50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 text-primary" />
+                      {detailRecord.attachment_name || "Ver anexo"}
+                    </a>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="pt-4 border-t border-border">
+                  <Button
+                    variant="destructive"
+                    className="w-full rounded-xl h-11"
+                    onClick={() => {
+                      setRecordToDelete(detailRecord);
+                      setDeleteConfirmOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir registro
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </SheetContent>
+      </Sheet>
 
       {/* Delete confirmation */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
@@ -834,6 +1070,15 @@ export default function Prontuario() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+function DetailField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-sm text-foreground whitespace-pre-wrap">{value}</p>
     </div>
   );
 }
