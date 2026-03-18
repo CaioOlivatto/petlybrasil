@@ -42,7 +42,7 @@ const Treino = () => {
     if (!user) return;
     supabase
       .from("pets")
-      .select("name, species, breed")
+      .select("name, species, breed, birth_date, allergies, health_conditions")
       .eq("user_id", user.id)
       .limit(1)
       .single()
@@ -51,6 +51,9 @@ const Treino = () => {
           setPetName(data.name);
           setPetSpecies(data.species);
           setPetBreed(data.breed || "SRD (Sem Raça Definida)");
+          setPetBirthDate(data.birth_date);
+          setPetAllergies(data.allergies);
+          setPetHealthConditions(data.health_conditions);
         }
       });
   }, [user]);
