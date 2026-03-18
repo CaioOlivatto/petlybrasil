@@ -94,7 +94,6 @@ export default function Dashboard() {
 
   const fetchAll = async () => {
     const today = format(new Date(), "yyyy-MM-dd");
-    const sevenDaysAgo = format(subDays(new Date(), 6), "yyyy-MM-dd");
 
     const [profileRes, petRes] = await Promise.all([
       supabase.from("profiles").select("name").eq("user_id", user!.id).maybeSingle(),
