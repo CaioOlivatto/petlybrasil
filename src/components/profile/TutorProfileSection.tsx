@@ -51,8 +51,8 @@ export function TutorProfileSection({ profile, onUpdate }: Props) {
   const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Arquivo deve ter no máximo 5MB");
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("Arquivo deve ter no máximo 15MB");
       return;
     }
 
@@ -102,7 +102,7 @@ export function TutorProfileSection({ profile, onUpdate }: Props) {
               {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
               Trocar foto
             </Button>
-            <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP · Máx. 5MB</p>
+            <p className="text-xs text-muted-foreground mt-1"><p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP · Máx. 15MB</p></p>
             <input
               ref={fileRef}
               type="file"
