@@ -48,6 +48,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonList } from "@/components/SkeletonCard";
+import { EmptyState } from "@/components/EmptyState";
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
