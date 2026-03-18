@@ -393,7 +393,10 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* ═══════ SEÇÃO 4 — GRÁFICO SEMANAL ═══════ */}
+      {/* ═══════ SEÇÃO 4 — BEM-ESTAR HOJE (barras horizontais) ═══════ */}
+      <TodayWellness checkin={todayCheckin} petName={petName} />
+
+      {/* ═══════ SEÇÃO 5 — GRÁFICO SEMANAL ═══════ */}
       <section className="bg-card rounded-2xl p-5 sm:p-6 shadow-sm border border-border animate-fade-up delay-500">
         <h3 className="text-[15px] font-semibold text-foreground">Bem-estar esta semana</h3>
         <p className="text-[13px] text-muted-foreground mt-0.5 mb-5">
@@ -426,24 +429,6 @@ export default function Dashboard() {
           <p className="text-center text-sm text-muted-foreground mt-3">Sem registros esta semana</p>
         )}
       </section>
-
-      {/* ═══════ CTA — Como pet está hoje ═══════ */}
-      {(!lastCheckin || lastCheckin.date !== format(new Date(), "yyyy-MM-dd")) && (
-        <button
-          onClick={() => navigate("/diario")}
-          className="w-full bg-card rounded-2xl p-8 shadow-sm border border-dashed border-primary/30 text-center hover:border-primary/60 transition-colors group animate-fade-up delay-500"
-        >
-          <p className="text-lg sm:text-xl font-display text-foreground">
-            Como {petName} está hoje?
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Registre o bem-estar e mantenha o histórico 🐾
-          </p>
-          <span className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-medium group-hover:bg-primary/90 transition-colors">
-            Registrar bem-estar
-          </span>
-        </button>
-      )}
 
       {/* ═══════ SEÇÃO 5 — ACESSO RÁPIDO ═══════ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-up delay-600">
