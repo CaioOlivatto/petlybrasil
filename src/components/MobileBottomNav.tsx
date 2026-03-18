@@ -71,14 +71,14 @@ export function MobileBottomNav() {
                         navigate(tab.path);
                         setOpen(false);
                       }}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors ${
+                    className={`flex flex-col items-center gap-2 p-3.5 rounded-xl transition-colors ${
                         isActive
                           ? "bg-primary/10 text-primary"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                     >
-                      <tab.icon className="h-5 w-5" />
-                      <span className="text-[10px] font-medium leading-tight text-center">
+                      <tab.icon className="h-6 w-6" />
+                      <span className="text-xs font-medium leading-tight text-center">
                         {tab.label}
                       </span>
                     </button>
@@ -91,7 +91,7 @@ export function MobileBottomNav() {
       </AnimatePresence>
 
       {/* Bottom bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex items-center justify-around h-16 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex items-center justify-around h-[4.5rem] md:hidden">
         {mainTabs.map((tab) => {
           const isActive =
             location.pathname === tab.path ||
@@ -104,14 +104,14 @@ export function MobileBottomNav() {
                 setOpen(false);
                 navigate(tab.path);
               }}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <tab.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <tab.icon className="h-6 w-6" />
+              <span className="text-xs font-medium">{tab.label}</span>
             </button>
           );
         })}
@@ -119,18 +119,18 @@ export function MobileBottomNav() {
         {/* More button */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
             isMoreActive || open
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
           {open ? (
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           ) : (
-            <MoreHorizontal className="h-5 w-5" />
+            <MoreHorizontal className="h-6 w-6" />
           )}
-          <span className="text-[10px] font-medium">Mais</span>
+          <span className="text-xs font-medium">Mais</span>
         </button>
       </nav>
     </>
