@@ -489,8 +489,8 @@ export default function Onboarding() {
           {step === 5 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <PawPrint className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <PawPrint className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <h2 className="text-xl font-bold text-foreground mb-1">Informações adicionais</h2>
