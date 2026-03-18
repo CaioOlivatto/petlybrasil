@@ -1,5 +1,5 @@
 import { motion, type Variants } from "framer-motion";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
 interface AnimatedCardProps {
   children: ReactNode;
