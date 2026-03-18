@@ -170,7 +170,7 @@ const PetzinhoIA = () => {
             <Bot className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold font-display text-foreground">Petlinho IA</h1>
+            <h1 className="text-lg font-bold font-display text-foreground">Petlyzinho IA</h1>
             <p className="text-xs text-muted-foreground">
               Assistente de {petContext?.pet?.name || "seu pet"}
             </p>
