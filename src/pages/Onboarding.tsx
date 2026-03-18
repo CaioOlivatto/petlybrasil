@@ -590,7 +590,7 @@ export default function Onboarding() {
                 Próximo <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleFinish} className="flex-1 bg-accent hover:bg-accent/90" disabled={saving}>
+              <Button onClick={handleFinish} className="flex-1 bg-primary hover:bg-primary/90" disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <PawPrint className="h-4 w-4 mr-2" />}
                 Começar!
               </Button>
