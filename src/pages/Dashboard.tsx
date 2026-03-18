@@ -133,6 +133,7 @@ export default function Dashboard() {
       if (eventsRes.data?.length) setNextEvent(eventsRes.data[0]);
       if (checkinsRes.data?.length) setLastCheckin(checkinsRes.data[0]);
       if (weekRes.data) setWeekCheckins(weekRes.data);
+      setTodayCheckin(todayRes.data);
 
       if (vaccinesRes.data) {
         const done = vaccinesRes.data.filter((v) => v.status === "taken").length;
