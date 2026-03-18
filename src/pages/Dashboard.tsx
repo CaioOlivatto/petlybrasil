@@ -348,39 +348,6 @@ export default function Dashboard() {
       {/* ═══════ SEÇÃO 4 — BEM-ESTAR HOJE (barras horizontais) ═══════ */}
       <TodayWellness checkin={todayCheckin} petName={petName} />
 
-      {/* ═══════ SEÇÃO 5 — GRÁFICO SEMANAL ═══════ */}
-      <section className="bg-card rounded-2xl p-5 sm:p-6 shadow-sm border border-border animate-fade-up delay-500">
-        <h3 className="text-[15px] font-semibold text-foreground">Bem-estar esta semana</h3>
-        <p className="text-[13px] text-muted-foreground mt-0.5 mb-5">
-          Como {petName} esteve nos últimos 7 dias
-        </p>
-        <div className="flex items-end justify-between gap-2 sm:gap-3 h-[80px]">
-          {weekDays.map((day, i) => {
-            const isToday = day.date === format(new Date(), "yyyy-MM-dd");
-            const heightPercent = day.level === 0 ? 15 : day.level * 25;
-            return (
-              <div key={day.date} className="flex flex-col items-center gap-1.5 flex-1">
-                <span className={`text-[11px] ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>
-                  {isToday ? "Hoje" : day.label}
-                </span>
-                <div className="w-5 sm:w-7 relative" style={{ height: "60px" }}>
-                  <div
-                    className={`absolute bottom-0 w-full rounded-md ${day.level === 0 ? "bg-muted border border-dashed border-border" : humorColor(day.level)} animate-grow-bar ${isToday && day.level > 0 ? "ring-2 ring-primary/30" : ""}`}
-                    style={{
-                      height: `${heightPercent}%`,
-                      transformOrigin: "bottom",
-                      animationDelay: `${i * 80}ms`,
-                    }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {weekCheckins.length === 0 && (
-          <p className="text-center text-sm text-muted-foreground mt-3">Sem registros esta semana</p>
-        )}
-      </section>
 
       {/* ═══════ SEÇÃO 5 — ACESSO RÁPIDO ═══════ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-up delay-600">
