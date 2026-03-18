@@ -232,15 +232,15 @@ export default function Dashboard() {
 
       {/* Alerts */}
       {alerts.length > 0 && (
-        <div className="bg-card rounded-xl p-4 shadow-sm border border-border space-y-2">
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-warning" />
+        <div className="bg-card rounded-2xl p-5 sm:p-6 shadow-sm border border-border space-y-3">
+          <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-warning" />
             Alertas & Lembretes
           </h3>
           {alerts.slice(0, 3).map((alert, i) => (
             <div
               key={i}
-              className={`text-sm px-3 py-2 rounded-lg ${
+              className={`text-base px-4 py-3 rounded-xl ${
                 alert.type === "danger"
                   ? "bg-destructive/10 text-destructive"
                   : "bg-warning/10 text-warning"
@@ -256,22 +256,22 @@ export default function Dashboard() {
       {!lastCheckin || lastCheckin.date !== format(new Date(), "yyyy-MM-dd") ? (
         <button
           onClick={() => navigate("/diario")}
-          className="w-full bg-card rounded-xl p-6 shadow-sm border border-dashed border-primary/30 text-center hover:border-primary/60 transition-colors group"
+          className="w-full bg-card rounded-2xl p-8 shadow-sm border border-dashed border-primary/30 text-center hover:border-primary/60 transition-colors group"
         >
-          <p className="text-base font-display text-foreground">
+          <p className="text-lg sm:text-xl font-display text-foreground">
             Como {petName} está hoje?
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-base text-muted-foreground mt-2">
             Registre o bem-estar e mantenha o histórico 🐾
           </p>
-          <span className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium group-hover:bg-primary-dark transition-colors">
+          <span className="mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-base font-medium group-hover:bg-primary-dark transition-colors">
             Registrar bem-estar
           </span>
         </button>
       ) : null}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "+ Prontuário", icon: FileText, url: "/prontuario" },
           { label: "+ Evento", icon: Calendar, url: "/agenda" },
@@ -281,9 +281,9 @@ export default function Dashboard() {
           <button
             key={action.label}
             onClick={() => navigate(action.url)}
-            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors bg-card"
+            className="flex items-center justify-center gap-2.5 px-5 py-4 rounded-2xl border border-border text-base font-medium text-foreground hover:border-primary hover:text-primary transition-colors bg-card"
           >
-            <action.icon className="h-4 w-4" />
+            <action.icon className="h-5 w-5" />
             {action.label}
           </button>
         ))}
