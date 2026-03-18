@@ -122,11 +122,12 @@ export default function Dashboard() {
     if (petRes.data) {
       const petId = petRes.data.id;
 
-      const [eventsRes, vaccinesRes, checkinsRes, weekRes] = await Promise.all([
+      const [eventsRes, vaccinesRes, checkinsRes, weekRes, todayRes] = await Promise.all([
         supabase.from("agenda_events").select("title, date, category").eq("pet_id", petId).gte("date", today).order("date", { ascending: true }).limit(1),
         supabase.from("pet_vaccinations").select("status").eq("pet_id", petId),
         supabase.from("daily_checkins").select("humor, date").eq("pet_id", petId).order("date", { ascending: false }).limit(1),
         supabase.from("daily_checkins").select("humor, date").eq("pet_id", petId).gte("date", sevenDaysAgo).lte("date", today).order("date", { ascending: true }),
+        supabase.from("daily_checkins").select("humor, energia, apetite, sono, date").eq("pet_id", petId).eq("date", today).maybeSingle(),
       ]);
 
       if (eventsRes.data?.length) setNextEvent(eventsRes.data[0]);
