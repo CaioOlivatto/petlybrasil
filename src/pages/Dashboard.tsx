@@ -143,29 +143,6 @@ export default function Dashboard() {
     setLoading(false);
   };
 
-  /* ── Week chart data ──────────────────────────────── */
-  const weekDays = useMemo(() => {
-    const days: { label: string; date: string; level: number }[] = [];
-    const dayLabels = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    for (let i = 6; i >= 0; i--) {
-      const d = subDays(new Date(), i);
-      const dateStr = format(d, "yyyy-MM-dd");
-      const checkin = weekCheckins.find((c) => c.date === dateStr);
-      days.push({ label: dayLabels[d.getDay()], date: dateStr, level: humorToLevel(checkin?.humor || null) });
-    }
-    return days;
-  }, [weekCheckins]);
-
-  /* ── Last 7 days dots for diary card ──────────────── */
-  const last7Dots = useMemo(() => {
-    const dots: number[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = format(subDays(new Date(), i), "yyyy-MM-dd");
-      const c = weekCheckins.find((ch) => ch.date === d);
-      dots.push(humorToLevel(c?.humor || null));
-    }
-    return dots;
-  }, [weekCheckins]);
 
   if (loading) {
     return (
