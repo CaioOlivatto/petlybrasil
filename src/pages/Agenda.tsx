@@ -582,7 +582,7 @@ export default function Agenda() {
                 <EmptyState icon={CalendarClock} title="Mês tranquilo" description="Nenhum evento agendado para o próximo mês." actionLabel="Agendar evento" onAction={openCreateDialog} />
               </div>
             ) : (
-              <div className="space-y-2">{nextMonth.map(renderEventCard)}</div>
+              <AnimatedList className="space-y-2">{nextMonth.map(renderEventCard)}</AnimatedList>
             )}
           </div>
         </div>
