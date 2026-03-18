@@ -41,6 +41,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
 import { EmptyState } from "@/components/EmptyState";
 import { SkeletonGrid } from "@/components/SkeletonCard";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { motion } from "framer-motion";
 
 interface DocumentRecord {
   id: string;
