@@ -397,13 +397,16 @@ export default function Dashboard() {
         </p>
         <div className="flex items-end justify-between gap-2 sm:gap-3 h-[80px]">
           {weekDays.map((day, i) => {
+            const isToday = day.date === format(new Date(), "yyyy-MM-dd");
             const heightPercent = day.level === 0 ? 15 : day.level * 25;
             return (
               <div key={day.date} className="flex flex-col items-center gap-1.5 flex-1">
-                <span className="text-[11px] text-muted-foreground">{day.label}</span>
+                <span className={`text-[11px] ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                  {isToday ? "Hoje" : day.label}
+                </span>
                 <div className="w-5 sm:w-7 relative" style={{ height: "60px" }}>
                   <div
-                    className={`absolute bottom-0 w-full rounded-md ${day.level === 0 ? "bg-muted border border-dashed border-border" : humorColor(day.level)} animate-grow-bar`}
+                    className={`absolute bottom-0 w-full rounded-md ${day.level === 0 ? "bg-muted border border-dashed border-border" : humorColor(day.level)} animate-grow-bar ${isToday && day.level > 0 ? "ring-2 ring-primary/30" : ""}`}
                     style={{
                       height: `${heightPercent}%`,
                       transformOrigin: "bottom",
