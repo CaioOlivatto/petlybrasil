@@ -3,18 +3,26 @@ import {
   Calendar as CalendarIcon,
   ArrowLeft,
   Plus,
-  AlertTriangle,
   ChevronRight,
   Syringe,
   Clock,
   CalendarDays,
-  CalendarClock,
   Trash2,
   Pencil,
   Loader2,
   Pill,
   Scissors,
   Repeat,
+  CheckCircle2,
+  AlertCircle,
+  Circle,
+  ChevronDown,
+  Stethoscope,
+  FlaskConical,
+  Bug,
+  HeartPulse,
+  Plane,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,8 +57,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
-import { AnimatedCard, AnimatedList, listItemVariants } from "@/components/AnimatedCard";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AgendaEvent {
   id: string;
@@ -77,20 +84,46 @@ const typeToCategory: Record<string, string> = {
 
 const typeToIcon: Record<string, typeof Syringe> = {
   vacina: Syringe,
-  consulta: CalendarIcon,
-  exame: CalendarIcon,
-  vermifugo: CalendarIcon,
+  consulta: Stethoscope,
+  exame: FlaskConical,
+  vermifugo: Bug,
   medicacao: Pill,
-  procedimento: CalendarIcon,
+  procedimento: HeartPulse,
   "banho-tosa": Scissors,
   "atividade-semanal": Repeat,
   "atividade-mensal": Repeat,
-  outro: CalendarIcon,
+  viagem: Plane,
+  outro: Sparkles,
 };
 
 const categoryToType: Record<string, string> = Object.fromEntries(
   Object.entries(typeToCategory).map(([k, v]) => [v, k])
 );
+
+// Border-left colors per category type (using HSL tokens where possible)
+const typeBorderColor: Record<string, string> = {
+  consulta: "border-l-primary",
+  vacina: "border-l-success",
+  exame: "border-l-blue-500",
+  vermifugo: "border-l-warning",
+  medicacao: "border-l-success",
+  procedimento: "border-l-destructive",
+  "banho-tosa": "border-l-pink-500",
+  "atividade-semanal": "border-l-indigo-500",
+  "atividade-mensal": "border-l-indigo-500",
+  viagem: "border-l-primary-light",
+  outro: "border-l-muted-foreground",
+};
+
+const frequencyOptions = [
+  { value: "1x", label: "1x ao dia", hours: 24 },
+  { value: "2x", label: "2x ao dia (12/12h)", hours: 12 },
+  { value: "3x", label: "3x ao dia (8/8h)", hours: 8 },
+  { value: "4x", label: "4x ao dia (6/6h)", hours: 6 },
+  { value: "6x", label: "6x ao dia (4/4h)", hours: 4 },
+  { value: "8x", label: "8x ao dia (3/3h)", hours: 3 },
+  { value: "12x", label: "A cada 2 horas", hours: 2 },
+];
 
 function daysFromNow(dateStr: string): number {
   const today = new Date();
@@ -100,25 +133,40 @@ function daysFromNow(dateStr: string): number {
   return Math.round((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function isNextWeek(dateStr: string): boolean {
-  const days = daysFromNow(dateStr);
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const daysUntilNextWeekStart = 7 - dayOfWeek;
-  return days >= daysUntilNextWeekStart && days < daysUntilNextWeekStart + 7;
-}
-
-function isNextMonth(dateStr: string): boolean {
-  const d = new Date(dateStr + "T12:00:00");
-  const today = new Date();
-  const nextMonth = today.getMonth() + 1;
-  const nextMonthYear = nextMonth > 11 ? today.getFullYear() + 1 : today.getFullYear();
-  return d.getMonth() === (nextMonth % 12) && d.getFullYear() === nextMonthYear;
-}
-
 function formatDate(dateStr: string): string {
   return new Date(dateStr + "T12:00:00").toLocaleDateString("pt-BR");
 }
+
+function formatDateLong(dateStr: string): string {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+  });
+}
+
+function calculateDoseTimes(firstDose: string, intervalHours: number): string[] {
+  const times: string[] = [];
+  const [h, m] = firstDose.split(":").map(Number);
+  let totalMinutes = h * 60 + m;
+  const dosesPerDay = Math.floor(24 / intervalHours);
+  for (let i = 0; i < dosesPerDay; i++) {
+    const hour = Math.floor(totalMinutes / 60) % 24;
+    const min = totalMinutes % 60;
+    times.push(`${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}`);
+    totalMinutes += intervalHours * 60;
+  }
+  return times;
+}
+
+const filterChips = [
+  { key: "todos", label: "Todos" },
+  { key: "hoje", label: "Hoje" },
+  { key: "semana", label: "Esta semana" },
+  { key: "consulta", label: "Consultas" },
+  { key: "vacina", label: "Vacinas" },
+  { key: "medicacao", label: "Medicamentos" },
+  { key: "exame", label: "Exames" },
+];
 
 export default function Agenda() {
   const navigate = useNavigate();
@@ -129,7 +177,8 @@ export default function Agenda() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [activeSection, setActiveSection] = useState<"atrasadas" | "proxima-semana" | "proximo-mes" | null>(null);
+  const [activeFilter, setActiveFilter] = useState("todos");
+  const [showRealized, setShowRealized] = useState(false);
 
   // Create/Edit dialog
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -141,6 +190,13 @@ export default function Agenda() {
   const [eventNotes, setEventNotes] = useState("");
   const [repeatEnabled, setRepeatEnabled] = useState(false);
 
+  // Medication-specific fields
+  const [medFrequency, setMedFrequency] = useState("");
+  const [medFirstDose, setMedFirstDose] = useState("08:00");
+  const [medEndDate, setMedEndDate] = useState("");
+  const [medDosage, setMedDosage] = useState("");
+  const [medContinuous, setMedContinuous] = useState(false);
+
   // Detail dialog
   const [detailEvent, setDetailEvent] = useState<AgendaEvent | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -149,11 +205,7 @@ export default function Agenda() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<AgendaEvent | null>(null);
 
-  const sectionRefs = {
-    atrasadas: useRef<HTMLDivElement>(null),
-    "proxima-semana": useRef<HTMLDivElement>(null),
-    "proximo-mes": useRef<HTMLDivElement>(null),
-  };
+  const medsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -177,7 +229,6 @@ export default function Agenda() {
       .eq("user_id", user.id)
       .eq("pet_id", pet.id)
       .order("date", { ascending: true });
-
     if (!error && data) setEventos(data);
     setLoading(false);
   }, [user, pet]);
@@ -188,37 +239,77 @@ export default function Agenda() {
 
   const todayStr = new Date().toISOString().split("T")[0];
 
-  const isMedication = (e: AgendaEvent) => e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
-  
-  // Today's medications — always visible
+  const isMedication = (e: AgendaEvent) =>
+    e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
+
+  const getEventType = (e: AgendaEvent) => categoryToType[e.category] || e.category;
+
+  // ─── Derived data ───
+  const todayEvents = eventos.filter((e) => e.date === todayStr && !isMedication(e));
+  const next7Events = eventos.filter((e) => {
+    const d = daysFromNow(e.date);
+    return d >= 0 && d <= 7 && !isMedication(e);
+  });
   const todayMedications = eventos.filter((e) => isMedication(e) && e.date === todayStr);
+  const activeMedNames = new Set<string>();
+  todayMedications.forEach((e) => {
+    activeMedNames.add(e.title.replace(/^💊\s*/, "").replace(/\s*-\s*\d{2}:\d{2}$/, "").trim());
+  });
+
+  // Group today meds by name
   const medByName: Record<string, AgendaEvent[]> = {};
   todayMedications.forEach((e) => {
     const name = e.title.replace(/^💊\s*/, "").replace(/\s*-\s*\d{2}:\d{2}$/, "").trim();
     if (!medByName[name]) medByName[name] = [];
     medByName[name].push(e);
   });
-  // Sort each group by time
-  Object.values(medByName).forEach((group) =>
-    group.sort((a, b) => (a.time || "").localeCompare(b.time || ""))
-  );
+  Object.values(medByName).forEach((g) => g.sort((a, b) => (a.time || "").localeCompare(b.time || "")));
+
+  // Calendar dot data
+  const eventDateSet = new Set<string>();
+  const medDateSet = new Set<string>();
+  eventos.forEach((e) => {
+    if (isMedication(e)) medDateSet.add(e.date);
+    else eventDateSet.add(e.date);
+  });
+
+  const eventDatesForCal = [...eventDateSet].map((d) => new Date(d + "T12:00:00"));
+  const medDatesForCal = [...medDateSet].map((d) => new Date(d + "T12:00:00"));
 
   const realized = eventos.filter((e) => e.date < todayStr && !isMedication(e));
-  const nextWeek = eventos.filter((e) => {
-    const days = daysFromNow(e.date);
-    return days >= 0 && days <= 7 && !isMedication(e);
-  });
-  const nextMonth = eventos.filter((e) => {
-    const days = daysFromNow(e.date);
-    return days > 7 && days <= 37 && !isMedication(e);
+  const futureToday = eventos.filter((e) => e.date === todayStr && !isMedication(e));
+  const futureWeek = eventos.filter((e) => {
+    const d = daysFromNow(e.date);
+    return d > 0 && d <= 7 && !isMedication(e);
   });
 
-  const selectedDayEvents = eventos.filter(
-    (e) => selectedDate && e.date === selectedDate.toISOString().split("T")[0]
-  );
+  // Filtered events for right column
+  const getFilteredEvents = () => {
+    const nonMed = eventos.filter((e) => !isMedication(e));
+    switch (activeFilter) {
+      case "hoje":
+        return nonMed.filter((e) => e.date === todayStr);
+      case "semana":
+        return nonMed.filter((e) => { const d = daysFromNow(e.date); return d >= 0 && d <= 7; });
+      case "consulta":
+        return nonMed.filter((e) => getEventType(e) === "consulta");
+      case "vacina":
+        return nonMed.filter((e) => getEventType(e) === "vacina");
+      case "medicacao":
+        return eventos.filter((e) => isMedication(e));
+      case "exame":
+        return nonMed.filter((e) => getEventType(e) === "exame");
+      default:
+        return null; // use default sections
+    }
+  };
 
-  const eventDates = eventos.map((e) => new Date(e.date + "T12:00:00"));
+  const filteredEvents = getFilteredEvents();
 
+  const selectedDayStr = selectedDate ? selectedDate.toISOString().split("T")[0] : "";
+  const selectedDayEvents = eventos.filter((e) => e.date === selectedDayStr);
+
+  // ─── Form logic ───
   const resetEventForm = () => {
     setDialogOpen(false);
     setEditingEvent(null);
@@ -228,6 +319,11 @@ export default function Agenda() {
     setEventTime("");
     setEventNotes("");
     setRepeatEnabled(false);
+    setMedFrequency("");
+    setMedFirstDose("08:00");
+    setMedEndDate("");
+    setMedDosage("");
+    setMedContinuous(false);
   };
 
   const openCreateDialog = () => {
@@ -266,11 +362,52 @@ export default function Agenda() {
           .eq("id", editingEvent.id);
         if (error) throw error;
         toast({ title: "Evento atualizado", description: `"${eventTitle}" foi atualizado.` });
+      } else if (eventType === "medicacao" && medFrequency && medFirstDose) {
+        // Create medication events for each day in range
+        const freq = frequencyOptions.find((f) => f.value === medFrequency);
+        if (!freq) throw new Error("Frequência inválida");
+
+        const doseTimes = calculateDoseTimes(medFirstDose, freq.hours);
+        const startDate = new Date(eventDate + "T12:00:00");
+        const endDate = medContinuous
+          ? new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days for continuous
+          : medEndDate
+            ? new Date(medEndDate + "T12:00:00")
+            : startDate;
+
+        const eventsToInsert: any[] = [];
+        const current = new Date(startDate);
+        while (current <= endDate) {
+          const dateStr = current.toISOString().split("T")[0];
+          for (const time of doseTimes) {
+            eventsToInsert.push({
+              user_id: user.id,
+              pet_id: pet.id,
+              title: `💊 ${eventTitle} - ${time}`,
+              category,
+              date: dateStr,
+              time,
+              notes: medDosage ? `Dosagem: ${medDosage} | Freq: ${freq.label}` : `Freq: ${freq.label}`,
+              source: "medicacao",
+            });
+          }
+          current.setDate(current.getDate() + 1);
+        }
+
+        if (eventsToInsert.length > 0) {
+          const { error } = await supabase.from("agenda_events").insert(eventsToInsert);
+          if (error) throw error;
+        }
+        toast({
+          title: "Medicação criada",
+          description: `${eventsToInsert.length} horários criados para "${eventTitle}".`,
+        });
       } else {
+        // Normal event creation
         const isWeekly = eventType === "atividade-semanal" && repeatEnabled;
         const isMonthly = eventType === "atividade-mensal" && repeatEnabled;
         const occurrences = isWeekly ? 12 : isMonthly ? 6 : 1;
-        
+
         const eventsToInsert = [];
         for (let i = 0; i < occurrences; i++) {
           const baseDate = new Date(eventDate + "T12:00:00");
@@ -287,12 +424,13 @@ export default function Agenda() {
             source: "manual",
           });
         }
-        
+
         const { error } = await supabase.from("agenda_events").insert(eventsToInsert as any);
         if (error) throw error;
-        const desc = occurrences > 1 
-          ? `"${eventTitle}" — ${occurrences} eventos criados.`
-          : `"${eventTitle}" foi adicionado à agenda.`;
+        const desc =
+          occurrences > 1
+            ? `"${eventTitle}" — ${occurrences} eventos criados.`
+            : `"${eventTitle}" foi adicionado à agenda.`;
         toast({ title: "Evento criado", description: desc });
       }
       resetEventForm();
@@ -306,11 +444,7 @@ export default function Agenda() {
 
   const handleDeleteEvent = async () => {
     if (!eventToDelete) return;
-    const { error } = await supabase
-      .from("agenda_events")
-      .delete()
-      .eq("id", eventToDelete.id);
-    
+    const { error } = await supabase.from("agenda_events").delete().eq("id", eventToDelete.id);
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
     } else {
@@ -327,50 +461,91 @@ export default function Agenda() {
     setDetailOpen(true);
   };
 
-  const handleCardClick = (section: "atrasadas" | "proxima-semana" | "proximo-mes") => {
-    setActiveSection(section);
-    setTimeout(() => {
-      sectionRefs[section].current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+  // Computed dose times preview for modal
+  const previewDoseTimes =
+    eventType === "medicacao" && medFrequency && medFirstDose
+      ? calculateDoseTimes(medFirstDose, frequencyOptions.find((f) => f.value === medFrequency)?.hours || 24)
+      : [];
+
+  // ─── Medication dose status ───
+  const now = new Date();
+  const currentTimeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  const getDoseStatus = (time: string | null) => {
+    if (!time) return "pending";
+    if (time < currentTimeStr) return "overdue"; // past and not marked
+    if (time === currentTimeStr || (time > currentTimeStr && time <= `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes() + 30).padStart(2, "0")}`)) return "next";
+    return "pending";
   };
 
-  const renderEventCard = (evento: AgendaEvent) => {
+  // Find next dose across all meds
+  const getNextDoseTime = (events: AgendaEvent[]): string | null => {
+    const future = events.filter((e) => e.time && e.time >= currentTimeStr).sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+    return future[0]?.time || null;
+  };
+
+  // ─── Render helpers ───
+  const getStatusBadge = (evento: AgendaEvent) => {
     const days = daysFromNow(evento.date);
-    const isOverdue = days < 0;
-    const Icon = typeToIcon[categoryToType[evento.category] || evento.category] || CalendarIcon;
+    if (days < 0)
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
+          <AlertCircle className="h-3 w-3" />
+          Atrasado
+        </span>
+      );
+    if (days === 0)
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+          Hoje
+        </span>
+      );
+    if (days <= 7)
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+          Em {days} dia{days > 1 ? "s" : ""}
+        </span>
+      );
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+        {formatDate(evento.date)}
+      </span>
+    );
+  };
+
+  const renderEventCard = (evento: AgendaEvent, index: number) => {
+    const type = getEventType(evento);
+    const Icon = typeToIcon[type] || Sparkles;
+    const borderClass = typeBorderColor[type] || "border-l-muted";
 
     return (
       <motion.div
         key={evento.id}
-        variants={listItemVariants}
-        whileHover={{ scale: 1.015 }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.06, duration: 0.3 }}
+        whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => openEventDetail(evento)}
-        className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors cursor-pointer ${
-          isOverdue
-            ? "border-destructive/30 bg-card hover:border-destructive/50"
-            : "border-primary/20 bg-card hover:border-primary/40"
-        }`}
+        className={`flex items-center gap-4 p-4 rounded-xl bg-card border border-border/50 border-l-4 ${borderClass} shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
       >
-        <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
-          isOverdue ? "bg-destructive/10" : "bg-primary/10"
-        }`}>
-          <Icon className={`h-5 w-5 ${isOverdue ? "text-destructive" : "text-primary"}`} />
+        <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+          <Icon className="h-4.5 w-4.5 text-foreground/70" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-foreground text-sm sm:text-base truncate">{evento.title}</p>
-            {isOverdue && <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />}
-          </div>
-          <p className="text-xs text-muted-foreground">{evento.category}</p>
-        </div>
-        <div className="text-right shrink-0">
-          <p className={`text-sm font-bold ${isOverdue ? "text-destructive" : "text-primary"}`}>
-            {isOverdue ? `Há ${Math.abs(days)} dias` : days === 0 ? "Hoje" : `Em ${days} dias`}
+          <p className="font-semibold text-foreground text-sm truncate">{evento.title}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {evento.category} {evento.time && `• ${evento.time}`}
           </p>
-          <p className="text-xs text-muted-foreground">{formatDate(evento.date)}</p>
+          {evento.notes && (
+            <p className="text-xs text-muted-foreground truncate mt-0.5">{evento.notes}</p>
+          )}
         </div>
-        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          {getStatusBadge(evento)}
+          <p className="text-xs text-muted-foreground">{evento.time || formatDate(evento.date)}</p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground/50 shrink-0" />
       </motion.div>
     );
   };
@@ -380,7 +555,9 @@ export default function Agenda() {
       <div className="max-w-6xl mx-auto space-y-5">
         <Skeleton className="h-10 w-40" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-2xl" />
+          ))}
         </div>
         <SkeletonList count={3} />
       </div>
@@ -389,7 +566,7 @@ export default function Agenda() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-5">
-      {/* Header */}
+      {/* ═══ HEADER ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <button
@@ -404,8 +581,10 @@ export default function Agenda() {
               <CalendarIcon className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Agenda</h1>
-              <p className="text-sm text-muted-foreground">Eventos e alertas do seu pet</p>
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">Agenda</h1>
+              <p className="text-sm text-muted-foreground">
+                Eventos e medicamentos de {pet?.name || "seu pet"}
+              </p>
             </div>
           </div>
         </div>
@@ -418,230 +597,266 @@ export default function Agenda() {
         </Button>
       </div>
 
-      {/* Summary cards */}
+      {/* ═══ SUMMARY CARDS ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button
-          onClick={() => handleCardClick("atrasadas")}
-          className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${
-            activeSection === "atrasadas"
-              ? "border-destructive bg-destructive/10 shadow-md"
-              : "border-destructive/30 bg-background hover:border-destructive/50"
-          }`}
-        >
-          <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-            <Clock className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-muted-foreground">{realized.length}</p>
-            <p className="text-sm font-medium text-foreground">Realizadas</p>
-          </div>
-        </button>
-
-        <button
-          onClick={() => handleCardClick("proxima-semana")}
-          className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${
-            activeSection === "proxima-semana"
-              ? "border-primary bg-primary/10 shadow-md"
-              : "border-primary/30 bg-background hover:border-primary/50"
-          }`}
-        >
+        {/* Today */}
+        <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl border border-border bg-primary/5 hover:border-primary/30 transition-colors">
           <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <CalendarDays className="h-6 w-6 text-primary" />
+            <Clock className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-primary">{nextWeek.length}</p>
-            <p className="text-sm font-medium text-foreground">Próxima semana</p>
+            <p className="text-2xl font-bold text-primary">{todayEvents.length + todayMedications.length}</p>
+            <p className="text-sm font-medium text-foreground">Hoje</p>
           </div>
-        </button>
+        </div>
 
-        <button
-          onClick={() => handleCardClick("proximo-mes")}
-          className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl border-2 transition-all text-left ${
-            activeSection === "proximo-mes"
-              ? "border-primary bg-primary/10 shadow-md"
-              : "border-primary/30 bg-card hover:border-primary/50"
-          }`}
-        >
-          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <CalendarClock className="h-6 w-6 text-primary" />
+        {/* Next 7 days */}
+        <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl border border-border bg-warning/5 hover:border-warning/30 transition-colors">
+          <div className="h-12 w-12 rounded-xl bg-warning/10 flex items-center justify-center shrink-0">
+            <CalendarDays className="h-6 w-6 text-warning" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-primary">{nextMonth.length}</p>
-            <p className="text-sm font-medium text-foreground">Próximo mês</p>
+            <p className="text-2xl font-bold text-warning">{next7Events.length}</p>
+            <p className="text-sm font-medium text-foreground">Próximos 7 dias</p>
+          </div>
+        </div>
+
+        {/* Active meds */}
+        <button
+          onClick={() => medsRef.current?.scrollIntoView({ behavior: "smooth" })}
+          className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl border border-border bg-success/5 hover:border-success/30 transition-colors text-left"
+        >
+          <div className="h-12 w-12 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
+            <Pill className="h-6 w-6 text-success" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-success">{activeMedNames.size}</p>
+            <p className="text-sm font-medium text-foreground">Medicamentos ativos</p>
           </div>
         </button>
       </div>
 
-      {/* ═══ MEDICAÇÕES DE HOJE — sempre visível ═══ */}
-      {Object.keys(medByName).length > 0 && (
-        <section className="rounded-2xl border-2 border-accent/40 bg-accent/5 p-5 animate-fade-up">
-          <h2 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
-            <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center">
-              <Pill className="h-5 w-5 text-accent" />
-            </div>
-            Medicações de Hoje
-            <span className="ml-auto text-xs font-semibold text-accent bg-accent/15 px-2.5 py-1 rounded-full">
-              {todayMedications.length} horário{todayMedications.length !== 1 ? "s" : ""}
-            </span>
-          </h2>
-          <div className="space-y-4">
-            {Object.entries(medByName).map(([name, events]) => (
-              <div key={name}>
-                <p className="text-sm font-bold text-foreground mb-2">{name}</p>
-                <div className="flex flex-wrap gap-2">
-                  {events.map((e) => {
-                    const timeStr = e.time || e.title.match(/(\d{2}:\d{2})/)?.[1] || "—";
-                    return (
-                      <button
-                        key={e.id}
-                        onClick={() => openEventDetail(e)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border-2 border-accent/20 hover:border-accent/50 transition-all cursor-pointer group"
-                      >
-                        <Clock className="h-4 w-4 text-accent" />
-                        <span className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">
-                          {timeStr}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ═══ FILTER CHIPS ═══ */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {filterChips.map((chip) => (
+          <button
+            key={chip.key}
+            onClick={() => setActiveFilter(chip.key)}
+            className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors shrink-0 ${
+              activeFilter === chip.key
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Calendar + Events */}
-      <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-5">
+      {/* ═══ TWO-COLUMN LAYOUT ═══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-5">
+        {/* ── LEFT COLUMN ── */}
         <div className="space-y-4">
-          <div className="border-2 border-primary/20 rounded-2xl p-4 bg-card">
+          {/* Calendar */}
+          <div className="border border-border rounded-2xl p-4 bg-card">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              modifiers={{ event: eventDates }}
-              modifiersClassNames={{ event: "bg-primary/20 font-bold" }}
-              className="rounded-xl"
+              modifiers={{
+                event: eventDatesForCal,
+                medication: medDatesForCal,
+              }}
+              modifiersClassNames={{
+                event: "bg-primary/20 font-bold",
+                medication: "bg-success/20 font-bold",
+              }}
+              className="rounded-xl pointer-events-auto"
             />
           </div>
-          <div className="border-2 border-primary/20 rounded-2xl p-4 bg-card">
-            <h3 className="font-bold text-foreground mb-2">
-              {selectedDate?.toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })}
+
+          {/* Selected day panel */}
+          <div className="border border-border rounded-2xl p-4 bg-card">
+            <h3 className="font-semibold text-foreground text-[15px] mb-2">
+              {selectedDate ? formatDateLong(selectedDayStr) : "Selecione um dia"}
             </h3>
             {selectedDayEvents.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nenhum evento neste dia</p>
             ) : (
-              <div className="space-y-3">
-                {/* Group medication events together */}
-                {(() => {
-                  const medEvents = selectedDayEvents.filter((e) => e.category === "medicacao" || e.category === "Medicação");
-                  const otherEvents = selectedDayEvents.filter((e) => e.category !== "medicacao" && e.category !== "Medicação");
-
-                  // Group med events by medication name (extract name from title like "💊 POLI 3 - 12:30")
-                  const medByName: Record<string, AgendaEvent[]> = {};
-                  medEvents.forEach((e) => {
-                    const name = e.title.replace(/^💊\s*/, "").replace(/\s*-\s*\d{2}:\d{2}$/, "").trim();
-                    if (!medByName[name]) medByName[name] = [];
-                    medByName[name].push(e);
-                  });
-
+              <div className="space-y-1.5">
+                {selectedDayEvents.map((e) => {
+                  const Icon = typeToIcon[getEventType(e)] || Sparkles;
                   return (
-                    <>
-                      {Object.keys(medByName).length > 0 && (
-                        <div className="space-y-1">
-                          <p className="text-xs font-bold text-accent uppercase tracking-wide flex items-center gap-1.5">
-                            <Pill className="h-3.5 w-3.5" />
-                            Medicação
-                          </p>
-                          {Object.entries(medByName).map(([name, events]) => (
-                            <div key={name} className="pl-1 space-y-0.5">
-                              {events
-                                .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
-                                .map((e) => (
-                                  <div
-                                    key={e.id}
-                                    onClick={() => openEventDetail(e)}
-                                   className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-0.5"
-                                  >
-                                    <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
-                                    <span className="font-medium">{e.title}</span>
-                                  </div>
-                                ))}
-                            </div>
-                          ))}
-                        </div>
+                    <div
+                      key={e.id}
+                      onClick={() => openEventDetail(e)}
+                      className="flex items-center gap-2 text-sm text-foreground cursor-pointer hover:text-primary transition-colors py-1"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="truncate">{e.title}</span>
+                      {e.time && <span className="text-xs text-muted-foreground ml-auto shrink-0">{e.time}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Medications today panel */}
+          <div ref={medsRef} className="border border-border rounded-2xl p-4 bg-success/5">
+            <h3 className="font-semibold text-foreground text-[15px] mb-3 flex items-center gap-2">
+              💊 Medicamentos hoje
+            </h3>
+            {Object.keys(medByName).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum medicamento para hoje</p>
+            ) : (
+              <div className="space-y-4">
+                {Object.entries(medByName).map(([name, events]) => {
+                  const nextDose = getNextDoseTime(events);
+                  return (
+                    <div key={name} className="space-y-2">
+                      <p className="text-sm font-bold text-foreground">{name}</p>
+                      {events[0]?.notes && (
+                        <p className="text-xs text-muted-foreground">{events[0].notes}</p>
                       )}
-                      {otherEvents.length > 0 && (
-                        <div className="space-y-1">
-                          {Object.keys(medByName).length > 0 && (
-                            <p className="text-xs font-bold text-primary uppercase tracking-wide mt-2">Outros</p>
-                          )}
-                          {otherEvents.map((e) => (
-                            <div
+                      <div className="flex flex-wrap gap-1.5">
+                        {events.map((e) => {
+                          const t = e.time || "—";
+                          const isPast = t < currentTimeStr;
+                          const isNext = t === nextDose && t >= currentTimeStr;
+                          return (
+                            <button
                               key={e.id}
                               onClick={() => openEventDetail(e)}
-                              className="text-sm text-foreground flex items-center gap-2 cursor-pointer hover:text-primary transition-colors py-0.5"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                isPast
+                                  ? "bg-destructive/10 text-destructive"
+                                  : isNext
+                                    ? "bg-warning/20 text-warning animate-pulse border border-warning/30"
+                                    : "bg-muted text-muted-foreground"
+                              }`}
                             >
-                              <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
-                              {e.title}
-                            </div>
-                          ))}
-                        </div>
+                              {isPast ? (
+                                <AlertCircle className="h-3 w-3" />
+                              ) : isNext ? (
+                                <Clock className="h-3 w-3" />
+                              ) : (
+                                <Circle className="h-3 w-3" />
+                              )}
+                              {t}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {nextDose && (
+                        <p className="text-xs font-medium text-warning">
+                          Próxima dose: {nextDose}
+                        </p>
                       )}
-                    </>
+                    </div>
                   );
-                })()}
+                })}
               </div>
             )}
           </div>
         </div>
 
+        {/* ── RIGHT COLUMN ── */}
         <div className="space-y-5">
-          <div ref={sectionRefs.atrasadas}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-muted-foreground mb-3">
-              <CalendarIcon className="h-4 w-4" />
-              Realizadas ({realized.length})
-            </h2>
-            {realized.length === 0 ? (
-              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
-                <EmptyState icon={Clock} title="Nenhum evento realizado" description="Eventos passados aparecerão aqui." />
-              </div>
-            ) : (
-              <AnimatedList className="space-y-2">{realized.map(renderEventCard)}</AnimatedList>
-            )}
-          </div>
+          {filteredEvents !== null ? (
+            // Filtered view
+            <div>
+              <h2 className="text-base font-bold text-foreground mb-3">
+                {filterChips.find((c) => c.key === activeFilter)?.label} ({filteredEvents.length})
+              </h2>
+              {filteredEvents.length === 0 ? (
+                <div className="border border-dashed border-border rounded-2xl bg-background">
+                  <EmptyState
+                    icon={CalendarDays}
+                    title="Nenhum evento encontrado"
+                    description="Tente outro filtro ou crie um novo evento."
+                    actionLabel="Novo Evento"
+                    onAction={openCreateDialog}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredEvents.map((e, i) => renderEventCard(e, i))}
+                </div>
+              )}
+            </div>
+          ) : (
+            // Default sectioned view
+            <>
+              {/* TODAY section */}
+              {futureToday.length > 0 && (
+                <div className="rounded-2xl bg-primary/5 border border-primary/20 p-4">
+                  <h2 className="flex items-center gap-2 text-base font-bold text-primary mb-3">
+                    📅 Hoje
+                  </h2>
+                  <div className="space-y-2">
+                    {futureToday.map((e, i) => renderEventCard(e, i))}
+                  </div>
+                </div>
+              )}
 
-          <div ref={sectionRefs["proxima-semana"]}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-primary mb-3">
-              <CalendarDays className="h-4 w-4" />
-              Próxima semana ({nextWeek.length})
-            </h2>
-            {nextWeek.length === 0 ? (
-              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
-                <EmptyState icon={CalendarDays} title="Semana livre!" description="Nenhum evento nos próximos 7 dias." actionLabel="Agendar evento" onAction={openCreateDialog} />
+              {/* THIS WEEK section */}
+              <div>
+                <h2 className="flex items-center gap-2 text-base font-bold text-foreground mb-3">
+                  📅 Próximos 7 dias ({futureWeek.length})
+                </h2>
+                {futureWeek.length === 0 ? (
+                  <div className="border border-dashed border-border rounded-2xl bg-background">
+                    <EmptyState
+                      icon={CalendarDays}
+                      title="Semana livre!"
+                      description="Nenhum evento nos próximos 7 dias."
+                      actionLabel="Agendar evento"
+                      onAction={openCreateDialog}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {futureWeek.map((e, i) => renderEventCard(e, i))}
+                  </div>
+                )}
               </div>
-            ) : (
-              <AnimatedList className="space-y-2">{nextWeek.map(renderEventCard)}</AnimatedList>
-            )}
-          </div>
 
-          <div ref={sectionRefs["proximo-mes"]}>
-            <h2 className="flex items-center gap-2 text-base font-bold text-primary mb-3">
-              <CalendarClock className="h-4 w-4" />
-              Próximo mês ({nextMonth.length})
-            </h2>
-            {nextMonth.length === 0 ? (
-              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
-                <EmptyState icon={CalendarClock} title="Mês tranquilo" description="Nenhum evento agendado para o próximo mês." actionLabel="Agendar evento" onAction={openCreateDialog} />
-              </div>
-            ) : (
-              <AnimatedList className="space-y-2">{nextMonth.map(renderEventCard)}</AnimatedList>
-            )}
-          </div>
+              {/* REALIZED — hidden by default */}
+              {realized.length > 0 && (
+                <div>
+                  <button
+                    onClick={() => setShowRealized(!showRealized)}
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${showRealized ? "rotate-180" : ""}`}
+                    />
+                    Ver eventos anteriores ({realized.length})
+                  </button>
+                  <AnimatePresence>
+                    {showRealized && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-2 mt-3 opacity-60">
+                          {realized.map((e, i) => renderEventCard(e, i))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      {/* Event Detail Dialog */}
+      {/* ═══ EVENT DETAIL DIALOG ═══ */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -679,27 +894,22 @@ export default function Agenda() {
                   </div>
                 )}
                 {detailEvent.source && detailEvent.source !== "manual" && (
-                   <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
                     <Pill className="h-4 w-4 text-primary" />
                     <p className="text-sm text-primary font-medium">Criado automaticamente via prontuário</p>
                   </div>
                 )}
                 {daysFromNow(detailEvent.date) < 0 && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <AlertCircle className="h-4 w-4 text-destructive" />
                     <p className="text-sm font-medium text-destructive">
                       Atrasado há {Math.abs(daysFromNow(detailEvent.date))} dias
                     </p>
                   </div>
                 )}
               </div>
-
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  className="h-12 text-base rounded-xl gap-2"
-                  onClick={() => openEditDialog(detailEvent)}
-                >
+                <Button variant="outline" className="h-12 text-base rounded-xl gap-2" onClick={() => openEditDialog(detailEvent)}>
                   <Pencil className="h-4 w-4" />
                   Editar
                 </Button>
@@ -720,7 +930,7 @@ export default function Agenda() {
         </DialogContent>
       </Dialog>
 
-      {/* Create/Edit Dialog */}
+      {/* ═══ CREATE/EDIT DIALOG ═══ */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetEventForm(); else setDialogOpen(true); }}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -763,24 +973,88 @@ export default function Agenda() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Data *</label>
-                <Input
-                  type="date"
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  className="h-12"
-                />
+                <label className="text-sm font-semibold text-foreground">
+                  {eventType === "medicacao" ? "Data de início *" : "Data *"}
+                </label>
+                <Input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="h-12" />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Horário</label>
-                <Input
-                  type="time"
-                  value={eventTime}
-                  onChange={(e) => setEventTime(e.target.value)}
-                  className="h-12"
-                />
-              </div>
+              {eventType !== "medicacao" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Horário</label>
+                  <Input type="time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} className="h-12" />
+                </div>
+              )}
             </div>
+
+            {/* ── Medication-specific fields ── */}
+            <AnimatePresence>
+              {eventType === "medicacao" && !editingEvent && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden space-y-4"
+                >
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">Frequência *</label>
+                    <Select value={medFrequency} onValueChange={setMedFrequency}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Selecione a frequência" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {frequencyOptions.map((f) => (
+                          <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Primeira dose *</label>
+                      <Input type="time" value={medFirstDose} onChange={(e) => setMedFirstDose(e.target.value)} className="h-12" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground">Dosagem</label>
+                      <Input placeholder="Ex: 1 comp" value={medDosage} onChange={(e) => setMedDosage(e.target.value)} className="h-12" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-semibold text-foreground">Data de término</label>
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={medContinuous}
+                          onChange={(e) => setMedContinuous(e.target.checked)}
+                          className="h-4 w-4 accent-primary rounded"
+                        />
+                        Uso contínuo
+                      </label>
+                    </div>
+                    {!medContinuous && (
+                      <Input type="date" value={medEndDate} onChange={(e) => setMedEndDate(e.target.value)} className="h-12" />
+                    )}
+                  </div>
+
+                  {/* Preview of calculated times */}
+                  {previewDoseTimes.length > 0 && (
+                    <div className="p-3 rounded-xl bg-success/10 border border-success/20">
+                      <p className="text-xs font-semibold text-success mb-2">Horários calculados:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {previewDoseTimes.map((t) => (
+                          <span key={t} className="px-2.5 py-1 rounded-lg bg-success/20 text-xs font-bold text-success">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {(eventType === "atividade-semanal" || eventType === "atividade-mensal") && !editingEvent && (
               <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
@@ -790,9 +1064,7 @@ export default function Agenda() {
                     Repetir {eventType === "atividade-semanal" ? "toda semana" : "todo mês"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {eventType === "atividade-semanal"
-                      ? "Cria 12 eventos semanais no mesmo horário"
-                      : "Cria 6 eventos mensais no mesmo horário"}
+                    {eventType === "atividade-semanal" ? "Cria 12 eventos semanais" : "Cria 6 eventos mensais"}
                   </p>
                 </div>
                 <input
@@ -820,7 +1092,13 @@ export default function Agenda() {
               </Button>
               <Button
                 className="h-12 text-base font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={!eventType || !eventTitle || !eventDate || saving}
+                disabled={
+                  !eventType ||
+                  !eventTitle ||
+                  !eventDate ||
+                  saving ||
+                  (eventType === "medicacao" && !editingEvent && (!medFrequency || !medFirstDose))
+                }
                 onClick={handleSaveEvent}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
@@ -831,7 +1109,7 @@ export default function Agenda() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* ═══ DELETE CONFIRMATION ═══ */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
