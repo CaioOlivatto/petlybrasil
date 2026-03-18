@@ -1,7 +1,8 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AnimatedOutlet } from "@/components/AnimatedOutlet";
 import { Menu, Gem } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -33,7 +34,7 @@ export function DashboardLayout() {
           </header>
 
           <main className="flex-1 p-4 sm:p-6 overflow-auto pb-20 md:pb-6">
-            <Outlet />
+            <AnimatedOutlet />
           </main>
         </div>
 
