@@ -189,6 +189,20 @@ export default function Agenda() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   const isMedication = (e: AgendaEvent) => e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
+  
+  // Today's medications — always visible
+  const todayMedications = eventos.filter((e) => isMedication(e) && e.date === todayStr);
+  const medByName: Record<string, AgendaEvent[]> = {};
+  todayMedications.forEach((e) => {
+    const name = e.title.replace(/^💊\s*/, "").replace(/\s*-\s*\d{2}:\d{2}$/, "").trim();
+    if (!medByName[name]) medByName[name] = [];
+    medByName[name].push(e);
+  });
+  // Sort each group by time
+  Object.values(medByName).forEach((group) =>
+    group.sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+  );
+
   const realized = eventos.filter((e) => e.date < todayStr && !isMedication(e));
   const nextWeek = eventos.filter((e) => {
     const days = daysFromNow(e.date);
@@ -457,6 +471,45 @@ export default function Agenda() {
           </div>
         </button>
       </div>
+
+      {/* ═══ MEDICAÇÕES DE HOJE — sempre visível ═══ */}
+      {Object.keys(medByName).length > 0 && (
+        <section className="rounded-2xl border-2 border-accent/40 bg-accent/5 p-5 animate-fade-up">
+          <h2 className="flex items-center gap-2 text-base font-bold text-foreground mb-4">
+            <div className="h-9 w-9 rounded-xl bg-accent/20 flex items-center justify-center">
+              <Pill className="h-5 w-5 text-accent" />
+            </div>
+            Medicações de Hoje
+            <span className="ml-auto text-xs font-semibold text-accent bg-accent/15 px-2.5 py-1 rounded-full">
+              {todayMedications.length} horário{todayMedications.length !== 1 ? "s" : ""}
+            </span>
+          </h2>
+          <div className="space-y-4">
+            {Object.entries(medByName).map(([name, events]) => (
+              <div key={name}>
+                <p className="text-sm font-bold text-foreground mb-2">{name}</p>
+                <div className="flex flex-wrap gap-2">
+                  {events.map((e) => {
+                    const timeStr = e.time || e.title.match(/(\d{2}:\d{2})/)?.[1] || "—";
+                    return (
+                      <button
+                        key={e.id}
+                        onClick={() => openEventDetail(e)}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border-2 border-accent/20 hover:border-accent/50 transition-all cursor-pointer group"
+                      >
+                        <Clock className="h-4 w-4 text-accent" />
+                        <span className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">
+                          {timeStr}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Calendar + Events */}
       <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-5">
