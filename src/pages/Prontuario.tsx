@@ -359,8 +359,12 @@ export default function Prontuario() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="max-w-5xl mx-auto space-y-5">
+        <Skeleton className="h-10 w-48" />
+        <div className="flex gap-2 overflow-x-auto">
+          {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-20 rounded-full" />)}
+        </div>
+        <SkeletonList count={4} />
       </div>
     );
   }
