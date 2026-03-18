@@ -586,7 +586,7 @@ export default function Onboarding() {
               </Button>
             )}
             {step < TOTAL_STEPS ? (
-              <Button onClick={nextStep} className="flex-1 bg-accent hover:bg-accent/90">
+              <Button onClick={nextStep} className="flex-1 bg-primary hover:bg-primary/90">
                 Próximo <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
