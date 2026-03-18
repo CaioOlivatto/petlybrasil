@@ -24,9 +24,10 @@ export function AnimatedCard({ children, index = 0, className = "", onClick }: A
   );
 }
 
-export function AnimatedList({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
+export const AnimatedList = forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
+  ({ children, className = "" }, ref) => (
     <motion.div
+      ref={ref}
       initial="hidden"
       animate="visible"
       variants={{
@@ -37,8 +38,9 @@ export function AnimatedList({ children, className = "" }: { children: ReactNode
     >
       {children}
     </motion.div>
-  );
-}
+  )
+);
+AnimatedList.displayName = "AnimatedList";
 
 export const listItemVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
