@@ -1,7 +1,8 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AnimatedOutlet } from "@/components/AnimatedOutlet";
 import { Menu, Gem } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
