@@ -187,36 +187,42 @@ export default function Onboarding() {
 
   const petName = form.name || "seu pet";
 
+  const stepLabels = ["Sobre você", "Seu pet", "Espécie e raça", "Idade e sexo", "Detalhes finais"];
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        backgroundImage: `url(${pawPattern})`,
-        backgroundSize: "300px",
-        backgroundRepeat: "repeat",
-      }}
-    >
-      <div className="absolute inset-0 bg-background/60" />
-      <Card className="w-full max-w-lg relative z-10 shadow-xl border-accent/20">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-lg relative z-10 shadow-xl border-primary/20">
         <CardContent className="pt-8 pb-6 px-6">
-          {/* Progress dots */}
-          <div className="flex justify-center gap-2 mb-6">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+          {/* Step indicator */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-primary">Etapa {step} de {TOTAL_STEPS}</span>
+              <span className="text-xs text-muted-foreground">{stepLabels[step - 1]}</span>
+            </div>
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
               <div
-                key={i}
-                className={`h-2 rounded-full transition-all ${
-                  i + 1 === step ? "w-8 bg-accent" : i + 1 < step ? "w-8 bg-accent/50" : "w-8 bg-muted"
-                }`}
+                className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
               />
-            ))}
+            </div>
+            <div className="flex justify-between mt-2">
+              {stepLabels.map((label, i) => (
+                <div
+                  key={i}
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${
+                    i + 1 <= step ? "bg-primary" : "bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Step 1: Tutor info */}
           {step === 1 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <Heart className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Heart className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <h2 className="text-xl font-bold text-foreground mb-1">Bem-vindo ao Petly!</h2>
@@ -260,8 +266,8 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <Heart className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Heart className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <h2 className="text-xl font-bold text-foreground mb-1">Vamos conhecer seu pet!</h2>
@@ -284,8 +290,8 @@ export default function Onboarding() {
                 <div className="flex justify-center mb-4">
                   <div
                     onClick={() => fileRef.current?.click()}
-                    className={`h-32 w-32 rounded-2xl border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-accent/50 transition-colors overflow-hidden ${
-                      photoPreview ? "border-solid border-accent/30" : ""
+                    className={`h-32 w-32 rounded-2xl border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors overflow-hidden ${
+                      photoPreview ? "border-solid border-primary/30" : ""
                     }`}
                   >
                     {photoPreview ? (
@@ -347,13 +353,13 @@ export default function Onboarding() {
                         className={cn(
                           "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
                           isSelected
-                            ? "border-accent bg-accent/10"
+                            ? "border-primary bg-primary/10"
                             : opt.available
-                            ? "border-border hover:border-accent/40"
+                            ? "border-border hover:border-primary/40"
                             : "border-border opacity-40 cursor-not-allowed"
                         )}
                       >
-                        <Icon className={cn("h-6 w-6", isSelected ? "text-accent" : "text-muted-foreground")} />
+                        <Icon className={cn("h-6 w-6", isSelected ? "text-primary" : "text-muted-foreground")} />
                         <span className={cn("text-sm", isSelected ? "font-semibold text-foreground" : "text-muted-foreground")}>
                           {opt.label}
                         </span>
@@ -463,8 +469,8 @@ export default function Onboarding() {
                         className={cn(
                           "flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all",
                           form.sex === opt.value
-                            ? "border-accent bg-accent/10"
-                            : "border-border hover:border-accent/40"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/40"
                         )}
                       >
                         <span className="text-2xl">{opt.emoji}</span>
@@ -483,8 +489,8 @@ export default function Onboarding() {
           {step === 5 && (
             <div className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <PawPrint className="h-6 w-6 text-accent" />
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <PawPrint className="h-6 w-6 text-primary" />
                 </div>
               </div>
               <h2 className="text-xl font-bold text-foreground mb-1">Informações adicionais</h2>
@@ -580,11 +586,11 @@ export default function Onboarding() {
               </Button>
             )}
             {step < TOTAL_STEPS ? (
-              <Button onClick={nextStep} className="flex-1 bg-accent hover:bg-accent/90">
+              <Button onClick={nextStep} className="flex-1 bg-primary hover:bg-primary/90">
                 Próximo <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleFinish} className="flex-1 bg-accent hover:bg-accent/90" disabled={saving}>
+              <Button onClick={handleFinish} className="flex-1 bg-primary hover:bg-primary/90" disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <PawPrint className="h-4 w-4 mr-2" />}
                 Começar!
               </Button>

@@ -48,6 +48,9 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonList } from "@/components/SkeletonCard";
+import { EmptyState } from "@/components/EmptyState";
 
 const categories = [
   { key: "vacina", label: "Vacina", icon: Syringe },
@@ -359,8 +362,12 @@ export default function Prontuario() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="max-w-5xl mx-auto space-y-5">
+        <Skeleton className="h-10 w-48" />
+        <div className="flex gap-2 overflow-x-auto">
+          {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8 w-20 rounded-full" />)}
+        </div>
+        <SkeletonList count={4} />
       </div>
     );
   }
@@ -671,13 +678,13 @@ export default function Prontuario() {
 
       {/* Records grouped by category */}
       {Object.keys(groupedRecords).length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl bg-background">
-          <ImageOff className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
-          <p className="text-lg font-medium text-muted-foreground">Nenhum registro ainda</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">
-            Clique em "+ Novo Registro" para começar
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="Nenhum registro ainda"
+          description="Comece adicionando vacinas, exames, consultas e outros registros do seu pet."
+          actionLabel="+ Novo Registro"
+          onAction={() => setDialogOpen(true)}
+        />
       ) : (
         <div className="space-y-3">
           {Object.entries(groupedRecords).map(([catKey, catRecords]) => {

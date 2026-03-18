@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
+import { SkeletonList } from "@/components/SkeletonCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Vacinas() {
   const navigate = useNavigate();
@@ -53,8 +55,10 @@ export default function Vacinas() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-64" />
+          <Skeleton className="h-4 w-40 rounded-full" />
+          <SkeletonList count={5} />
         </div>
       ) : !pet ? (
         <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl bg-background">
