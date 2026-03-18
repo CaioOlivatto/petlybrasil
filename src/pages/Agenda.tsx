@@ -49,6 +49,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
+import { AnimatedCard, AnimatedList, listItemVariants } from "@/components/AnimatedCard";
+import { motion } from "framer-motion";
 
 interface AgendaEvent {
   id: string;
@@ -324,8 +326,11 @@ export default function Agenda() {
     const Icon = typeToIcon[categoryToType[evento.category] || evento.category] || CalendarIcon;
 
     return (
-      <div
+      <motion.div
         key={evento.id}
+        variants={listItemVariants}
+        whileHover={{ scale: 1.015 }}
+        whileTap={{ scale: 0.98 }}
         onClick={() => openEventDetail(evento)}
         className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors cursor-pointer ${
           isOverdue
@@ -352,7 +357,7 @@ export default function Agenda() {
           <p className="text-xs text-muted-foreground">{formatDate(evento.date)}</p>
         </div>
         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
-      </div>
+      </motion.div>
     );
   };
 
@@ -549,7 +554,7 @@ export default function Agenda() {
                 <EmptyState icon={Clock} title="Nenhum evento realizado" description="Eventos passados aparecerão aqui." />
               </div>
             ) : (
-              <div className="space-y-2">{realized.map(renderEventCard)}</div>
+              <AnimatedList className="space-y-2">{realized.map(renderEventCard)}</AnimatedList>
             )}
           </div>
 
@@ -563,7 +568,7 @@ export default function Agenda() {
                 <EmptyState icon={CalendarDays} title="Semana livre!" description="Nenhum evento nos próximos 7 dias." actionLabel="Agendar evento" onAction={openCreateDialog} />
               </div>
             ) : (
-              <div className="space-y-2">{nextWeek.map(renderEventCard)}</div>
+              <AnimatedList className="space-y-2">{nextWeek.map(renderEventCard)}</AnimatedList>
             )}
           </div>
 
@@ -577,7 +582,7 @@ export default function Agenda() {
                 <EmptyState icon={CalendarClock} title="Mês tranquilo" description="Nenhum evento agendado para o próximo mês." actionLabel="Agendar evento" onAction={openCreateDialog} />
               </div>
             ) : (
-              <div className="space-y-2">{nextMonth.map(renderEventCard)}</div>
+              <AnimatedList className="space-y-2">{nextMonth.map(renderEventCard)}</AnimatedList>
             )}
           </div>
         </div>

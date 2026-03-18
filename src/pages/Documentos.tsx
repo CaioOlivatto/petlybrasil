@@ -41,6 +41,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
 import { EmptyState } from "@/components/EmptyState";
 import { SkeletonGrid } from "@/components/SkeletonCard";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { motion } from "framer-motion";
 
 interface DocumentRecord {
   id: string;
@@ -257,32 +259,33 @@ export default function Documentos() {
 
       {/* Document type cards - clickable to create */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {documentTypes.map((type) => {
+        {documentTypes.map((type, idx) => {
           const count = documents.filter((d) => getDocTypeForRecord(d.name) === type.key).length;
           const Icon = type.icon;
           return (
-            <button
-              key={type.key}
-              onClick={() => openCreateDialog(type)}
-              className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left cursor-pointer hover:shadow-md ${
-                count > 0
-                  ? "border-primary/30 bg-primary/5 hover:border-primary/60"
-                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
-              }`}
-            >
-              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
-                count > 0 ? "bg-primary/15" : "bg-muted"
-              }`}>
-                <Icon className={`h-5 w-5 ${count > 0 ? "text-primary" : "text-muted-foreground"}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-foreground text-sm truncate">{type.label}</p>
-                <p className="text-xs text-muted-foreground">
-                  {count > 0 ? `${count} doc(s)` : "Clique para adicionar"}
-                </p>
-              </div>
-              <Plus className="h-4 w-4 text-muted-foreground shrink-0" />
-            </button>
+            <AnimatedCard key={type.key} index={idx}>
+              <button
+                onClick={() => openCreateDialog(type)}
+                className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left cursor-pointer hover:shadow-md ${
+                  count > 0
+                    ? "border-primary/30 bg-primary/5 hover:border-primary/60"
+                    : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
+                }`}
+              >
+                <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  count > 0 ? "bg-primary/15" : "bg-muted"
+                }`}>
+                  <Icon className={`h-5 w-5 ${count > 0 ? "text-primary" : "text-muted-foreground"}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-foreground text-sm truncate">{type.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {count > 0 ? `${count} doc(s)` : "Clique para adicionar"}
+                  </p>
+                </div>
+                <Plus className="h-4 w-4 text-muted-foreground shrink-0" />
+              </button>
+            </AnimatedCard>
           );
         })}
       </div>
@@ -317,8 +320,12 @@ export default function Documentos() {
             const Icon = typeInfo?.icon || FileText;
 
             return (
-              <div
+              <motion.div
                 key={doc.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(filteredDocuments.indexOf(doc) * 0.05, 0.3) }}
+                whileHover={{ scale: 1.01 }}
                 className="flex items-center gap-4 p-4 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary/40 transition-colors"
               >
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -355,7 +362,7 @@ export default function Documentos() {
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
