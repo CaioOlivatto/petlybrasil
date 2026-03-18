@@ -9,72 +9,94 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { breed, species, category } = await req.json();
+    const { breed, species, category, name, birthDate, allergies, healthConditions } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const speciesLabel = species === "dog" ? "cachorro" : species === "cat" ? "gato" : "pet";
+    const petName = name || "seu pet";
+
+    // Calculate age
+    let ageText = "";
+    if (birthDate) {
+      const birth = new Date(birthDate);
+      const now = new Date();
+      const months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+      if (months < 12) {
+        ageText = `${months} ${months === 1 ? "mês" : "meses"}`;
+      } else {
+        const years = Math.floor(months / 12);
+        const rem = months % 12;
+        ageText = `${years} ${years === 1 ? "ano" : "anos"}${rem > 0 ? ` e ${rem} ${rem === 1 ? "mês" : "meses"}` : ""}`;
+      }
+    }
+
+    const petContext = `
+DADOS DO PET:
+- Nome: ${petName}
+- Espécie: ${speciesLabel}
+- Raça: ${breed || "SRD"}
+${ageText ? `- Idade: ${ageText}` : ""}
+${allergies ? `- Alergias: ${allergies}` : "- Sem alergias conhecidas"}
+${healthConditions ? `- Condições de saúde: ${healthConditions}` : "- Sem condições de saúde conhecidas"}`;
 
     const categoryPrompts: Record<string, string> = {
-      adestramento: `Dê dicas de ADESTRAMENTO e TREINO específicas para a raça ${breed} (${speciesLabel}). Inclua:
-- Comandos básicos recomendados para começar
+      adestramento: `Dê dicas de ADESTRAMENTO e TREINO específicas para ${petName}, um(a) ${speciesLabel} da raça ${breed}${ageText ? ` com ${ageText} de idade` : ""}. ${healthConditions ? `Leve em conta que ${petName} tem: ${healthConditions}.` : ""} Inclua:
+- Comandos básicos recomendados para começar (considerando a idade)
 - Técnicas de reforço positivo adequadas ao temperamento da raça
 - Erros comuns no adestramento dessa raça e como evitá-los
-- Frequência e duração ideal das sessões de treino
+- Frequência e duração ideal das sessões de treino para a idade atual
 - Dicas de socialização`,
-      saude: `Dê dicas de SAÚDE específicas para a raça ${breed} (${speciesLabel}). Inclua:
-- Problemas de saúde mais comuns da raça (displasia, problemas cardíacos, oculares, etc.)
-- Sinais de alerta para ficar atento
+      saude: `Dê dicas de SAÚDE específicas para ${petName}, um(a) ${speciesLabel} da raça ${breed}${ageText ? ` com ${ageText} de idade` : ""}. ${healthConditions ? `${petName} já tem as seguintes condições: ${healthConditions}. Dê orientações específicas sobre elas.` : ""} ${allergies ? `${petName} tem alergias a: ${allergies}. Considere isso nas recomendações.` : ""} Inclua:
+- Problemas de saúde mais comuns da raça
+- Sinais de alerta para ficar atento na idade atual
 - Frequência recomendada de check-ups veterinários
 - Cuidados preventivos importantes
 - Importância da vermifugação e vacinação em dia`,
-      alimentacao: `Dê dicas de ALIMENTAÇÃO específicas para a raça ${breed} (${speciesLabel}). Inclua:
-- Tipo de ração mais adequada (considere porte e nível de atividade)
-- Quantidade e frequência de refeições por faixa etária
-- Alimentos naturais seguros que podem complementar (tomate maduro, cenoura, maçã sem sementes, etc.)
-- Alimentos PROIBIDOS (uva, chocolate, cebola, alho, etc.)
+      alimentacao: `Dê dicas de ALIMENTAÇÃO específicas para ${petName}, um(a) ${speciesLabel} da raça ${breed}${ageText ? ` com ${ageText} de idade` : ""}. ${allergies ? `IMPORTANTE: ${petName} tem alergias a: ${allergies}. Evite recomendar alimentos que possam causar reação.` : ""} ${healthConditions ? `${petName} tem: ${healthConditions}. Adapte as recomendações alimentares.` : ""} Inclua:
+- Tipo de ração mais adequada para a idade e porte
+- Quantidade e frequência de refeições para a faixa etária atual
+- Alimentos naturais seguros que podem complementar
+- Alimentos PROIBIDOS
 - Tendência a obesidade e como prevenir
-- Dicas sobre rações coadjuvantes quando necessário (hipoalergênica, renal, etc. - sempre com orientação veterinária)`,
-      exercicios: `Dê dicas de EXERCÍCIOS E ATIVIDADES FÍSICAS específicas para a raça ${breed} (${speciesLabel}). Inclua:
+- Dicas sobre rações coadjuvantes quando necessário`,
+      exercicios: `Dê dicas de EXERCÍCIOS E ATIVIDADES FÍSICAS específicas para ${petName}, um(a) ${speciesLabel} da raça ${breed}${ageText ? ` com ${ageText} de idade` : ""}. ${healthConditions ? `Leve em conta que ${petName} tem: ${healthConditions}. Adapte os exercícios se necessário.` : ""} Inclua:
 - Nível de energia típico da raça
-- Quantidade diária de exercício recomendada (minutos e quilômetros)
-- Tipos de atividades mais adequadas ao temperamento
+- Quantidade diária de exercício recomendada para a idade atual
+- Tipos de atividades mais adequadas
 - Esportes caninos recomendados
-- Cuidados durante exercícios (hidratação, temperatura, superfícies)
-- Adaptações para filhotes e idosos`,
-      cuidados: `Dê dicas de CUIDADOS GERAIS E HIGIENE específicas para a raça ${breed} (${speciesLabel}). Inclua:
+- Cuidados durante exercícios
+- Adaptações específicas para a idade de ${petName}`,
+      cuidados: `Dê dicas de CUIDADOS GERAIS E HIGIENE específicas para ${petName}, um(a) ${speciesLabel} da raça ${breed}${ageText ? ` com ${ageText} de idade` : ""}. ${allergies ? `${petName} tem alergias a: ${allergies}. Considere produtos hipoalergênicos.` : ""} ${healthConditions ? `${petName} tem: ${healthConditions}. Adapte os cuidados.` : ""} Inclua:
 - Frequência de banho recomendada
-- Cuidados com pelos (escovação, tosa)
-- Cuidados com orelhas (especialmente para raças de orelhas longas)
-- Saúde bucal (escovação de dentes, prevenção de tártaro)
+- Cuidados com pelos
+- Cuidados com orelhas
+- Saúde bucal
 - Cuidados com unhas
-- Cuidados com olhos (lágrima ácida se aplicável)
+- Cuidados com olhos
 - Adaptações no ambiente doméstico`,
     };
 
-    const systemPrompt = `Você é um especialista em cuidados com pets, com conhecimento profundo sobre raças de cães e gatos.
+    const systemPrompt = `Você é um especialista carinhoso em cuidados com pets. Você está dando conselhos personalizados para o tutor do ${petName}.
+
+${petContext}
 
 CONHECIMENTO DO MANUAL DE REFERÊNCIA:
 - Pets PCD precisam de exercícios adaptados, rotinas personalizadas e ambiente acessível
-- Rações coadjuvantes (hipoalergênica, renal, diabéticos, obesos, urinária, hepática, gastrointestinal, articular, neurológica) devem ser usadas APENAS com prescrição veterinária
-- Lágrima ácida (Cromodacriorreia) é comum em pelagem clara e focinho achatado (Shih-Tzu, Lhasa Apso, Poodle, Persa) - limpar com gaze e soro fisiológico 2x/dia
-- Tártaro: escovar dentes pelo menos a cada 3 dias, usar escova e pasta específicas para pets (NUNCA usar pasta humana com flúor)
-- Vermifugação: comprimidos, líquidos ou pasta. Vermífugos com ivermectina NÃO podem ser usados em Collie, Border Collie, Pastor de Shetland, Sheepdog, Pastor Australiano
-- Cachorro pode comer tomate MADURO com moderação (nunca verde, folhas ou caule - contém solanina/glicoalcalóide tóxicos)
+- Rações coadjuvantes devem ser usadas APENAS com prescrição veterinária
+- Lágrima ácida é comum em pelagem clara e focinho achatado - limpar com gaze e soro fisiológico 2x/dia
+- Tártaro: escovar dentes pelo menos a cada 3 dias, usar escova e pasta específicas para pets
+- Vermífugos com ivermectina NÃO podem ser usados em Collie, Border Collie, Pastor de Shetland, Sheepdog, Pastor Australiano
 - Frutas seguras: maçã (sem sementes), banana, melancia (sem sementes), manga, morango
 - Frutas/alimentos PROIBIDOS: uva, chocolate, cebola, alho, abacate, macadâmia
 
-CONHECIMENTO DE RAÇAS:
-- Basset Hound: calmo, faro apurado, orelhas longas (limpar regularmente), propenso a torção gástrica, doença de Von Willebrand, hipotireoidismo. 30min/dia exercício.
-- Cavalier King Charles Spaniel: gentil, carinhoso, propenso a sopro no coração (usar arnês, não coleira), displasia quadril, trombocitopenia. Escovar a cada 2 dias. 30min/dia exercício.
-- Akita: leal, protetor, independente, adora neve/frio. Precisa socialização intensa desde filhote. Exercício moderado a alto.
-- Beagle: energético, teimoso, faro excepcional, propenso a obesidade, displasia quadril, hipotireoidismo. Late muito. 60min/dia exercício (16km/semana). Treinar desde filhote.
-- Border Collie: mais inteligente do mundo, pastoreio instintivo, muita energia. Pode ter ansiedade de separação. Escovar pelo diariamente. Displasia quadril, problemas oculares.
-
 REGRAS:
 - Responda em português brasileiro
+- SEMPRE chame o pet pelo nome "${petName}" — seja pessoal e afetuoso
+- Considere a idade do pet ao dar conselhos (filhote, adulto, idoso)
+- Se o pet tem alergias ou doenças, SEMPRE leve isso em conta e mencione cuidados especiais
 - Seja específico para a raça mencionada
-- Use linguagem acolhedora mas profissional
+- Use linguagem acolhedora e pessoal, como se estivesse conversando com o tutor
 - Organize com subtítulos e listas quando apropriado
 - Máximo 500 palavras
 - Sempre recomende consultar veterinário para questões de saúde
