@@ -48,6 +48,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
+import { EmptyState } from "@/components/EmptyState";
 
 interface AgendaEvent {
   id: string;
