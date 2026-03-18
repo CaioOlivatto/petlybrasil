@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { startOfDay, startOfWeek, startOfMonth, isAfter, format, subDays } from "date-fns";
 import { BookOpen, Zap, UtensilsCrossed, Moon, Heart, Droplets, Footprints, Brain, RefreshCw, Save } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -593,7 +594,9 @@ const Diario = () => {
         </div>
         <div className="space-y-3">
           {filteredHistory.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Nenhum check-in neste período.</p>
+            <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+              <EmptyState icon={BookOpen} title="Nenhum check-in ainda" description={historyFilter === "hoje" ? "Preencha o check-in acima para registrar o dia de hoje." : "Nenhum registro encontrado neste período."} />
+            </div>
           ) : (
             filteredHistory.map((entry, idx) => (
               <Card key={idx} className="bg-card border-border">

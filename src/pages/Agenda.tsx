@@ -48,6 +48,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
+import { EmptyState } from "@/components/EmptyState";
 
 interface AgendaEvent {
   id: string;
@@ -544,9 +545,9 @@ export default function Agenda() {
               Realizadas ({realized.length})
             </h2>
             {realized.length === 0 ? (
-              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento realizado ainda
-              </p>
+              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+                <EmptyState icon={Clock} title="Nenhum evento realizado" description="Eventos passados aparecerão aqui." />
+              </div>
             ) : (
               <div className="space-y-2">{realized.map(renderEventCard)}</div>
             )}
@@ -558,9 +559,9 @@ export default function Agenda() {
               Próxima semana ({nextWeek.length})
             </h2>
             {nextWeek.length === 0 ? (
-              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento na próxima semana
-              </p>
+              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+                <EmptyState icon={CalendarDays} title="Semana livre!" description="Nenhum evento nos próximos 7 dias." actionLabel="Agendar evento" onAction={openCreateDialog} />
+              </div>
             ) : (
               <div className="space-y-2">{nextWeek.map(renderEventCard)}</div>
             )}
@@ -572,9 +573,9 @@ export default function Agenda() {
               Próximo mês ({nextMonth.length})
             </h2>
             {nextMonth.length === 0 ? (
-              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento no próximo mês
-              </p>
+              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+                <EmptyState icon={CalendarClock} title="Mês tranquilo" description="Nenhum evento agendado para o próximo mês." actionLabel="Agendar evento" onAction={openCreateDialog} />
+              </div>
             ) : (
               <div className="space-y-2">{nextMonth.map(renderEventCard)}</div>
             )}
