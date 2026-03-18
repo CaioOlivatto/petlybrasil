@@ -353,13 +353,13 @@ export default function Onboarding() {
                         className={cn(
                           "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all",
                           isSelected
-                            ? "border-accent bg-accent/10"
+                            ? "border-primary bg-primary/10"
                             : opt.available
-                            ? "border-border hover:border-accent/40"
+                            ? "border-border hover:border-primary/40"
                             : "border-border opacity-40 cursor-not-allowed"
                         )}
                       >
-                        <Icon className={cn("h-6 w-6", isSelected ? "text-accent" : "text-muted-foreground")} />
+                        <Icon className={cn("h-6 w-6", isSelected ? "text-primary" : "text-muted-foreground")} />
                         <span className={cn("text-sm", isSelected ? "font-semibold text-foreground" : "text-muted-foreground")}>
                           {opt.label}
                         </span>
