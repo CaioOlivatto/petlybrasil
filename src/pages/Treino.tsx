@@ -30,6 +30,9 @@ const Treino = () => {
   const [petBreed, setPetBreed] = useState("");
   const [petSpecies, setPetSpecies] = useState("");
   const [petName, setPetName] = useState("");
+  const [petBirthDate, setPetBirthDate] = useState<string | null>(null);
+  const [petAllergies, setPetAllergies] = useState<string | null>(null);
+  const [petHealthConditions, setPetHealthConditions] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +42,7 @@ const Treino = () => {
     if (!user) return;
     supabase
       .from("pets")
-      .select("name, species, breed")
+      .select("name, species, breed, birth_date, allergies, health_conditions")
       .eq("user_id", user.id)
       .limit(1)
       .single()
@@ -48,6 +51,9 @@ const Treino = () => {
           setPetName(data.name);
           setPetSpecies(data.species);
           setPetBreed(data.breed || "SRD (Sem Raça Definida)");
+          setPetBirthDate(data.birth_date);
+          setPetAllergies(data.allergies);
+          setPetHealthConditions(data.health_conditions);
         }
       });
   }, [user]);
@@ -79,6 +85,10 @@ const Treino = () => {
             breed: petBreed,
             species: petSpecies,
             category,
+            name: petName,
+            birthDate: petBirthDate,
+            allergies: petAllergies,
+            healthConditions: petHealthConditions,
           }),
         }
       );
@@ -130,7 +140,7 @@ const Treino = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [petBreed, petSpecies, isLoading, toast]);
+  }, [petBreed, petSpecies, petName, petBirthDate, petAllergies, petHealthConditions, isLoading, toast]);
 
   const selectedCat = CATEGORIES.find((c) => c.id === selectedCategory);
 
