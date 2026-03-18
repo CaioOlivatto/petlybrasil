@@ -91,7 +91,7 @@ export function MobileBottomNav() {
       </AnimatePresence>
 
       {/* Bottom bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex items-center justify-around h-16 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex items-center justify-around h-[4.5rem] md:hidden">
         {mainTabs.map((tab) => {
           const isActive =
             location.pathname === tab.path ||
