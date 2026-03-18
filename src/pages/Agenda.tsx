@@ -568,7 +568,7 @@ export default function Agenda() {
                 <EmptyState icon={CalendarDays} title="Semana livre!" description="Nenhum evento nos próximos 7 dias." actionLabel="Agendar evento" onAction={openCreateDialog} />
               </div>
             ) : (
-              <div className="space-y-2">{nextWeek.map(renderEventCard)}</div>
+              <AnimatedList className="space-y-2">{nextWeek.map(renderEventCard)}</AnimatedList>
             )}
           </div>
 
