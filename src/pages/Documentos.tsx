@@ -320,8 +320,12 @@ export default function Documentos() {
             const Icon = typeInfo?.icon || FileText;
 
             return (
-              <div
+              <motion.div
                 key={doc.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(filteredDocuments.indexOf(doc) * 0.05, 0.3) }}
+                whileHover={{ scale: 1.01 }}
                 className="flex items-center gap-4 p-4 rounded-2xl border-2 border-primary/20 bg-card hover:border-primary/40 transition-colors"
               >
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -358,7 +362,7 @@ export default function Documentos() {
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
