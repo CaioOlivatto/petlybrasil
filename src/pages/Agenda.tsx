@@ -573,9 +573,9 @@ export default function Agenda() {
               Próximo mês ({nextMonth.length})
             </h2>
             {nextMonth.length === 0 ? (
-              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento no próximo mês
-              </p>
+              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+                <EmptyState icon={CalendarClock} title="Mês tranquilo" description="Nenhum evento agendado para o próximo mês." actionLabel="Agendar evento" onAction={openCreateDialog} />
+              </div>
             ) : (
               <div className="space-y-2">{nextMonth.map(renderEventCard)}</div>
             )}

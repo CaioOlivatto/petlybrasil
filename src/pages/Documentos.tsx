@@ -302,12 +302,12 @@ export default function Documentos() {
 
       {/* Documents list */}
       {filteredDocuments.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl bg-background">
-          <ImageOff className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
-          <p className="text-lg font-medium text-muted-foreground">Nenhum documento cadastrado</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">
-            Clique em um tipo de documento acima para começar
-          </p>
+        <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+          <EmptyState
+            icon={FileText}
+            title="Nenhum documento cadastrado"
+            description="Clique em um tipo de documento acima para começar a organizar a documentação do seu pet."
+          />
         </div>
       ) : (
         <div className="space-y-2">
