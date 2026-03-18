@@ -630,7 +630,7 @@ export default function Agenda() {
             <Pill className="h-6 w-6 text-success" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-success">{activeMedNames.size}</p>
+            <p className="text-2xl font-bold text-foreground">{activeMedNames.size}</p>
             <p className="text-sm font-medium text-foreground">Medicamentos ativos</p>
           </div>
         </button>
