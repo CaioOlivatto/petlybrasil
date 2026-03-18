@@ -102,7 +102,7 @@ export function TutorProfileSection({ profile, onUpdate }: Props) {
               {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
               Trocar foto
             </Button>
-            <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP · Máx. 5MB</p>
+            <p className="text-xs text-muted-foreground mt-1"><p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP · Máx. 15MB</p></p>
             <input
               ref={fileRef}
               type="file"
