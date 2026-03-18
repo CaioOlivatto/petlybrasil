@@ -290,8 +290,8 @@ export default function Onboarding() {
                 <div className="flex justify-center mb-4">
                   <div
                     onClick={() => fileRef.current?.click()}
-                    className={`h-32 w-32 rounded-2xl border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-accent/50 transition-colors overflow-hidden ${
-                      photoPreview ? "border-solid border-accent/30" : ""
+                    className={`h-32 w-32 rounded-2xl border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors overflow-hidden ${
+                      photoPreview ? "border-solid border-primary/30" : ""
                     }`}
                   >
                     {photoPreview ? (
