@@ -1,10 +1,11 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { useNavigate } from "react-router-dom";
-import { AnimatedOutlet } from "@/components/AnimatedOutlet";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Menu, Gem } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 export function DashboardLayout() {
   const navigate = useNavigate();
