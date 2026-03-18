@@ -43,22 +43,6 @@ const humorMap: Record<string, string> = {
   irritado: "Irritado 😤",
 };
 
-const humorToLevel = (h: string | null): number => {
-  if (!h) return 0;
-  if (h === "brincalhao") return 4;
-  if (h === "calmo") return 3;
-  if (h === "ansioso") return 2;
-  if (h === "irritado") return 1;
-  return 0;
-};
-
-const humorColor = (level: number): string => {
-  if (level === 4) return "bg-success";
-  if (level === 3) return "bg-emerald-400";
-  if (level === 2) return "bg-accent";
-  if (level === 1) return "bg-destructive";
-  return "bg-muted";
-};
 
 const humorDotColor = (level: number): string => {
   if (level === 4) return "bg-success";
