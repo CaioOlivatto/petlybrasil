@@ -6,9 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
 
 export default function Vacinas() {
   const navigate = useNavigate();
