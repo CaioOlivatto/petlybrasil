@@ -189,6 +189,20 @@ export default function Agenda() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   const isMedication = (e: AgendaEvent) => e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
+  
+  // Today's medications — always visible
+  const todayMedications = eventos.filter((e) => isMedication(e) && e.date === todayStr);
+  const medByName: Record<string, AgendaEvent[]> = {};
+  todayMedications.forEach((e) => {
+    const name = e.title.replace(/^💊\s*/, "").replace(/\s*-\s*\d{2}:\d{2}$/, "").trim();
+    if (!medByName[name]) medByName[name] = [];
+    medByName[name].push(e);
+  });
+  // Sort each group by time
+  Object.values(medByName).forEach((group) =>
+    group.sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+  );
+
   const realized = eventos.filter((e) => e.date < todayStr && !isMedication(e));
   const nextWeek = eventos.filter((e) => {
     const days = daysFromNow(e.date);
