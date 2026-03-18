@@ -11,6 +11,7 @@ import {
   Check,
   Plus,
 } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -183,19 +184,57 @@ export default function Dashboard() {
               {pet?.birth_date && <span className="ml-1">· {formatAge(pet.birth_date)}</span>}
             </p>
             {/* Status badge */}
-            <span
-              className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-semibold ${
-                hasAlerts
-                  ? "bg-warning/15 text-warning"
-                  : "bg-success/15 text-success"
-              }`}
-            >
-              {hasAlerts ? (
-                <><AlertTriangle className="h-3.5 w-3.5" /> Atenção necessária</>
-              ) : (
-                <><Check className="h-3.5 w-3.5" /> Tudo em dia</>
-              )}
-            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <span
+                  className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${
+                    hasAlerts
+                      ? "bg-warning/15 text-warning"
+                      : "bg-success/15 text-success"
+                  }`}
+                >
+                  {hasAlerts ? (
+                    <><AlertTriangle className="h-3.5 w-3.5" /> Atenção necessária</>
+                  ) : (
+                    <><Check className="h-3.5 w-3.5" /> Tudo em dia</>
+                  )}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-80 p-0">
+                {alerts.length > 0 ? (
+                  <div className="divide-y divide-border">
+                    {alerts.map((alert, i) => (
+                      <div key={i} className="flex items-center justify-between gap-2 px-4 py-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm truncate">{alert.text}</span>
+                          <span
+                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
+                              alert.badge === "Atrasado"
+                                ? "bg-destructive/15 text-destructive"
+                                : alert.badge === "Hoje"
+                                ? "bg-accent/15 text-accent"
+                                : "bg-primary/10 text-primary"
+                            }`}
+                          >
+                            {alert.badge}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => navigate(alert.text.includes("💉") ? "/vacinas" : "/agenda")}
+                          className="text-xs text-primary font-medium whitespace-nowrap hover:underline flex items-center gap-0.5"
+                        >
+                          Ver <ArrowRight className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-4 py-5 text-center text-sm text-muted-foreground">
+                    Nenhuma pendência encontrada 🎉
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </section>
