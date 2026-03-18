@@ -104,14 +104,14 @@ export function MobileBottomNav() {
                 setOpen(false);
                 navigate(tab.path);
               }}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <tab.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <tab.icon className="h-6 w-6" />
+              <span className="text-xs font-medium">{tab.label}</span>
             </button>
           );
         })}
