@@ -123,9 +123,9 @@ export default function Dashboard() {
   const humorMap: Record<string, string> = { brincalhao: "Brincalhão", calmo: "Calmo", ansioso: "Ansioso", irritado: "Irritado" };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-8">
       {/* Hero Section */}
-      <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-primary-light to-background p-6 sm:p-8">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary-light to-background p-6 sm:p-10">
         {/* Subtle paw decoration */}
         <img
           src={pawPattern}
@@ -133,21 +133,21 @@ export default function Dashboard() {
           className="absolute right-0 top-0 h-full w-48 object-cover opacity-[0.06] pointer-events-none"
           style={{ filter: "hue-rotate(0deg)" }}
         />
-        <div className="relative flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-card shadow-md overflow-hidden shrink-0 border-2 border-primary/20">
+        <div className="relative flex items-center gap-5">
+          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-card shadow-md overflow-hidden shrink-0 border-2 border-primary/20">
             {pet?.photo_url ? (
               <img src={pet.photo_url} alt={petName} className="h-full w-full object-cover" />
             ) : (
-              <div className="h-full w-full flex items-center justify-center text-2xl bg-muted">
+              <div className="h-full w-full flex items-center justify-center text-3xl bg-muted">
                 {pet?.species === "cat" ? "🐱" : "🐶"}
               </div>
             )}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-display text-foreground">
+            <h1 className="text-2xl sm:text-4xl font-display text-foreground">
               Olá, {tutorName}! 👋
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-base sm:text-lg text-muted-foreground mt-2">
               Aqui está o resumo de hoje para <span className="text-primary font-semibold">{petName}</span>
               {pet?.birth_date && <span className="ml-1">· {formatAge(pet.birth_date)}</span>}
             </p>

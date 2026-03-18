@@ -106,12 +106,41 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 16px;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      font-size: 17px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'DM Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'DM Serif Display', serif;
+  }
+
+  /* Minimum touch target for accessibility */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exceptions for inline/icon elements */
+  span > button, .inline-touch {
+    min-height: unset;
+    min-width: unset;
   }
 }
