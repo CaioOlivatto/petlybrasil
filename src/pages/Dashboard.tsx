@@ -300,12 +300,6 @@ export default function Dashboard() {
           ) : (
             <p className="text-base text-muted-foreground">Nenhum registro</p>
           )}
-          {/* 7-day dots */}
-          <div className="flex items-center gap-1.5 mt-3">
-            {last7Dots.map((lvl, i) => (
-              <span key={i} className={`h-2.5 w-2.5 rounded-full ${humorDotColor(lvl)}`} />
-            ))}
-          </div>
         </button>
       </div>
 
