@@ -49,6 +49,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
+import { AnimatedCard, AnimatedList, listItemVariants } from "@/components/AnimatedCard";
+import { motion } from "framer-motion";
 
 interface AgendaEvent {
   id: string;
