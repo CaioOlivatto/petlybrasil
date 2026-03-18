@@ -616,7 +616,7 @@ export default function Agenda() {
             <CalendarDays className="h-6 w-6 text-warning" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-warning">{next7Events.length}</p>
+            <p className="text-2xl font-bold text-foreground">{next7Events.length}</p>
             <p className="text-sm font-medium text-foreground">Próximos 7 dias</p>
           </div>
         </div>
