@@ -554,7 +554,7 @@ export default function Agenda() {
                 <EmptyState icon={Clock} title="Nenhum evento realizado" description="Eventos passados aparecerão aqui." />
               </div>
             ) : (
-              <div className="space-y-2">{realized.map(renderEventCard)}</div>
+              <AnimatedList className="space-y-2">{realized.map(renderEventCard)}</AnimatedList>
             )}
           </div>
 
