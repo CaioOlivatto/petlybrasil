@@ -140,7 +140,7 @@ const Treino = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [petBreed, petSpecies, isLoading, toast]);
+  }, [petBreed, petSpecies, petName, petBirthDate, petAllergies, petHealthConditions, isLoading, toast]);
 
   const selectedCat = CATEGORIES.find((c) => c.id === selectedCategory);
 
