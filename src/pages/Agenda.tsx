@@ -605,7 +605,7 @@ export default function Agenda() {
             <Clock className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-primary">{todayEvents.length + todayMedications.length}</p>
+            <p className="text-2xl font-bold text-foreground">{todayEvents.length + todayMedications.length}</p>
             <p className="text-sm font-medium text-foreground">Hoje</p>
           </div>
         </div>
