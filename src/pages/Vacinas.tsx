@@ -58,8 +58,10 @@ export default function Vacinas() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-64" />
+          <Skeleton className="h-4 w-40 rounded-full" />
+          <SkeletonList count={5} />
         </div>
       ) : !pet ? (
         <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl bg-background">
