@@ -326,8 +326,11 @@ export default function Agenda() {
     const Icon = typeToIcon[categoryToType[evento.category] || evento.category] || CalendarIcon;
 
     return (
-      <div
+      <motion.div
         key={evento.id}
+        variants={listItemVariants}
+        whileHover={{ scale: 1.015 }}
+        whileTap={{ scale: 0.98 }}
         onClick={() => openEventDetail(evento)}
         className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors cursor-pointer ${
           isOverdue
@@ -354,7 +357,7 @@ export default function Agenda() {
           <p className="text-xs text-muted-foreground">{formatDate(evento.date)}</p>
         </div>
         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
-      </div>
+      </motion.div>
     );
   };
 
