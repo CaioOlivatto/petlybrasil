@@ -469,8 +469,8 @@ export default function Onboarding() {
                         className={cn(
                           "flex flex-col items-center gap-2 p-5 rounded-xl border-2 transition-all",
                           form.sex === opt.value
-                            ? "border-accent bg-accent/10"
-                            : "border-border hover:border-accent/40"
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/40"
                         )}
                       >
                         <span className="text-2xl">{opt.emoji}</span>
