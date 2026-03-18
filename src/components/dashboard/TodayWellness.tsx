@@ -49,10 +49,10 @@ function getLevel(value: string | null, map: Record<string, { label: string; lev
 }
 
 function barColor(level: number): string {
-  if (level === 4) return "bg-success";
-  if (level === 3) return "bg-emerald-400";
-  if (level === 2) return "bg-accent";
-  if (level === 1) return "bg-destructive";
+  if (level === 4) return "bg-emerald-500";
+  if (level === 3) return "bg-yellow-400";
+  if (level === 2) return "bg-orange-400";
+  if (level === 1) return "bg-red-500";
   return "bg-muted";
 }
 
