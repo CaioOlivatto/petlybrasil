@@ -678,13 +678,13 @@ export default function Prontuario() {
 
       {/* Records grouped by category */}
       {Object.keys(groupedRecords).length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl bg-background">
-          <ImageOff className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
-          <p className="text-lg font-medium text-muted-foreground">Nenhum registro ainda</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">
-            Clique em "+ Novo Registro" para começar
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="Nenhum registro ainda"
+          description="Comece adicionando vacinas, exames, consultas e outros registros do seu pet."
+          actionLabel="+ Novo Registro"
+          onAction={() => setDialogOpen(true)}
+        />
       ) : (
         <div className="space-y-3">
           {Object.entries(groupedRecords).map(([catKey, catRecords]) => {
