@@ -600,72 +600,79 @@ const Diario = () => {
             </div>
           ) : (
             filteredHistory.map((entry, idx) => (
-              <Card key={idx} className="bg-card border-border">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-foreground">
-                      {format(entry.date, "dd 'de' MMMM, yyyy", { locale: ptBR })}
-                    </span>
-                    {(entry.alteracoes.length > 0 || entry.convulsao) && (
-                      <div className="flex gap-1">
-                        {entry.convulsao && (
-                          <Badge variant="destructive" className="text-xs">
-                            ⚡ Convulsão ({entry.convulsaoQuantidade}x)
-                          </Badge>
-                        )}
-                        {entry.alteracoes.length > 0 && (
-                          <Badge variant="destructive" className="text-xs">
-                            ⚠ Alterações
-                          </Badge>
-                        )}
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(idx * 0.06, 0.3) }}
+              >
+                <Card className="bg-card border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-foreground">
+                        {format(entry.date, "dd 'de' MMMM, yyyy", { locale: ptBR })}
+                      </span>
+                      {(entry.alteracoes.length > 0 || entry.convulsao) && (
+                        <div className="flex gap-1">
+                          {entry.convulsao && (
+                            <Badge variant="destructive" className="text-xs">
+                              ⚡ Convulsão ({entry.convulsaoQuantidade}x)
+                            </Badge>
+                          )}
+                          {entry.alteracoes.length > 0 && (
+                            <Badge variant="destructive" className="text-xs">
+                              ⚠ Alterações
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Energia</span>
+                        <span>{getEmojiForValue("energia", entry.energia)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Apetite</span>
+                        <span>{getEmojiForValue("apetite", entry.apetite)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Sono</span>
+                        <span>{getEmojiForValue("sono", entry.sono)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Humor</span>
+                        <span>{getEmojiForValue("humor", entry.humor)}</span>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                      <span className={`px-2 py-1 rounded-md ${entry.passeio ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                        {entry.passeio 
+                          ? `🐕 ${entry.passeioQuantidade || 1}x passeio${entry.passeioDuracao ? ` (${entry.passeioDuracao})` : ""}` 
+                          : "Sem passeio"}
+                      </span>
+                      <span className={`px-2 py-1 rounded-md ${entry.atividadeMental ? "bg-blue-100 text-blue-700" : "bg-muted text-muted-foreground"}`}>
+                        {entry.atividadeMental ? "🧠 Atividade mental" : "Sem atividade mental"}
+                      </span>
+                    </div>
+                    {entry.alteracoes.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {entry.alteracoes.map((a) => {
+                          const alt = alteracoesOptions.find((o) => o.value === a);
+                          return (
+                            <Badge key={a} variant="outline" className="text-xs border-destructive/30 text-destructive">
+                              {alt?.emoji} {alt?.label}
+                            </Badge>
+                          );
+                        })}
                       </div>
                     )}
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-                    <div>
-                      <span className="text-muted-foreground block text-xs">Energia</span>
-                      <span>{getEmojiForValue("energia", entry.energia)}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block text-xs">Apetite</span>
-                      <span>{getEmojiForValue("apetite", entry.apetite)}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block text-xs">Sono</span>
-                      <span>{getEmojiForValue("sono", entry.sono)}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block text-xs">Humor</span>
-                      <span>{getEmojiForValue("humor", entry.humor)}</span>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                    <span className={`px-2 py-1 rounded-md ${entry.passeio ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                      {entry.passeio 
-                        ? `🐕 ${entry.passeioQuantidade || 1}x passeio${entry.passeioDuracao ? ` (${entry.passeioDuracao})` : ""}` 
-                        : "Sem passeio"}
-                    </span>
-                    <span className={`px-2 py-1 rounded-md ${entry.atividadeMental ? "bg-blue-100 text-blue-700" : "bg-muted text-muted-foreground"}`}>
-                      {entry.atividadeMental ? "🧠 Atividade mental" : "Sem atividade mental"}
-                    </span>
-                  </div>
-                  {entry.alteracoes.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {entry.alteracoes.map((a) => {
-                        const alt = alteracoesOptions.find((o) => o.value === a);
-                        return (
-                          <Badge key={a} variant="outline" className="text-xs border-destructive/30 text-destructive">
-                            {alt?.emoji} {alt?.label}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {entry.observacoes && (
-                    <p className="mt-2 text-sm text-muted-foreground italic">"{entry.observacoes}"</p>
-                  )}
-                </CardContent>
-              </Card>
+                    {entry.observacoes && (
+                      <p className="mt-2 text-sm text-muted-foreground italic">"{entry.observacoes}"</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))
           )}
         </div>
