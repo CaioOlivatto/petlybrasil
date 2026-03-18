@@ -84,7 +84,7 @@ export default function Dashboard() {
   const [vaccineStats, setVaccineStats] = useState<{ done: number; total: number; overdue: number } | null>(null);
   const [lastCheckin, setLastCheckin] = useState<any>(null);
   const [alerts, setAlerts] = useState<{ text: string; type: "danger" | "warning"; badge: string }[]>([]);
-  const [weekCheckins, setWeekCheckins] = useState<{ date: string; humor: string | null }[]>([]);
+  
   const [todayCheckin, setTodayCheckin] = useState<{ humor: string | null; energia: string | null; apetite: string | null; sono: string | null } | null>(null);
 
   useEffect(() => {
