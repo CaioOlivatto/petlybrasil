@@ -119,18 +119,18 @@ export function MobileBottomNav() {
         {/* More button */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+          className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
             isMoreActive || open
               ? "text-primary"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
           {open ? (
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           ) : (
-            <MoreHorizontal className="h-5 w-5" />
+            <MoreHorizontal className="h-6 w-6" />
           )}
-          <span className="text-[10px] font-medium">Mais</span>
+          <span className="text-xs font-medium">Mais</span>
         </button>
       </nav>
     </>
