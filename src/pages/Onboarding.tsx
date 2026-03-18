@@ -187,28 +187,34 @@ export default function Onboarding() {
 
   const petName = form.name || "seu pet";
 
+  const stepLabels = ["Sobre você", "Seu pet", "Espécie e raça", "Idade e sexo", "Detalhes finais"];
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        backgroundImage: `url(${pawPattern})`,
-        backgroundSize: "300px",
-        backgroundRepeat: "repeat",
-      }}
-    >
-      <div className="absolute inset-0 bg-background/60" />
-      <Card className="w-full max-w-lg relative z-10 shadow-xl border-accent/20">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <Card className="w-full max-w-lg relative z-10 shadow-xl border-primary/20">
         <CardContent className="pt-8 pb-6 px-6">
-          {/* Progress dots */}
-          <div className="flex justify-center gap-2 mb-6">
-            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+          {/* Step indicator */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-primary">Etapa {step} de {TOTAL_STEPS}</span>
+              <span className="text-xs text-muted-foreground">{stepLabels[step - 1]}</span>
+            </div>
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
               <div
-                key={i}
-                className={`h-2 rounded-full transition-all ${
-                  i + 1 === step ? "w-8 bg-accent" : i + 1 < step ? "w-8 bg-accent/50" : "w-8 bg-muted"
-                }`}
+                className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
               />
-            ))}
+            </div>
+            <div className="flex justify-between mt-2">
+              {stepLabels.map((label, i) => (
+                <div
+                  key={i}
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${
+                    i + 1 <= step ? "bg-primary" : "bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Step 1: Tutor info */}
