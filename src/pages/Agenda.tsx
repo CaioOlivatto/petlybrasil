@@ -559,9 +559,9 @@ export default function Agenda() {
               Próxima semana ({nextWeek.length})
             </h2>
             {nextWeek.length === 0 ? (
-              <p className="text-sm text-muted-foreground border-2 border-dashed border-border rounded-2xl p-6 text-center bg-background">
-                Nenhum evento na próxima semana
-              </p>
+              <div className="border-2 border-dashed border-border rounded-2xl bg-background">
+                <EmptyState icon={CalendarDays} title="Semana livre!" description="Nenhum evento nos próximos 7 dias." actionLabel="Agendar evento" onAction={openCreateDialog} />
+              </div>
             ) : (
               <div className="space-y-2">{nextWeek.map(renderEventCard)}</div>
             )}
