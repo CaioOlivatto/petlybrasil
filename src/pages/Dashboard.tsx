@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { differenceInYears, differenceInMonths, parseISO, format, differenceInDays, subDays, startOfDay } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
+import TodayWellness from "@/components/dashboard/TodayWellness";
 
 /* ── helpers ────────────────────────────────────────── */
 
