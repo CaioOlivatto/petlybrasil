@@ -156,76 +156,76 @@ export default function Dashboard() {
       </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {/* Next Event */}
         <button
           onClick={() => navigate("/agenda")}
-          className="bg-card rounded-xl p-4 shadow-sm border-l-4 border-l-primary border border-border text-left hover:shadow-md transition-shadow group"
+          className="bg-card rounded-2xl p-5 sm:p-6 shadow-sm border-l-4 border-l-primary border border-border text-left hover:shadow-md transition-shadow group"
         >
-          <p className="text-xs text-muted-foreground font-medium mb-1">Próximo Evento</p>
+          <p className="text-sm text-muted-foreground font-medium mb-2">Próximo Evento</p>
           {nextEvent ? (
             <>
-              <p className="text-sm font-bold text-foreground truncate">{nextEvent.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-base font-bold text-foreground truncate">{nextEvent.title}</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 {format(parseISO(nextEvent.date), "dd/MM/yyyy")}
               </p>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhum agendado</p>
+            <p className="text-base text-muted-foreground">Nenhum agendado</p>
           )}
-          <span className="text-xs text-primary font-medium mt-2 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            Ver mais <ArrowRight className="h-3 w-3" />
+          <span className="text-sm text-primary font-medium mt-3 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            Ver mais <ArrowRight className="h-4 w-4" />
           </span>
         </button>
 
         {/* Vaccines */}
         <button
           onClick={() => navigate("/vacinas")}
-          className={`bg-card rounded-xl p-4 shadow-sm border-l-4 ${
+          className={`bg-card rounded-2xl p-5 sm:p-6 shadow-sm border-l-4 ${
             vaccineStats && vaccineStats.overdue > 0 ? "border-l-destructive" : "border-l-success"
           } border border-border text-left hover:shadow-md transition-shadow group`}
         >
-          <p className="text-xs text-muted-foreground font-medium mb-1">Vacinas</p>
+          <p className="text-sm text-muted-foreground font-medium mb-2">Vacinas</p>
           {vaccineStats ? (
             <>
-              <p className="text-sm font-bold text-foreground">
+              <p className="text-base font-bold text-foreground">
                 {vaccineStats.done} em dia
                 {vaccineStats.overdue > 0 && (
                   <span className="text-destructive ml-1">· {vaccineStats.overdue} atrasada{vaccineStats.overdue > 1 ? "s" : ""}</span>
                 )}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">{vaccineStats.total} no total</p>
+              <p className="text-sm text-muted-foreground mt-1">{vaccineStats.total} no total</p>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">Sem dados</p>
+            <p className="text-base text-muted-foreground">Sem dados</p>
           )}
-          <span className="text-xs text-primary font-medium mt-2 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            Ver mais <ArrowRight className="h-3 w-3" />
+          <span className="text-sm text-primary font-medium mt-3 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            Ver mais <ArrowRight className="h-4 w-4" />
           </span>
         </button>
 
         {/* Last Diary */}
         <button
           onClick={() => navigate("/diario")}
-          className="bg-card rounded-xl p-4 shadow-sm border-l-4 border-l-muted-foreground/30 border border-border text-left hover:shadow-md transition-shadow group"
+          className="bg-card rounded-2xl p-5 sm:p-6 shadow-sm border-l-4 border-l-muted-foreground/30 border border-border text-left hover:shadow-md transition-shadow group"
         >
-          <p className="text-xs text-muted-foreground font-medium mb-1">Último Diário</p>
+          <p className="text-sm text-muted-foreground font-medium mb-2">Último Diário</p>
           {lastCheckin ? (
             <>
-              <p className="text-sm font-bold text-foreground">
+              <p className="text-base font-bold text-foreground">
                 {humorMap[lastCheckin.humor] || lastCheckin.humor || "Registrado"}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-sm text-muted-foreground mt-1">
                 {format(parseISO(lastCheckin.date), "dd/MM", { locale: pt })}
                 {" · há "}
                 {differenceInDays(new Date(), parseISO(lastCheckin.date))} dia{differenceInDays(new Date(), parseISO(lastCheckin.date)) !== 1 ? "s" : ""}
               </p>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhum registro</p>
+            <p className="text-base text-muted-foreground">Nenhum registro</p>
           )}
-          <span className="text-xs text-primary font-medium mt-2 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            Ver mais <ArrowRight className="h-3 w-3" />
+          <span className="text-sm text-primary font-medium mt-3 inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            Ver mais <ArrowRight className="h-4 w-4" />
           </span>
         </button>
       </div>
