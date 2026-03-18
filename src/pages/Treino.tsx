@@ -85,6 +85,10 @@ const Treino = () => {
             breed: petBreed,
             species: petSpecies,
             category,
+            name: petName,
+            birthDate: petBirthDate,
+            allergies: petAllergies,
+            healthConditions: petHealthConditions,
           }),
         }
       );
