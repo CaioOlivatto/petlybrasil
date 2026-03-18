@@ -43,15 +43,6 @@ const humorMap: Record<string, string> = {
   irritado: "Irritado 😤",
 };
 
-
-const humorDotColor = (level: number): string => {
-  if (level === 4) return "bg-success";
-  if (level === 3) return "bg-emerald-400";
-  if (level === 2) return "bg-accent";
-  if (level === 1) return "bg-destructive";
-  return "bg-border";
-};
-
 /* ── Paw SVG decoration ─────────────────────────────── */
 const PawDecoration = () => (
   <div className="absolute right-4 top-4 pointer-events-none hidden sm:block" aria-hidden>
