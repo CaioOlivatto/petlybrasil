@@ -80,8 +80,8 @@ export function PetDataSection({ pet, onUpdate }: Props) {
   const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Arquivo deve ter no máximo 5MB");
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error("Arquivo deve ter no máximo 15MB");
       return;
     }
 
