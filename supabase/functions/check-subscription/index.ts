@@ -39,6 +39,22 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Master lifetime accounts
+    const MASTER_EMAILS = ["caiolivatto@hotmail.com"];
+    if (MASTER_EMAILS.includes(user.email.toLowerCase())) {
+      logStep("Master lifetime account detected", { email: user.email });
+      return new Response(JSON.stringify({
+        subscribed: true,
+        product_id: "prod_UAPllCb7ehCAqH",
+        subscription_end: "2099-12-31T23:59:59.000Z",
+        trial_active: false,
+        trial_ends_at: null,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // Check trial status
     const { data: profile } = await supabaseClient
       .from("profiles")
