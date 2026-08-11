@@ -6,19 +6,34 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const jsonHeaders = {
+  ...corsHeaders,
+  "Cache-Control": "no-store",
+  "Content-Type": "application/json",
+};
+
+const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== "GET") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: jsonHeaders,
+    });
   }
 
   try {
     const url = new URL(req.url);
     const emergencyToken = url.searchParams.get("token");
 
-    if (!emergencyToken) {
+    if (!emergencyToken || !isUuid(emergencyToken)) {
       return new Response(JSON.stringify({ error: "token is required" }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     }
 
@@ -30,76 +45,41 @@ serve(async (req) => {
     // Fetch pet data
     const { data: pet } = await supabase
       .from("pets")
-      .select("*")
+      .select("id, user_id, name, species, breed, sex, birth_date, weight, blood_type, allergies, health_conditions, is_neutered")
       .eq("emergency_token", emergencyToken)
       .single();
 
     if (!pet) {
       return new Response(JSON.stringify({ error: "Pet not found" }), {
         status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     }
 
     const petId = pet.id;
 
-    // Fetch profile (tutor)
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("name, phone, email")
-      .eq("user_id", pet.user_id)
-      .single();
-
     const today = new Date().toISOString().split("T")[0];
-
-    // Active medications
-    const { data: medications } = await supabase
-      .from("medical_records")
-      .select("name, date, frequency, usage_end_date, notes")
-      .eq("pet_id", petId)
-      .eq("category", "medicacao")
-      .or(`usage_end_date.gte.${today},usage_end_date.is.null`)
-      .order("date", { ascending: false })
-      .limit(5);
-
-    // Last consultations
-    const { data: consultations } = await supabase
-      .from("medical_records")
-      .select("name, date, notes")
-      .eq("pet_id", petId)
-      .eq("category", "consulta")
-      .order("date", { ascending: false })
-      .limit(3);
-
-    // Procedures
-    const { data: procedures } = await supabase
-      .from("medical_records")
-      .select("name, date, category, notes")
-      .eq("pet_id", petId)
-      .in("category", ["exame", "cirurgia"])
-      .order("date", { ascending: false })
-      .limit(3);
-
-    // Vaccinations
-    const { data: vaccinations } = await supabase
-      .from("pet_vaccinations")
-      .select("vaccine_key, date_taken, status, notes")
-      .eq("pet_id", petId)
-      .eq("status", "done")
-      .order("date_taken", { ascending: false })
-      .limit(5);
 
     // Recent daily checkins - last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split("T")[0];
 
-    const { data: checkins } = await supabase
-      .from("daily_checkins")
-      .select("date, energia, apetite, humor, sono, mudanca_rotina, observacoes")
-      .eq("pet_id", petId)
-      .gte("date", thirtyDaysAgoStr)
-      .order("date", { ascending: false });
+    const [profileResult, medicationsResult, consultationsResult, proceduresResult, vaccinationsResult, checkinsResult] = await Promise.all([
+      supabase.from("profiles").select("name, phone, email").eq("user_id", pet.user_id).maybeSingle(),
+      supabase.from("medical_records").select("name, date, frequency, usage_end_date, notes").eq("pet_id", petId).eq("category", "medicacao").or(`usage_end_date.gte.${today},usage_end_date.is.null`).order("date", { ascending: false }).limit(5),
+      supabase.from("medical_records").select("name, date, notes").eq("pet_id", petId).eq("category", "consulta").order("date", { ascending: false }).limit(3),
+      supabase.from("medical_records").select("name, date, category, notes").eq("pet_id", petId).in("category", ["exame", "cirurgia"]).order("date", { ascending: false }).limit(3),
+      supabase.from("pet_vaccinations").select("vaccine_key, date_taken").eq("pet_id", petId).eq("status", "taken").order("date_taken", { ascending: false }).limit(5),
+      supabase.from("daily_checkins").select("date, energia, apetite, humor, sono, mudanca_rotina, observacoes").eq("pet_id", petId).gte("date", thirtyDaysAgoStr).order("date", { ascending: false }),
+    ]);
+
+    const profile = profileResult.data;
+    const medications = medicationsResult.data;
+    const consultations = consultationsResult.data;
+    const procedures = proceduresResult.data;
+    const vaccinations = vaccinationsResult.data;
+    const checkins = checkinsResult.data;
 
     const travel = checkins
       ?.filter((c: any) => c.mudanca_rotina && c.mudanca_rotina !== "nenhuma")
@@ -147,12 +127,13 @@ serve(async (req) => {
     };
 
     return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: jsonHeaders,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("Emergency data request failed", error);
+    return new Response(JSON.stringify({ error: "Unable to load emergency data" }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: jsonHeaders,
     });
   }
 });

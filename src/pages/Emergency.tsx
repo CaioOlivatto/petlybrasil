@@ -22,6 +22,7 @@ export default function Emergency() {
 
   useEffect(() => {
     const emergencyToken = params.get("token");
+    const controller = new AbortController();
     
     // Legacy support: try old base64 format
     const legacyData = params.get("data");
@@ -50,11 +51,12 @@ export default function Emergency() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/emergency-data?token=${emergencyToken}`,
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/emergency-data?token=${encodeURIComponent(emergencyToken)}`,
           {
             headers: {
               "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             },
+            signal: controller.signal,
           }
         );
 
@@ -62,14 +64,16 @@ export default function Emergency() {
         const json = await response.json();
         setData(json);
       } catch (e) {
+        if (controller.signal.aborted) return;
         console.error("Error fetching emergency data:", e);
         setError(true);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
-    fetchData();
+    void fetchData();
+    return () => controller.abort();
   }, [params]);
 
   if (loading) {
