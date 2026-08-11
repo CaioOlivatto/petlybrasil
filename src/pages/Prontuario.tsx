@@ -721,8 +721,8 @@ export default function Prontuario() {
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <h2 className="text-lg font-semibold text-foreground">O que deseja registrar?</h2>
         <p className="mt-1 text-sm text-muted-foreground">Escolha uma opção para começar. Você pode preencher o restante depois.</p>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {categories.filter((category) => ["consulta", "medicacao", "exame", "vacina"].includes(category.key)).map((category) => {
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {categories.filter((category) => ["consulta", "medicacao", "exame", "vacina", "vermifugo", "procedimento"].includes(category.key)).map((category) => {
             const Icon = category.icon;
             return (
               <button key={category.key} type="button" onClick={() => openNewRecord(category.key)} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
