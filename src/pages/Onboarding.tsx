@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
@@ -22,6 +23,12 @@ import pawPattern from "@/assets/paw-pattern.png";
 import petlyLogo from "@/assets/petly-logo.png";
 
 const TOTAL_STEPS = 5;
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+const IMAGE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
 
 const speciesOptions = [
   { value: "dog", label: "Cachorro", icon: Dog, available: true },
@@ -35,6 +42,7 @@ const speciesOptions = [
 export default function Onboarding() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -73,13 +81,25 @@ export default function Onboarding() {
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Arquivo deve ter no máximo 5MB");
+    if (!IMAGE_EXTENSIONS[file.type]) {
+      toast.error("Envie uma imagem JPG, PNG ou WebP.");
+      e.target.value = "";
       return;
     }
+    if (file.size > MAX_PHOTO_SIZE) {
+      toast.error("Arquivo deve ter no máximo 5MB");
+      e.target.value = "";
+      return;
+    }
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+    e.target.value = "";
   };
+
+  useEffect(() => () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+  }, [photoPreview]);
 
   const handleFinish = async () => {
     if (!user || !form.name || !tutorForm.tutor_name || !form.weight) {
@@ -88,24 +108,26 @@ export default function Onboarding() {
     }
 
     setSaving(true);
+    let uploadedPhotoPath: string | null = null;
+    let createdPetId: string | null = null;
     try {
       let photo_url = null;
 
       // Upload photo if selected
       if (photoFile) {
-        const ext = photoFile.name.split(".").pop();
-        const path = `${user.id}/pet.${ext}`;
+        const ext = IMAGE_EXTENSIONS[photoFile.type];
+        const path = `${user.id}/onboarding-pet-${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from("pet-photos")
-          .upload(path, photoFile, { upsert: true });
-        if (!uploadError) {
-          const { data } = supabase.storage.from("pet-photos").getPublicUrl(path);
-          photo_url = data.publicUrl;
-        }
+          .upload(path, photoFile, { contentType: photoFile.type });
+        if (uploadError) throw uploadError;
+        uploadedPhotoPath = path;
+        const { data } = supabase.storage.from("pet-photos").getPublicUrl(path);
+        photo_url = data.publicUrl;
       }
 
       // Create pet
-      const { error: petError } = await supabase.from("pets").insert({
+      const { data: createdPet, error: petError } = await supabase.from("pets").insert({
         user_id: user.id,
         name: form.name,
         species: form.species,
@@ -122,9 +144,10 @@ export default function Onboarding() {
         pedigree: form.pedigree || null,
         kennel: form.kennel || null,
         photo_url,
-      });
+      }).select("id").single();
 
       if (petError) throw petError;
+      createdPetId = createdPet.id;
 
       // Save tutor profile + mark onboarding completed + set 7-day trial
       const trialEndsAt = new Date();
@@ -144,9 +167,16 @@ export default function Onboarding() {
 
       if (profileError) throw profileError;
 
+      await queryClient.invalidateQueries({ queryKey: ["account", user.id] });
       toast.success("Tudo pronto! Bem-vindo ao Petly 🐾");
       navigate("/dashboard");
     } catch (error: any) {
+      if (createdPetId) {
+        await supabase.from("pets").delete().eq("id", createdPetId);
+      }
+      if (uploadedPhotoPath) {
+        await supabase.storage.from("pet-photos").remove([uploadedPhotoPath]);
+      }
       toast.error("Erro: " + error.message);
     } finally {
       setSaving(false);
