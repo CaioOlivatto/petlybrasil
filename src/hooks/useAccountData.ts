@@ -17,11 +17,11 @@ export const profileQueryOptions = (userId: string) => queryOptions({
 });
 
 export const primaryPetQueryOptions = (userId: string) => queryOptions({
-  queryKey: ["account", userId, "primary-pet"],
+  queryKey: ["account", userId, "primary-pet", "v2"],
   queryFn: async () => {
     const { data, error } = await supabase
       .from("pets")
-      .select("id, name, photo_url, species, birth_date")
+      .select("id, name, photo_url, species, birth_date, breed, allergies, health_conditions")
       .eq("user_id", userId)
       .order("created_at", { ascending: true })
       .limit(1)
