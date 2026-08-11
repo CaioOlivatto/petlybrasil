@@ -60,6 +60,9 @@ import { EmptyState } from "@/components/EmptyState";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePrimaryPet } from "@/hooks/useAccountData";
 import { ptBR } from "date-fns/locale";
+import type { Database } from "@/integrations/supabase/types";
+
+type AgendaEventInsert = Database["public"]["Tables"]["agenda_events"]["Insert"];
 
 interface AgendaEvent {
   id: string;
@@ -151,6 +154,10 @@ function toLocalDateString(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "NÃ£o foi possÃ­vel concluir esta operaÃ§Ã£o.";
 }
 
 function calculateDoseTimes(firstDose: string, intervalHours: number): string[] {
@@ -367,7 +374,7 @@ export default function Agenda() {
             date: eventDate,
             time: eventTime || null,
             notes: eventNotes || null,
-          } as any)
+          })
           .eq("id", editingEvent.id);
         if (error) throw error;
         toast({ title: "Evento atualizado", description: `"${eventTitle}" foi atualizado.` });
@@ -384,7 +391,7 @@ export default function Agenda() {
             ? new Date(medEndDate + "T12:00:00")
             : startDate;
 
-        const eventsToInsert: any[] = [];
+        const eventsToInsert: AgendaEventInsert[] = [];
         const current = new Date(startDate);
         while (current <= endDate) {
           const dateStr = toLocalDateString(current);
@@ -434,7 +441,7 @@ export default function Agenda() {
           });
         }
 
-        const { error } = await supabase.from("agenda_events").insert(eventsToInsert as any);
+        const { error } = await supabase.from("agenda_events").insert(eventsToInsert);
         if (error) throw error;
         const desc =
           occurrences > 1
@@ -444,8 +451,8 @@ export default function Agenda() {
       }
       resetEventForm();
       fetchEvents();
-    } catch (error: any) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Erro", description: getErrorMessage(error), variant: "destructive" });
     } finally {
       setSaving(false);
     }
