@@ -14,6 +14,16 @@ const jsonHeaders = {
 
 const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 
+type Checkin = {
+  date: string;
+  energia: string | null;
+  apetite: string | null;
+  humor: string | null;
+  sono: string | null;
+  mudanca_rotina: string | null;
+  observacoes: string | null;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -79,19 +89,19 @@ serve(async (req) => {
     const consultations = consultationsResult.data;
     const procedures = proceduresResult.data;
     const vaccinations = vaccinationsResult.data;
-    const checkins = checkinsResult.data;
+    const checkins = checkinsResult.data as Checkin[] | null;
 
     const travel = checkins
-      ?.filter((c: any) => c.mudanca_rotina && c.mudanca_rotina !== "nenhuma")
-      .map((c: any) => ({ date: c.date, reason: c.mudanca_rotina }))
+      ?.filter((c) => c.mudanca_rotina && c.mudanca_rotina !== "nenhuma")
+      .map((c) => ({ date: c.date, reason: c.mudanca_rotina }))
       .slice(0, 3) || [];
 
     const observations = checkins
-      ?.filter((c: any) => c.observacoes)
-      .map((c: any) => ({ date: c.date, text: c.observacoes }))
+      ?.filter((c) => c.observacoes)
+      .map((c) => ({ date: c.date, text: c.observacoes }))
       .slice(0, 3) || [];
 
-    const wellness = checkins?.map((c: any) => ({
+    const wellness = checkins?.map((c) => ({
       date: c.date,
       energia: c.energia,
       apetite: c.apetite,
