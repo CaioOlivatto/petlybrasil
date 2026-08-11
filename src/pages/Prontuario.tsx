@@ -759,7 +759,7 @@ export default function Prontuario() {
         <p className="text-sm text-muted-foreground">{totalRecords} registro{totalRecords !== 1 ? "s" : ""} de {pet?.name || "seu pet"}</p>
       </div>
 
-      <details className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+      <details open className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
         <summary className="cursor-pointer text-sm font-semibold text-foreground">Procurar ou filtrar registros</summary>
         <div className="mt-4 space-y-3">
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
