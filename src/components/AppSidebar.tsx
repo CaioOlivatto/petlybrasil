@@ -14,8 +14,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { usePrimaryPet } from "@/hooks/useAccountData";
 import petlyLogo from "@/assets/petly-logo.png";
 
 import {
@@ -71,18 +70,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-  const [pet, setPet] = useState<{ name: string; photo_url: string | null } | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("name, photo_url")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => data && setPet(data));
-  }, [user?.id]);
+  const { data: pet } = usePrimaryPet(user?.id);
 
   const handleLogout = async () => {
     await signOut();

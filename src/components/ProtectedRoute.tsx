@@ -3,12 +3,15 @@ import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { profileQueryOptions } from "@/hooks/useAccountData";
 
 const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
@@ -29,11 +32,13 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       if (isMounted) setCheckingOnboarding(true);
 
       // Check profile for onboarding and trial
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("onboarding_completed, trial_ends_at")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      let data;
+      let error: unknown = null;
+      try {
+        data = await queryClient.fetchQuery(profileQueryOptions(user.id));
+      } catch (queryError) {
+        error = queryError;
+      }
 
       if (!isMounted) return;
 
@@ -91,7 +96,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, [user?.id, location.pathname]);
+  }, [user?.id, location.pathname, queryClient]);
 
   if (loading || checkingOnboarding) {
     return (
