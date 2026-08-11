@@ -14,6 +14,9 @@ import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrimaryPet } from "@/hooks/useAccountData";
+import type { Database } from "@/integrations/supabase/types";
+
+type DailyCheckinInsert = Database["public"]["Tables"]["daily_checkins"]["Insert"];
 
 type CheckInData = {
   energia: string;
@@ -119,7 +122,7 @@ const Diario = () => {
       toast({ title: "Erro ao carregar o histórico", description: error.message, variant: "destructive" });
     } else if (data) {
       setHistory(
-        data.map((row: any) => ({
+        data.map((row) => ({
           date: new Date(row.date + "T12:00:00"),
           energia: row.energia || "",
           apetite: row.apetite || "",
@@ -180,7 +183,7 @@ const Diario = () => {
     setSaving(true);
 
     const today = format(new Date(), "yyyy-MM-dd");
-    const payload = {
+    const payload: DailyCheckinInsert = {
       user_id: user.id,
       pet_id: pet.id,
       date: today,
@@ -201,7 +204,7 @@ const Diario = () => {
 
     const { error } = await supabase
       .from("daily_checkins")
-      .upsert(payload as any, { onConflict: "pet_id,date" });
+      .upsert(payload, { onConflict: "pet_id,date" });
 
     setSaving(false);
 
