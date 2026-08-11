@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
@@ -19,8 +19,27 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   pet: any;
-  onUpdate: () => void;
+  onUpdate: () => void | Promise<void>;
 }
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const IMAGE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+const getPetPhotoPath = (publicUrl?: string | null) => {
+  if (!publicUrl) return null;
+  try {
+    const marker = "/storage/v1/object/public/pet-photos/";
+    const pathname = new URL(publicUrl).pathname;
+    const markerIndex = pathname.indexOf(marker);
+    return markerIndex >= 0 ? decodeURIComponent(pathname.slice(markerIndex + marker.length)) : null;
+  } catch {
+    return null;
+  }
+};
 
 const bloodTypes = ["DEA 1.1+", "DEA 1.1-", "DEA 1.2+", "DEA 1.2-", "DEA 3", "DEA 4", "DEA 5", "DEA 7", "Tipo A", "Tipo B", "Tipo AB"];
 
@@ -47,6 +66,25 @@ export function PetDataSection({ pet, onUpdate }: Props) {
     kennel: pet?.kennel || "",
   });
 
+  useEffect(() => {
+    setForm({
+      name: pet?.name || "",
+      species: pet?.species || "dog",
+      breed: pet?.breed || "",
+      sex: pet?.sex || "",
+      birth_date: pet?.birth_date || "",
+      weight: pet?.weight || "",
+      blood_type: pet?.blood_type || "",
+      is_neutered: pet?.is_neutered || false,
+      allergies: pet?.allergies || "",
+      health_conditions: pet?.health_conditions || "",
+      mother_name: pet?.mother_name || "",
+      father_name: pet?.father_name || "",
+      pedigree: pet?.pedigree || "",
+      kennel: pet?.kennel || "",
+    });
+  }, [pet]);
+
   const handleSave = async () => {
     if (!user || !form.name) {
       toast.error("Nome do pet é obrigatório");
@@ -72,7 +110,7 @@ export function PetDataSection({ pet, onUpdate }: Props) {
       toast.error("Erro ao salvar: " + error.message);
     } else {
       toast.success("Dados do pet salvos!");
-      onUpdate();
+      await onUpdate();
     }
     setSaving(false);
   };
@@ -80,18 +118,29 @@ export function PetDataSection({ pet, onUpdate }: Props) {
   const handleUploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 15 * 1024 * 1024) {
-      toast.error("Arquivo deve ter no máximo 15MB");
+    if (!pet?.id) {
+      toast.error("Salve os dados do pet antes de enviar uma foto.");
+      e.target.value = "";
+      return;
+    }
+    const ext = IMAGE_EXTENSIONS[file.type];
+    if (!ext) {
+      toast.error("Envie uma imagem JPG, PNG ou WebP.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Arquivo deve ter no máximo 5MB");
+      e.target.value = "";
       return;
     }
 
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/pet.${ext}`;
+    const path = `${user.id}/pet-${Date.now()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("pet-photos")
-      .upload(path, file, { upsert: true });
+      .upload(path, file, { contentType: file.type });
 
     if (uploadError) {
       toast.error("Erro ao enviar foto: " + uploadError.message);
@@ -101,12 +150,27 @@ export function PetDataSection({ pet, onUpdate }: Props) {
 
     const { data: { publicUrl } } = supabase.storage.from("pet-photos").getPublicUrl(path);
 
-    if (pet?.id) {
-      await supabase.from("pets").update({ photo_url: publicUrl }).eq("id", pet.id);
+    const { error: updateError } = await supabase
+      .from("pets")
+      .update({ photo_url: publicUrl })
+      .eq("id", pet.id);
+
+    if (updateError) {
+      await supabase.storage.from("pet-photos").remove([path]);
+      toast.error("Erro ao atualizar foto: " + updateError.message);
+      setUploading(false);
+      return;
     }
+
+    const previousPath = getPetPhotoPath(pet.photo_url);
+    if (previousPath && previousPath !== path) {
+      await supabase.storage.from("pet-photos").remove([previousPath]);
+    }
+
     toast.success("Foto do pet atualizada!");
-    onUpdate();
+    await onUpdate();
     setUploading(false);
+    e.target.value = "";
   };
 
   const birthDate = form.birth_date ? new Date(form.birth_date + "T12:00:00") : undefined;
@@ -135,7 +199,7 @@ export function PetDataSection({ pet, onUpdate }: Props) {
               {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Camera className="h-4 w-4 mr-2" />}
               Trocar foto
             </Button>
-            <p className="text-xs text-muted-foreground mt-1"><p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP · Máx. 15MB</p></p>
+            <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP · Máx. 5MB</p>
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleUploadPhoto} />
           </div>
         </div>

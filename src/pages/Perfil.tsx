@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
-import { Settings, User, PawPrint, QrCode, Download, Bell, Shield, Wrench } from "lucide-react";
+import { Settings, User, PawPrint, QrCode, Download, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePrimaryPet, useProfile } from "@/hooks/useAccountData";
 import { TutorProfileSection } from "@/components/profile/TutorProfileSection";
 import { PetDataSection } from "@/components/profile/PetDataSection";
 import { QRCodeSection } from "@/components/profile/QRCodeSection";
@@ -18,27 +19,23 @@ const tabs = [
 export default function Perfil() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("tutor");
-  const [profile, setProfile] = useState<any>(null);
-  const [pet, setPet] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const profileQuery = useProfile(user?.id);
+  const petQuery = usePrimaryPet(user?.id);
+  const profile = profileQuery.data;
+  const pet = petQuery.data;
+  const loading = profileQuery.isLoading || petQuery.isLoading;
 
-  const fetchData = useCallback(async () => {
+  const refreshAccount = async () => {
     if (!user) return;
-    setLoading(true);
-
-    const [profileRes, petRes] = await Promise.all([
-      supabase.from("profiles").select("*").eq("user_id", user.id).single(),
-      supabase.from("pets").select("*").eq("user_id", user.id).limit(1).maybeSingle(),
-    ]);
-
-    if (profileRes.data) setProfile(profileRes.data);
-    if (petRes.data) setPet(petRes.data);
-    setLoading(false);
-  }, [user]);
+    await queryClient.invalidateQueries({ queryKey: ["account", user.id] });
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (profileQuery.error || petQuery.error) {
+      toast.error("Não foi possível carregar os dados do perfil.");
+    }
+  }, [profileQuery.error, petQuery.error]);
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -78,16 +75,22 @@ export default function Perfil() {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="bg-card rounded-xl border border-border p-6">
-            {activeTab === "tutor" && (
-              <TutorProfileSection profile={profile} onUpdate={fetchData} />
+            {loading && (
+              <div className="flex min-h-48 items-center justify-center" role="status">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="sr-only">Carregando perfil</span>
+              </div>
             )}
-            {activeTab === "pet" && (
-              <PetDataSection pet={pet} onUpdate={fetchData} />
+            {!loading && activeTab === "tutor" && (
+              <TutorProfileSection profile={profile} onUpdate={refreshAccount} />
             )}
-            {activeTab === "qrcode" && (
+            {!loading && activeTab === "pet" && (
+              <PetDataSection pet={pet} onUpdate={refreshAccount} />
+            )}
+            {!loading && activeTab === "qrcode" && (
               <QRCodeSection pet={pet} profile={profile} />
             )}
-            {activeTab === "export" && (
+            {!loading && activeTab === "export" && (
               <ExportDataSection pet={pet} profile={profile} />
             )}
           </div>

@@ -6,7 +6,7 @@ export const profileQueryOptions = (userId: string) => queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("name, onboarding_completed, trial_ends_at")
+      .select("id, user_id, name, email, phone, birthday, avatar_url, onboarding_completed, trial_ends_at")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -21,7 +21,7 @@ export const primaryPetQueryOptions = (userId: string) => queryOptions({
   queryFn: async () => {
     const { data, error } = await supabase
       .from("pets")
-      .select("id, name, photo_url, species, birth_date, breed, allergies, health_conditions")
+      .select("id, user_id, name, species, breed, sex, birth_date, weight, blood_type, mother_name, father_name, pedigree, kennel, photo_url, is_neutered, allergies, health_conditions, emergency_token")
       .eq("user_id", userId)
       .order("created_at", { ascending: true })
       .limit(1)
