@@ -1,10 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Table } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
+import type { Database } from "@/integrations/supabase/types";
+
+type Pet = Database["public"]["Tables"]["pets"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Props {
-  pet: any;
-  profile: any;
+  pet: Pet | null;
+  profile: Profile | null;
 }
 
 const escapeHtml = (value: unknown) => String(value ?? "-")

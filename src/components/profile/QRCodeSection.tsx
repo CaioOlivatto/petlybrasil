@@ -3,10 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Printer, Download, Eye, Lightbulb } from "lucide-react";
 import { useRef } from "react";
 import petlyLogo from "@/assets/petly-logo.png";
+import type { Database } from "@/integrations/supabase/types";
+
+type Pet = Database["public"]["Tables"]["pets"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Props {
-  pet: any;
-  profile: any;
+  pet: Pet | null;
+  profile: Profile | null;
 }
 
 export function QRCodeSection({ pet, profile }: Props) {
