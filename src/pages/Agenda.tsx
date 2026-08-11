@@ -58,6 +58,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePrimaryPet } from "@/hooks/useAccountData";
+import { ptBR } from "date-fns/locale";
 
 interface AgendaEvent {
   id: string;
@@ -144,6 +146,13 @@ function formatDateLong(dateStr: string): string {
   });
 }
 
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function calculateDoseTimes(firstDose: string, intervalHours: number): string[] {
   const times: string[] = [];
   const [h, m] = firstDose.split(":").map(Number);
@@ -173,7 +182,7 @@ export default function Agenda() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [eventos, setEventos] = useState<AgendaEvent[]>([]);
-  const [pet, setPet] = useState<any>(null);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -207,37 +216,37 @@ export default function Agenda() {
 
   const medsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("id, name")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setPet(data);
-        else setLoading(false);
-      });
-  }, [user]);
-
   const fetchEvents = useCallback(async () => {
     if (!user || !pet) return;
+    const rangeStart = new Date();
+    rangeStart.setFullYear(rangeStart.getFullYear() - 1);
+    const rangeEnd = new Date();
+    rangeEnd.setFullYear(rangeEnd.getFullYear() + 1);
     const { data, error } = await supabase
       .from("agenda_events")
       .select("id, title, category, date, time, notes, source")
       .eq("user_id", user.id)
       .eq("pet_id", pet.id)
+      .gte("date", toLocalDateString(rangeStart))
+      .lte("date", toLocalDateString(rangeEnd))
       .order("date", { ascending: true });
-    if (!error && data) setEventos(data);
+    if (error) {
+      toast({ title: "Erro ao carregar agenda", description: error.message, variant: "destructive" });
+    } else {
+      setEventos(data || []);
+    }
     setLoading(false);
-  }, [user, pet]);
+  }, [user, pet, toast]);
 
   useEffect(() => {
-    if (pet) fetchEvents();
-  }, [pet, fetchEvents]);
+    if (pet) {
+      fetchEvents();
+    } else if (!petLoading) {
+      setLoading(false);
+    }
+  }, [pet, petLoading, fetchEvents]);
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = toLocalDateString(new Date());
 
   const isMedication = (e: AgendaEvent) =>
     e.source === "medicacao" || e.category === "medicacao" || e.category === "Medicação";
@@ -306,7 +315,7 @@ export default function Agenda() {
 
   const filteredEvents = getFilteredEvents();
 
-  const selectedDayStr = selectedDate ? selectedDate.toISOString().split("T")[0] : "";
+  const selectedDayStr = selectedDate ? toLocalDateString(selectedDate) : "";
   const selectedDayEvents = eventos.filter((e) => e.date === selectedDayStr);
 
   // ─── Form logic ───
@@ -378,7 +387,7 @@ export default function Agenda() {
         const eventsToInsert: any[] = [];
         const current = new Date(startDate);
         while (current <= endDate) {
-          const dateStr = current.toISOString().split("T")[0];
+          const dateStr = toLocalDateString(current);
           for (const time of doseTimes) {
             eventsToInsert.push({
               user_id: user.id,
@@ -418,7 +427,7 @@ export default function Agenda() {
             pet_id: pet.id,
             title: eventTitle,
             category,
-            date: baseDate.toISOString().split("T")[0],
+            date: toLocalDateString(baseDate),
             time: eventTime || null,
             notes: eventNotes || null,
             source: "manual",
@@ -473,8 +482,11 @@ export default function Agenda() {
 
   const getDoseStatus = (time: string | null) => {
     if (!time) return "pending";
-    if (time < currentTimeStr) return "overdue"; // past and not marked
-    if (time === currentTimeStr || (time > currentTimeStr && time <= `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes() + 30).padStart(2, "0")}`)) return "next";
+    const [hours, minutes] = time.split(":").map(Number);
+    const doseMinutes = hours * 60 + minutes;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    if (doseMinutes < currentMinutes) return "overdue"; // past and not marked
+    if (doseMinutes <= currentMinutes + 30) return "next";
     return "pending";
   };
 
@@ -661,6 +673,7 @@ export default function Agenda() {
           <div className="border border-border rounded-2xl p-4 bg-card">
             <Calendar
               mode="single"
+              locale={ptBR}
               selected={selectedDate}
               onSelect={setSelectedDate}
               modifiers={{
