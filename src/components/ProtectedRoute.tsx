@@ -10,6 +10,7 @@ const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const userId = user?.id;
   const location = useLocation();
   const queryClient = useQueryClient();
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
@@ -20,7 +21,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     let isMounted = true;
 
     const checkOnboarding = async () => {
-      if (!user) {
+      if (!userId) {
         if (isMounted) {
           setCheckingOnboarding(false);
           setOnboardingCompleted(null);
@@ -35,7 +36,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       let data;
       let error: unknown = null;
       try {
-        data = await queryClient.fetchQuery(profileQueryOptions(user.id));
+        data = await queryClient.fetchQuery(profileQueryOptions(userId));
       } catch (queryError) {
         error = queryError;
       }
@@ -61,7 +62,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       }
 
       // Check if trial is still active
-      const trialEndsAt = (data as any)?.trial_ends_at ? new Date((data as any).trial_ends_at) : null;
+      const trialEndsAt = data?.trial_ends_at ? new Date(data.trial_ends_at) : null;
       const isTrialActive = trialEndsAt ? trialEndsAt > new Date() : false;
 
       if (isTrialActive) {
@@ -96,7 +97,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, [user?.id, location.pathname, queryClient]);
+  }, [userId, location.pathname, queryClient]);
 
   if (loading || checkingOnboarding) {
     return (

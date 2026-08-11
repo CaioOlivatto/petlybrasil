@@ -38,7 +38,9 @@ export default function Emergency() {
           setData(parsed);
           setLoading(false);
           return;
-        } catch {}
+        } catch {
+          // The URL is not in the legacy base64 format; continue with the token flow.
+        }
       }
     }
 

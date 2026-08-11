@@ -66,11 +66,12 @@ const plans = [
 
 export default function Assinatura() {
   const { user, signOut } = useAuth();
+  const userId = user?.id;
   const navigate = useNavigate();
   const [canGoBack, setCanGoBack] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     const check = async () => {
       if (!BILLING_ENABLED) {
         setCanGoBack(true);
@@ -80,7 +81,7 @@ export default function Assinatura() {
       const { data: profile } = await supabase
         .from("profiles")
         .select("trial_ends_at")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .maybeSingle();
       const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
       if (trialEndsAt && trialEndsAt > new Date()) {
@@ -94,11 +95,13 @@ export default function Assinatura() {
           setCanGoBack(true);
           return;
         }
-      } catch {}
+      } catch {
+        // Keep the page available even if the subscription service is unreachable.
+      }
       setCanGoBack(false);
     };
     void check();
-  }, [user?.id]);
+  }, [userId]);
 
   const handleLogout = async () => {
     await signOut();
