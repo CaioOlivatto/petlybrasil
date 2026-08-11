@@ -1,31 +1,15 @@
-import { useState, useEffect } from "react";
 import { ArrowLeft, Syringe, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { VaccinationSchedule } from "@/components/prontuario/VaccinationSchedule";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePrimaryPet } from "@/hooks/useAccountData";
 
 export default function Vacinas() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [pet, setPet] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("*")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setPet(data);
-        setLoading(false);
-      });
-  }, [user]);
+  const { data: pet, isLoading: loading } = usePrimaryPet(user?.id);
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -7,6 +7,7 @@ const PRO_PRODUCT_IDS = [
   "prod_UAPlcsCOMTE5kg", // Semestral/Pro
   "prod_UAPllCb7ehCAqH", // Anual/Master
 ];
+const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
 
 interface AuthContextType {
   session: Session | null;
@@ -32,8 +33,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscriptionProductId, setSubscriptionProductId] = useState<string | null>(null);
+  const subscriptionCheckedFor = useRef<string | null>(null);
 
-  const checkSubscription = useCallback(async () => {
+  const checkSubscription = useCallback(async (userId: string) => {
+    if (!BILLING_ENABLED) {
+      setSubscriptionProductId(null);
+      return;
+    }
+    if (subscriptionCheckedFor.current === userId) return;
+    subscriptionCheckedFor.current = userId;
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (!error && data?.subscribed && data?.product_id) {
@@ -52,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setLoading(false);
         if (session?.user) {
-          setTimeout(() => checkSubscription(), 0);
+          setTimeout(() => checkSubscription(session.user.id), 0);
         }
       }
     );
@@ -61,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setLoading(false);
       if (session?.user) {
-        checkSubscription();
+        checkSubscription(session.user.id);
       }
     });
 
@@ -69,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [checkSubscription]);
 
   const signOut = async () => {
+    subscriptionCheckedFor.current = null;
     setSubscriptionProductId(null);
     await supabase.auth.signOut();
   };

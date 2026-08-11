@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
+import { usePrimaryPet } from "@/hooks/useAccountData";
 
 const CATEGORIES = [
   { id: "adestramento", label: "Adestramento", icon: GraduationCap, description: "Comandos, obediência e socialização" },
@@ -24,39 +25,22 @@ const CATEGORIES = [
   { id: "cuidados", label: "Cuidados", icon: Scissors, description: "Higiene, pelos, dentes e unhas" },
 ];
 
+const AI_ENABLED = import.meta.env.VITE_AI_ENABLED === "true";
+
 const Treino = () => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [petBreed, setPetBreed] = useState("");
-  const [petSpecies, setPetSpecies] = useState("");
-  const [petName, setPetName] = useState("");
-  const [petBirthDate, setPetBirthDate] = useState<string | null>(null);
-  const [petAllergies, setPetAllergies] = useState<string | null>(null);
-  const [petHealthConditions, setPetHealthConditions] = useState<string | null>(null);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
+  const petBreed = pet?.breed || "SRD (Sem Raça Definida)";
+  const petSpecies = pet?.species || "";
+  const petName = pet?.name || "";
+  const petBirthDate = pet?.birth_date || null;
+  const petAllergies = pet?.allergies || null;
+  const petHealthConditions = pet?.health_conditions || null;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("name, species, breed, birth_date, allergies, health_conditions")
-      .eq("user_id", user.id)
-      .limit(1)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setPetName(data.name);
-          setPetSpecies(data.species);
-          setPetBreed(data.breed || "SRD (Sem Raça Definida)");
-          setPetBirthDate(data.birth_date);
-          setPetAllergies(data.allergies);
-          setPetHealthConditions(data.health_conditions);
-        }
-      });
-  }, [user]);
 
   useEffect(() => {
     if (content && contentRef.current) {
@@ -65,7 +49,7 @@ const Treino = () => {
   }, [content]);
 
   const fetchTips = useCallback(async (category: string) => {
-    if (isLoading) return;
+    if (!AI_ENABLED || isLoading || petLoading || !pet) return;
     setSelectedCategory(category);
     setContent("");
     setIsLoading(true);
@@ -73,13 +57,16 @@ const Treino = () => {
     let accumulated = "";
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Sessão expirada. Entre novamente.");
+
       const resp = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/treino-dicas`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             breed: petBreed,
@@ -130,17 +117,17 @@ const Treino = () => {
           }
         }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Treino dicas error:", e);
       toast({
         title: "Erro",
-        description: e.message || "Tente novamente.",
+        description: e instanceof Error ? e.message : "Tente novamente.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  }, [petBreed, petSpecies, petName, petBirthDate, petAllergies, petHealthConditions, isLoading, toast]);
+  }, [petBreed, petSpecies, petName, petBirthDate, petAllergies, petHealthConditions, isLoading, petLoading, pet, toast]);
 
   const selectedCat = CATEGORIES.find((c) => c.id === selectedCategory);
 
@@ -171,13 +158,13 @@ const Treino = () => {
             <button
               key={cat.id}
               onClick={() => fetchTips(cat.id)}
-              disabled={isLoading}
+              disabled={!AI_ENABLED || isLoading || petLoading || !pet}
               className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center
                 ${isSelected
                   ? "border-primary bg-primary/10 shadow-md"
                   : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
                 }
-                ${isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
+                ${!AI_ENABLED || isLoading || petLoading || !pet ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
               `}
             >
               <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
@@ -202,12 +189,14 @@ const Treino = () => {
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Sparkles className="h-10 w-10 text-primary/40 mb-4" />
             <p className="text-base font-semibold text-foreground mb-1">
-              Escolha uma categoria acima
+              {AI_ENABLED ? "Escolha uma categoria acima" : "IA em configuração"}
             </p>
             <p className="text-sm text-muted-foreground max-w-sm">
-              A IA irá gerar dicas personalizadas para a raça{" "}
-              <span className="font-medium text-foreground">{petBreed || "do seu pet"}</span>,
-              baseadas em manuais especializados.
+              {AI_ENABLED ? (
+                <>A IA irá gerar dicas personalizadas para a raça{" "}
+                  <span className="font-medium text-foreground">{petBreed || "do seu pet"}</span>,
+                  baseadas em manuais especializados.</>
+              ) : "As dicas personalizadas serão liberadas quando concluirmos a configuração da IA."}
             </p>
           </CardContent>
         </Card>

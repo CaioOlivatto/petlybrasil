@@ -43,6 +43,8 @@ const suggestedQuestions = {
   ],
 };
 
+const AI_ENABLED = import.meta.env.VITE_AI_ENABLED === "true";
+
 const QuestoesVeterinario = () => {
   const { toast } = useToast();
   const [userInput, setUserInput] = useState("");
@@ -57,7 +59,7 @@ const QuestoesVeterinario = () => {
   const fetchSavedLists = useCallback(async () => {
     const { data, error } = await supabase
       .from("vet_question_lists")
-      .select("*")
+      .select("id, title, questions, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -66,7 +68,7 @@ const QuestoesVeterinario = () => {
     }
 
     setSavedLists(
-      (data || []).map((row: any) => ({
+      (data || []).map((row) => ({
         id: row.id,
         title: row.title,
         questions: row.questions || [],
@@ -91,6 +93,7 @@ const QuestoesVeterinario = () => {
   };
 
   const handleOrganizeWithAI = async () => {
+    if (!AI_ENABLED) return;
     if (!userInput.trim()) {
       toast({
         title: "Escreva suas dúvidas",
@@ -139,10 +142,14 @@ const QuestoesVeterinario = () => {
       return;
     }
 
-    const { error } = await supabase.from("vet_question_lists").insert({
-      title: `Consulta ${savedLists.length + 1}`,
-      questions: organizedQuestions,
-    });
+    const { data, error } = await supabase
+      .from("vet_question_lists")
+      .insert({
+        title: `Consulta ${savedLists.length + 1}`,
+        questions: organizedQuestions,
+      })
+      .select("id, title, questions, created_at")
+      .single();
 
     if (error) {
       console.error("Error saving list:", error);
@@ -150,8 +157,13 @@ const QuestoesVeterinario = () => {
       return;
     }
 
+    setSavedLists((current) => [{
+      id: data.id,
+      title: data.title,
+      questions: data.questions || [],
+      createdAt: new Date(data.created_at),
+    }, ...current]);
     setOrganizedQuestions([]);
-    await fetchSavedLists();
     toast({ title: "Lista salva! 📋", description: "Suas perguntas foram salvas para a consulta." });
   };
 
@@ -186,7 +198,9 @@ const QuestoesVeterinario = () => {
       return;
     }
 
-    await fetchSavedLists();
+    setSavedLists((current) => current.map((list) =>
+      list.id === editingList.id ? { ...list, questions: updatedQuestions } : list
+    ));
     toast({ title: editMode === "replace" ? "Lista substituída! ✅" : "Perguntas acrescentadas! ✅" });
     setEditDialogOpen(false);
     setEditingList(null);
@@ -200,7 +214,7 @@ const QuestoesVeterinario = () => {
       toast({ title: "Erro ao remover", variant: "destructive" });
       return;
     }
-    await fetchSavedLists();
+    setSavedLists((current) => current.filter((list) => list.id !== id));
     toast({ title: "Lista removida" });
   };
 
@@ -218,7 +232,9 @@ const QuestoesVeterinario = () => {
       console.error("Error removing question:", error);
       return;
     }
-    await fetchSavedLists();
+    setSavedLists((current) => current.map((item) =>
+      item.id === listId ? { ...item, questions: updatedQuestions } : item
+    ));
   };
 
   return (
@@ -244,12 +260,17 @@ const QuestoesVeterinario = () => {
           />
           <Button
             onClick={handleOrganizeWithAI}
-            disabled={isOrganizing || !userInput.trim()}
+            disabled={!AI_ENABLED || isOrganizing || !userInput.trim()}
             className="bg-primary hover:bg-primary/90"
           >
             <Sparkles className="h-4 w-4 mr-2" />
-            {isOrganizing ? "Organizando..." : "Organizar Perguntas com IA"}
+            {!AI_ENABLED ? "IA em configuração" : isOrganizing ? "Organizando..." : "Organizar Perguntas com IA"}
           </Button>
+          {!AI_ENABLED && (
+            <p className="text-xs text-muted-foreground">
+              Enquanto configuramos a IA, você pode adicionar as perguntas sugeridas abaixo e salvar sua lista normalmente.
+            </p>
+          )}
         </CardContent>
       </Card>
 

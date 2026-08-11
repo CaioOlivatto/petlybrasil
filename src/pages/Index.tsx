@@ -33,11 +33,14 @@ const Index = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
       if (error) throw error;
       toast.success("Login realizado com sucesso!");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao fazer login.");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Erro ao fazer login.");
     } finally {
       setLoading(false);
     }
@@ -74,7 +77,7 @@ const Index = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-foreground">Senha</label>
-                <button type="button" className="text-sm text-accent hover:underline">Esqueceu a senha?</button>
+                <span className="text-sm text-muted-foreground">Recuperação de senha em breve</span>
               </div>
               <div className="relative">
                 <Input
@@ -84,7 +87,8 @@ const Index = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 bg-background/70 backdrop-blur-sm pr-12"
                   required
-                  minLength={6}
+                  minLength={8}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -128,10 +132,10 @@ const Index = () => {
 
           <div className="space-y-4">
             <h1 className="text-3xl xl:text-4xl font-bold leading-tight">
-              Tudo que seu pet precisa, organizado com IA
+              Tudo que seu pet precisa, organizado em um só lugar
             </h1>
             <p className="text-base xl:text-lg opacity-90">
-              Gerencie consultas, vacinas, rotinas e receba orientações inteligentes para cuidar melhor do seu companheiro.
+              Gerencie consultas, vacinas e rotinas para cuidar melhor do seu companheiro.
             </p>
           </div>
 
@@ -141,7 +145,7 @@ const Index = () => {
               "Prontuário completo",
               "Alertas automáticos",
               "Diário do pet",
-              "Orientações de IA",
+              "IA em breve",
             ].map((feature) => (
               <div key={feature} className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-primary" />

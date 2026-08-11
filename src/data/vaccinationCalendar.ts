@@ -54,7 +54,7 @@ export const dogVaccines: VaccineItem[] = [
     name: "Reforço Anual V8/V10",
     description: "Reforço anual da polivalente",
     ageDays: 365,
-    ageLabel: "1 ano de idade",
+    ageLabel: "Reforço anual",
     isAnnual: true,
   },
   {
@@ -62,7 +62,7 @@ export const dogVaccines: VaccineItem[] = [
     name: "Reforço Anual Antirrábica",
     description: "Reforço anual contra Raiva",
     ageDays: 365,
-    ageLabel: "1 ano de idade",
+    ageLabel: "Reforço anual",
     isAnnual: true,
   },
 ];
@@ -103,7 +103,7 @@ export const catVaccines: VaccineItem[] = [
     name: "Reforço Anual V3/V4/V5",
     description: "Reforço anual da polivalente felina",
     ageDays: 365,
-    ageLabel: "1 ano de idade",
+    ageLabel: "Reforço anual",
     isAnnual: true,
   },
   {
@@ -111,7 +111,7 @@ export const catVaccines: VaccineItem[] = [
     name: "Reforço Anual Antirrábica",
     description: "Reforço anual contra Raiva",
     ageDays: 365,
-    ageLabel: "1 ano de idade",
+    ageLabel: "Reforço anual",
     isAnnual: true,
   },
 ];

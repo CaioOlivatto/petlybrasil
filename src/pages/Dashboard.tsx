@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   FileText,
   Syringe,
@@ -19,6 +19,11 @@ import { differenceInYears, differenceInMonths, parseISO, format, differenceInDa
 import { pt } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
 import TodayWellness from "@/components/dashboard/TodayWellness";
+import { usePrimaryPet, useProfile } from "@/hooks/useAccountData";
+import type { Database } from "@/integrations/supabase/types";
+
+type NextEvent = Pick<Database["public"]["Tables"]["agenda_events"]["Row"], "title" | "date" | "category">;
+type CheckinSummary = Pick<Database["public"]["Tables"]["daily_checkins"]["Row"], "humor" | "energia" | "apetite" | "sono" | "date">;
 
 /* ── helpers ────────────────────────────────────────── */
 
@@ -69,45 +74,33 @@ const PawDecoration = () => (
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<{ name: string | null } | null>(null);
-  const [pet, setPet] = useState<any>(null);
+  const userId = user?.id;
+  const { data: profile, isLoading: profileLoading } = useProfile(userId);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(userId);
+  const petId = pet?.id;
   const [loading, setLoading] = useState(true);
-  const [nextEvent, setNextEvent] = useState<any>(null);
+  const [nextEvent, setNextEvent] = useState<NextEvent | null>(null);
   const [vaccineStats, setVaccineStats] = useState<{ done: number; total: number; overdue: number } | null>(null);
-  const [lastCheckin, setLastCheckin] = useState<any>(null);
+  const [lastCheckin, setLastCheckin] = useState<CheckinSummary | null>(null);
   const [alerts, setAlerts] = useState<{ text: string; type: "danger" | "warning"; badge: string }[]>([]);
   
   const [todayCheckin, setTodayCheckin] = useState<{ humor: string | null; energia: string | null; apetite: string | null; sono: string | null } | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchAll();
-  }, [user?.id]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     const today = format(new Date(), "yyyy-MM-dd");
 
-    const [profileRes, petRes] = await Promise.all([
-      supabase.from("profiles").select("name").eq("user_id", user!.id).maybeSingle(),
-      supabase.from("pets").select("*").eq("user_id", user!.id).order("created_at", { ascending: true }).limit(1).maybeSingle(),
-    ]);
+    if (petId) {
 
-    setProfile(profileRes.data);
-    setPet(petRes.data);
-
-    if (petRes.data) {
-      const petId = petRes.data.id;
-
-      const [eventsRes, vaccinesRes, checkinsRes, todayRes] = await Promise.all([
+      const [eventsRes, vaccinesRes, checkinsRes] = await Promise.all([
         supabase.from("agenda_events").select("title, date, category").eq("pet_id", petId).gte("date", today).order("date", { ascending: true }).limit(1),
         supabase.from("pet_vaccinations").select("status").eq("pet_id", petId),
-        supabase.from("daily_checkins").select("humor, date").eq("pet_id", petId).order("date", { ascending: false }).limit(1),
-        supabase.from("daily_checkins").select("humor, energia, apetite, sono, date").eq("pet_id", petId).eq("date", today).maybeSingle(),
+        supabase.from("daily_checkins").select("humor, energia, apetite, sono, date").eq("pet_id", petId).order("date", { ascending: false }).limit(1),
       ]);
 
+      const latestCheckin = checkinsRes.data?.[0] ?? null;
       if (eventsRes.data?.length) setNextEvent(eventsRes.data[0]);
-      if (checkinsRes.data?.length) setLastCheckin(checkinsRes.data[0]);
-      setTodayCheckin(todayRes.data);
+      setLastCheckin(latestCheckin);
+      setTodayCheckin(latestCheckin?.date === today ? latestCheckin : null);
 
       if (vaccinesRes.data) {
         const done = vaccinesRes.data.filter((v) => v.status === "taken").length;
@@ -133,7 +126,12 @@ export default function Dashboard() {
     }
 
     setLoading(false);
-  };
+  }, [petId]);
+
+  useEffect(() => {
+    if (!userId || profileLoading || petLoading) return;
+    void fetchAll();
+  }, [userId, profileLoading, petLoading, fetchAll]);
 
 
   if (loading) {

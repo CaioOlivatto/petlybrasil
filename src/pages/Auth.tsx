@@ -34,13 +34,14 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      const normalizedEmail = email.trim().toLowerCase();
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (error) throw error;
         toast.success("Login realizado com sucesso!");
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
           password,
           options: {
             data: { name },
@@ -48,10 +49,12 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success("Cadastro realizado! Verifique seu e-mail para confirmar a conta.");
+        toast.success(data.session
+          ? "Cadastro realizado com sucesso!"
+          : "Cadastro realizado! Verifique seu e-mail para confirmar a conta.");
       }
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao processar. Tente novamente.");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Erro ao processar. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -116,7 +119,8 @@ export default function Auth() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
+                autoComplete={isLogin ? "current-password" : "new-password"}
               />
             </div>
             <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={loading}>

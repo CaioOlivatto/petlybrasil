@@ -1,22 +1,22 @@
-project_id = "rtlbnrgszuwdpvmquyis"
+project_id = "hgjjrebxujvyvzszhrsd"
 
 [functions.organize-questions]
-verify_jwt = false
+verify_jwt = true
 
 [functions.treino-dicas]
-verify_jwt = false
+verify_jwt = true
 
 [functions.emergency-data]
 verify_jwt = false
 
 [functions.petzinho-ia]
-verify_jwt = false
+verify_jwt = true
 
 [functions.create-checkout]
-verify_jwt = false
+verify_jwt = true
 
 [functions.check-subscription]
-verify_jwt = false
+verify_jwt = true
 
 [functions.customer-portal]
-verify_jwt = false
+verify_jwt = true

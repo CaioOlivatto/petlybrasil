@@ -1,6 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Database } from "@/integrations/supabase/types";
+
+type PetContext = {
+  pet: Database["public"]["Tables"]["pets"]["Row"];
+  tutorName: string;
+  recentCheckins: Database["public"]["Tables"]["daily_checkins"]["Row"][];
+  medicalRecords: Database["public"]["Tables"]["medical_records"]["Row"][];
+  vaccinations: Database["public"]["Tables"]["pet_vaccinations"]["Row"][];
+  upcomingEvents: Database["public"]["Tables"]["agenda_events"]["Row"][];
+};
 import { Bot, Send, Trash2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +35,7 @@ const PetzinhoIA = () => {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [petContext, setPetContext] = useState<any>(null);
+  const [petContext, setPetContext] = useState<PetContext | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,13 +83,16 @@ const PetzinhoIA = () => {
     let assistantContent = "";
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Sessão expirada. Entre novamente.");
+
       const resp = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/petzinho-ia`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             messages: allMessages,
@@ -133,11 +146,11 @@ const PetzinhoIA = () => {
           }
         }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Petzinho IA error:", e);
       toast({
         title: "Erro",
-        description: e.message || "Tente novamente.",
+        description: e instanceof Error ? e.message : "Tente novamente.",
         variant: "destructive",
       });
       // Remove empty assistant msg if error

@@ -2,92 +2,86 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Star, Zap, Loader2, LogOut, X, ArrowLeft } from "lucide-react";
+import { Check, CalendarDays, CalendarRange, Sparkles, LogOut, ArrowLeft } from "lucide-react";
 import petlyLogo from "@/assets/petly-logo.png";
 import pawPattern from "@/assets/paw-pattern.png";
+
+const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
 
 const plans = [
   {
     id: "mensal",
-    name: "Mensal",
-    price: "R$ 65,00",
-    pricePerMonth: "R$ 65,00/mês",
+    name: "Essencial",
+    subtitle: "Mensal",
+    price: "R$ 34,90",
+    pricePerMonth: "R$ 34,90/mês",
     total: null,
-    priceId: "price_1TC5AzHZyP9nfelE6ITARmAL",
-    icon: Zap,
+    icon: CalendarDays,
     features: [
-      "Prontuário completo",
-      "Diário do pet",
-      "Agenda de consultas",
-      "Alertas de vacinas",
-      "Petlyzinho IA",
-      "Dicas de treino",
+      "Multi-pet incluso",
+      "Petlyzinho IA (em breve)",
+      "Diário completo",
+      "Dicas personalizadas por raça",
     ],
-    excluded: [],
     popular: false,
   },
   {
     id: "semestral",
-    name: "Pro",
+    name: "Essencial",
     subtitle: "Semestral",
-    price: "R$ 49,90",
-    pricePerMonth: "R$ 49,90/mês",
-    total: "Total: R$ 299,40",
-    priceId: "price_1TC4vrHZyP9nfelEyLli3vDP",
-    icon: Star,
+    price: "R$ 29,90",
+    pricePerMonth: "R$ 29,90/mês",
+    total: "Total: R$ 179,40 a cada 6 meses",
+    icon: CalendarRange,
     features: [
-      "Prontuário completo",
-      "Diário do pet",
-      "Agenda de consultas",
-      "Alertas de vacinas",
-      "Petlyzinho IA",
-      "Dicas de treino",
-      "Economia de 23%",
+      "Multi-pet incluso",
+      "Petlyzinho IA (em breve)",
+      "Diário completo",
+      "Dicas personalizadas por raça",
+      "Economia de 14%",
     ],
-    excluded: [],
     popular: true,
   },
   {
     id: "anual",
-    name: "Master",
+    name: "Essencial",
     subtitle: "Anual",
-    price: "R$ 39,90",
-    pricePerMonth: "R$ 39,90/mês",
-    total: "Total: R$ 479,80",
-    priceId: "price_1TC4wAHZyP9nfelEz9GQxznq",
-    icon: Crown,
+    price: "R$ 24,90",
+    pricePerMonth: "R$ 24,90/mês",
+    total: "Total: R$ 298,80 por ano",
+    icon: Sparkles,
     features: [
-      "Prontuário completo",
-      "Diário do pet",
-      "Agenda de consultas",
-      "Alertas de vacinas",
-      "Petlyzinho IA",
-      "Dicas de treino",
-      "Economia de 39%",
+      "Multi-pet incluso",
+      "Petlyzinho IA (em breve)",
+      "Diário completo",
+      "Dicas personalizadas por raça",
+      "Economia de 29%",
     ],
-    excluded: [],
     popular: false,
   },
 ];
 
 export default function Assinatura() {
   const { user, signOut } = useAuth();
+  const userId = user?.id;
   const navigate = useNavigate();
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [canGoBack, setCanGoBack] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     const check = async () => {
+      if (!BILLING_ENABLED) {
+        setCanGoBack(true);
+        return;
+      }
       // Check trial
       const { data: profile } = await supabase
         .from("profiles")
         .select("trial_ends_at")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .maybeSingle();
       const trialEndsAt = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
       if (trialEndsAt && trialEndsAt > new Date()) {
@@ -101,29 +95,13 @@ export default function Assinatura() {
           setCanGoBack(true);
           return;
         }
-      } catch {}
+      } catch {
+        // Keep the page available even if the subscription service is unreachable.
+      }
       setCanGoBack(false);
     };
     void check();
-  }, [user?.id]);
-
-  const handleSubscribe = async (priceId: string, planId: string) => {
-    setLoadingPlan(planId);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId },
-      });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      toast.error("Erro ao iniciar checkout: " + (error.message || "Tente novamente."));
-    } finally {
-      setLoadingPlan(null);
-    }
-  };
+  }, [userId]);
 
   const handleLogout = async () => {
     await signOut();
@@ -156,11 +134,16 @@ export default function Assinatura() {
         <div className="text-center space-y-4">
           <img src={petlyLogo} alt="Petly" className="h-20 w-20 mx-auto object-contain" />
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-            {canGoBack ? "Escolha seu plano" : "Seu período de teste terminou"}
+            Plano Essencial
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Escolha o plano ideal para continuar cuidando do seu pet com inteligência
+            Escolha a periodicidade que combina com você. O conteúdo é o mesmo em todas as opções.
           </p>
+          {!BILLING_ENABLED && (
+            <p className="text-sm text-muted-foreground">
+              Pagamentos estão em preparação. O acesso ao sistema permanece liberado durante os testes.
+            </p>
+          )}
         </div>
 
         {/* Plans grid */}
@@ -211,27 +194,16 @@ export default function Assinatura() {
                         {feature}
                       </li>
                     ))}
-                    {plan.excluded.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground line-through">
-                        <X className="h-4 w-4 flex-shrink-0 text-destructive/50" />
-                        {feature}
-                      </li>
-                    ))}
                   </ul>
                   <Button
-                    onClick={() => handleSubscribe(plan.priceId, plan.id)}
-                    disabled={loadingPlan !== null}
+                    disabled
                     className={`w-full h-12 text-base font-semibold rounded-xl ${
                       plan.popular
                         ? "bg-accent hover:bg-accent/90 text-accent-foreground"
                         : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     }`}
                   >
-                    {loadingPlan === plan.id ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      "Assinar agora"
-                    )}
+                    Assinaturas em breve
                   </Button>
                 </CardContent>
               </Card>
@@ -242,7 +214,7 @@ export default function Assinatura() {
         {/* Footer */}
         <div className="text-center space-y-3">
           <p className="text-sm text-muted-foreground">
-            Todos os planos incluem 3 dias de teste grátis • Cancele a qualquer momento
+            7 dias de teste grátis • Multi-pet incluso • Cancele a qualquer momento
           </p>
           <button
             onClick={handleLogout}

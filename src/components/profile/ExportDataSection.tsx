@@ -1,11 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Table } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
+import type { Database } from "@/integrations/supabase/types";
+
+type Pet = Database["public"]["Tables"]["pets"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Props {
-  pet: any;
-  profile: any;
+  pet: Pet | null;
+  profile: Profile | null;
 }
+
+const escapeHtml = (value: unknown) => String(value ?? "-")
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&#039;");
 
 export function ExportDataSection({ pet, profile }: Props) {
   const petName = pet?.name || "Pet";
@@ -65,12 +76,13 @@ export function ExportDataSection({ pet, profile }: Props) {
     const species = pet?.species === "dog" ? "Cachorro" : pet?.species === "cat" ? "Gato" : pet?.species || "-";
     const sex = pet?.sex === "male" ? "Macho" : pet?.sex === "female" ? "Fêmea" : pet?.sex || "-";
 
+    const safe = escapeHtml;
     const html = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Prontuário - ${petName}</title>
+        <title>Prontuário - ${safe(petName)}</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: 'Segoe UI', sans-serif; padding: 40px; color: #1a1a1a; }
@@ -85,33 +97,33 @@ export function ExportDataSection({ pet, profile }: Props) {
         </style>
       </head>
       <body>
-        <h1>Prontuário de ${petName}</h1>
+        <h1>Prontuário de ${safe(petName)}</h1>
         <p class="subtitle">Gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}</p>
 
         <h2>Dados do Tutor</h2>
         <table>
-          <tr><td>Nome</td><td>${profile?.name || "-"}</td></tr>
-          <tr><td>Email</td><td>${profile?.email || "-"}</td></tr>
-          <tr><td>Telefone</td><td>${profile?.phone || "-"}</td></tr>
-          <tr><td>Data de Nascimento</td><td>${profile?.birthday || "-"}</td></tr>
+          <tr><td>Nome</td><td>${safe(profile?.name)}</td></tr>
+          <tr><td>Email</td><td>${safe(profile?.email)}</td></tr>
+          <tr><td>Telefone</td><td>${safe(profile?.phone)}</td></tr>
+          <tr><td>Data de Nascimento</td><td>${safe(profile?.birthday)}</td></tr>
         </table>
 
         <h2>Dados do Pet</h2>
         <table>
-          <tr><td>Nome</td><td>${pet?.name || "-"}</td></tr>
-          <tr><td>Espécie</td><td>${species}</td></tr>
-          <tr><td>Raça</td><td>${pet?.breed || "-"}</td></tr>
-          <tr><td>Sexo</td><td>${sex}</td></tr>
-          <tr><td>Data de Nascimento</td><td>${pet?.birth_date || "-"}</td></tr>
-          <tr><td>Peso (kg)</td><td>${pet?.weight || "-"}</td></tr>
-          <tr><td>Tipo Sanguíneo</td><td>${pet?.blood_type || "-"}</td></tr>
+          <tr><td>Nome</td><td>${safe(pet?.name)}</td></tr>
+          <tr><td>Espécie</td><td>${safe(species)}</td></tr>
+          <tr><td>Raça</td><td>${safe(pet?.breed)}</td></tr>
+          <tr><td>Sexo</td><td>${safe(sex)}</td></tr>
+          <tr><td>Data de Nascimento</td><td>${safe(pet?.birth_date)}</td></tr>
+          <tr><td>Peso (kg)</td><td>${safe(pet?.weight)}</td></tr>
+          <tr><td>Tipo Sanguíneo</td><td>${safe(pet?.blood_type)}</td></tr>
           <tr><td>Castrado</td><td>${pet?.is_neutered ? "Sim" : "Não"}</td></tr>
-          <tr><td>Alergias</td><td>${pet?.allergies || "Nenhuma"}</td></tr>
-          <tr><td>Condições de Saúde</td><td>${pet?.health_conditions || "Nenhuma"}</td></tr>
-          <tr><td>Canil</td><td>${pet?.kennel || "-"}</td></tr>
-          <tr><td>Pedigree</td><td>${pet?.pedigree || "-"}</td></tr>
-          <tr><td>Nome da Mãe</td><td>${pet?.mother_name || "-"}</td></tr>
-          <tr><td>Nome do Pai</td><td>${pet?.father_name || "-"}</td></tr>
+          <tr><td>Alergias</td><td>${safe(pet?.allergies || "Nenhuma")}</td></tr>
+          <tr><td>Condições de Saúde</td><td>${safe(pet?.health_conditions || "Nenhuma")}</td></tr>
+          <tr><td>Canil</td><td>${safe(pet?.kennel)}</td></tr>
+          <tr><td>Pedigree</td><td>${safe(pet?.pedigree)}</td></tr>
+          <tr><td>Nome da Mãe</td><td>${safe(pet?.mother_name)}</td></tr>
+          <tr><td>Nome do Pai</td><td>${safe(pet?.father_name)}</td></tr>
         </table>
 
         <div class="footer">

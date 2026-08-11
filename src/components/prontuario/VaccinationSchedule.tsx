@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
@@ -22,9 +23,12 @@ import {
 } from "@/data/vaccinationCalendar";
 import { differenceInDays, format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import type { Database } from "@/integrations/supabase/types";
+
+type Pet = Database["public"]["Tables"]["pets"]["Row"];
 
 interface Props {
-  pet: any;
+  pet: Pet | null;
 }
 
 type VaccinationStatus = "taken" | "not_taken" | "will_not_take" | "pending";
@@ -38,8 +42,7 @@ interface VaccinationRecord {
 
 export function VaccinationSchedule({ pet }: Props) {
   const { user } = useAuth();
-  const [records, setRecords] = useState<Record<string, VaccinationRecord>>({});
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [saving, setSaving] = useState<string | null>(null);
   const [dateTaken, setDateTaken] = useState<Record<string, string>>({});
 
@@ -47,25 +50,40 @@ export function VaccinationSchedule({ pet }: Props) {
   const birthDate = pet?.birth_date ? parseISO(pet.birth_date) : null;
   const petAgeDays = birthDate ? differenceInDays(new Date(), birthDate) : null;
 
-  useEffect(() => {
-    if (!pet?.id) return;
-    fetchRecords();
-  }, [pet?.id]);
+  const vaccinationQueryKey = ["pets", pet?.id, "vaccinations"] as const;
+  const { data: vaccinationRecords = [], isLoading: loading } = useQuery({
+    queryKey: vaccinationQueryKey,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pet_vaccinations")
+        .select("vaccine_key, status, date_taken, notes")
+        .eq("pet_id", pet.id);
 
-  const fetchRecords = async () => {
-    const { data } = await supabase
-      .from("pet_vaccinations")
-      .select("vaccine_key, status, date_taken, notes")
-      .eq("pet_id", pet.id);
+      if (error) throw error;
+      return (data || []) as VaccinationRecord[];
+    },
+    enabled: Boolean(pet?.id),
+    staleTime: 5 * 60 * 1000,
+  });
 
-    if (data) {
-      const map: Record<string, VaccinationRecord> = {};
-      data.forEach((r: any) => {
-        map[r.vaccine_key] = r;
-      });
-      setRecords(map);
-    }
-    setLoading(false);
+  const records = useMemo(() => vaccinationRecords.reduce<Record<string, VaccinationRecord>>((map, record) => {
+    map[record.vaccine_key] = record;
+    return map;
+  }, {}), [vaccinationRecords]);
+
+  const getAnnualDueDate = (vaccine: VaccineItem) => {
+    const record = records[vaccine.key];
+    if (!vaccine.isAnnual || record?.status !== "taken" || !record.date_taken) return null;
+    return addDays(parseISO(record.date_taken), 365);
+  };
+
+  const getAnnualUrgency = (vaccine: VaccineItem) => {
+    const dueDate = getAnnualDueDate(vaccine);
+    if (!dueDate) return null;
+    const daysSinceDue = differenceInDays(new Date(), dueDate);
+    if (daysSinceDue > 30) return "overdue";
+    if (daysSinceDue >= -7) return "due";
+    return "upcoming";
   };
 
   const handleStatusChange = async (vaccine: VaccineItem, status: VaccinationStatus) => {
@@ -98,16 +116,23 @@ export function VaccinationSchedule({ pet }: Props) {
       toast.error("Erro ao salvar vacinação");
     } else {
       toast.success(`${vaccine.name} atualizada!`);
-      setRecords((prev) => ({
-        ...prev,
-        [vaccine.key]: { ...payload, notes: null },
-      }));
+      queryClient.setQueryData<VaccinationRecord[]>(vaccinationQueryKey, (current = []) => {
+        const updated = { vaccine_key: vaccine.key, status, date_taken: dateValue, notes: null };
+        const exists = current.some((record) => record.vaccine_key === vaccine.key);
+        return exists
+          ? current.map((record) => record.vaccine_key === vaccine.key ? updated : record)
+          : [...current, updated];
+      });
     }
     setSaving(null);
   };
 
   const getStatusBorder = (vaccine: VaccineItem) => {
     const record = records[vaccine.key];
+    const annualUrgency = getAnnualUrgency(vaccine);
+    if (annualUrgency === "overdue") return "border-destructive/40";
+    if (annualUrgency === "due") return "border-primary/40";
+    if (annualUrgency === "upcoming") return "border-green-500/30";
     if (record?.status === "taken") return "border-green-500/30";
     if (record?.status === "will_not_take") return "border-muted opacity-60";
     if (record?.status === "not_taken") return "border-destructive/30";
@@ -120,6 +145,28 @@ export function VaccinationSchedule({ pet }: Props) {
 
   const getUrgencyBadge = (vaccine: VaccineItem) => {
     const record = records[vaccine.key];
+    const annualUrgency = getAnnualUrgency(vaccine);
+    if (annualUrgency === "overdue") {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
+          <AlertTriangle className="h-3 w-3" /> Reforço atrasado
+        </span>
+      );
+    }
+    if (annualUrgency === "due") {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+          <Clock className="h-3 w-3" /> Reforço próximo
+        </span>
+      );
+    }
+    if (annualUrgency === "upcoming") {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+          <CheckCircle2 className="h-3 w-3" /> Em dia
+        </span>
+      );
+    }
     if (record?.status === "taken") {
       return (
         <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
@@ -166,6 +213,7 @@ export function VaccinationSchedule({ pet }: Props) {
 
   const getDueDate = (vaccine: VaccineItem) => {
     if (!birthDate) return null;
+    if (vaccine.isAnnual) return getAnnualDueDate(vaccine);
     return addDays(birthDate, vaccine.ageDays);
   };
 
@@ -231,8 +279,11 @@ export function VaccinationSchedule({ pet }: Props) {
                       📅 {vaccine.ageLabel}
                       {dueDate && (
                         <span className="ml-1">
-                          — prevista para {format(dueDate, "dd/MM/yyyy")}
+                          — {vaccine.isAnnual ? "próximo reforço em" : "prevista para"} {format(dueDate, "dd/MM/yyyy")}
                         </span>
+                      )}
+                      {vaccine.isAnnual && !dueDate && (
+                        <span className="ml-1">— informe a última dose para calcular a próxima</span>
                       )}
                     </p>
                     {vaccine.protectsAgainst && (

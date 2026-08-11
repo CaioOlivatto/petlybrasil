@@ -70,6 +70,11 @@ import { toast } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
+import { usePrimaryPet } from "@/hooks/useAccountData";
+import type { Database } from "@/integrations/supabase/types";
+
+type AgendaEventInsert = Database["public"]["Tables"]["agenda_events"]["Insert"];
+type SortOrder = "recent" | "oldest" | "category";
 
 const categories = [
   { key: "consulta", label: "Consulta", icon: Stethoscope, color: "hsl(263, 84%, 58%)" },
@@ -114,10 +119,10 @@ export default function Prontuario() {
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"recent" | "oldest" | "category">("recent");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("recent");
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [pet, setPet] = useState<any>(null);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -149,7 +154,7 @@ export default function Prontuario() {
     if (!user || !pet) return;
     const { data, error } = await supabase
       .from("medical_records")
-      .select("*")
+      .select("id, category, name, date, validity_date, notes, attachment_url, attachment_name, pet_id, frequency, usage_end_date")
       .eq("user_id", user.id)
       .eq("pet_id", pet.id)
       .order("date", { ascending: false });
@@ -163,22 +168,12 @@ export default function Prontuario() {
   }, [user, pet]);
 
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("*")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setPet(data);
-        else setLoading(false);
-      });
-  }, [user]);
-
-  useEffect(() => {
-    if (pet) fetchRecords();
-  }, [pet, fetchRecords]);
+    if (pet) {
+      fetchRecords();
+    } else if (!petLoading) {
+      setLoading(false);
+    }
+  }, [pet, petLoading, fetchRecords]);
 
   const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
 
@@ -220,8 +215,7 @@ export default function Prontuario() {
         if (uploadError) {
           toast.error("Erro ao enviar anexo: " + uploadError.message);
         } else {
-          const { data } = supabase.storage.from("medical-attachments").getPublicUrl(path);
-          attachment_url = data.publicUrl;
+          attachment_url = path;
           attachment_name = attachedFile.name;
         }
       }
@@ -238,13 +232,13 @@ export default function Prontuario() {
         attachment_name,
         usage_end_date: selectedCategory === "medicacao" && usageEndDate ? usageEndDate : null,
         frequency: selectedCategory === "medicacao" && frequency ? frequency : null,
-      } as any).select().single();
+      }).select().single();
 
       if (error) throw error;
 
       // Auto-create agenda events for medications with frequency
       if (selectedCategory === "medicacao" && frequency && frequency !== "sob_demanda" && usageEndDate && startTime) {
-        const agendaEvents: any[] = [];
+        const agendaEvents: AgendaEventInsert[] = [];
         const startDate = new Date(newDate + "T00:00:00");
         const endDate = new Date(usageEndDate + "T00:00:00");
 
@@ -292,7 +286,7 @@ export default function Prontuario() {
         }
 
         if (agendaEvents.length > 0 && agendaEvents.length <= 1000) {
-          await supabase.from("agenda_events").insert(agendaEvents as any);
+          await supabase.from("agenda_events").insert(agendaEvents);
           toast.success(`${agendaEvents.length} lembretes adicionados à agenda!`);
         }
       }
@@ -316,15 +310,15 @@ export default function Prontuario() {
           notes: observations || null,
           source: "prontuario",
           source_record_id: insertedRecord.id,
-        } as any);
+        });
         toast.success("Evento adicionado à agenda!");
       }
 
       toast.success("Registro salvo com sucesso!");
       resetForm();
       fetchRecords();
-    } catch (error: any) {
-      toast.error("Erro ao salvar: " + error.message);
+    } catch (error: unknown) {
+      toast.error("Erro ao salvar: " + (error instanceof Error ? error.message : "NÃ£o foi possÃ­vel salvar o registro."));
     } finally {
       setSaving(false);
     }
@@ -769,7 +763,9 @@ export default function Prontuario() {
             className="h-12 pl-12 bg-background rounded-xl text-base"
           />
         </div>
-        <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as any)}>
+        <Select value={sortOrder} onValueChange={(v) => {
+          if (v === "recent" || v === "oldest" || v === "category") setSortOrder(v);
+        }}>
           <SelectTrigger className="w-[160px] h-12 rounded-xl">
             <SelectValue />
           </SelectTrigger>
@@ -933,16 +929,19 @@ export default function Prontuario() {
                         <div className="flex items-center justify-between pt-1">
                           <div className="flex items-center gap-2">
                             {record.attachment_url && (
-                              <a
-                                href={record.attachment_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
+                              <button
+                                type="button"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const { data, error } = await supabase.storage.from("medical-attachments").createSignedUrl(record.attachment_url!, 300);
+                                  if (error) return toast.error("Erro ao abrir anexo: " + error.message);
+                                  window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                                }}
                                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted text-xs text-muted-foreground hover:border-primary/50 border border-transparent transition-colors"
                               >
                                 <ExternalLink className="h-3 w-3" />
                                 {record.attachment_name ? (record.attachment_name.length > 20 ? record.attachment_name.slice(0, 20) + "..." : record.attachment_name) : "Ver anexo"}
-                              </a>
+                              </button>
                             )}
                           </div>
                           <button
@@ -1021,15 +1020,18 @@ export default function Prontuario() {
                 {detailRecord.attachment_url && (
                   <div>
                     <p className="text-sm font-semibold text-foreground mb-2">Anexo</p>
-                    <a
-                      href={detailRecord.attachment_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { data, error } = await supabase.storage.from("medical-attachments").createSignedUrl(detailRecord.attachment_url!, 300);
+                        if (error) return toast.error("Erro ao abrir anexo: " + error.message);
+                        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                      }}
                       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted/50 text-sm text-foreground hover:border-primary/50 transition-colors"
                     >
                       <ExternalLink className="h-4 w-4 text-primary" />
                       {detailRecord.attachment_name || "Ver anexo"}
-                    </a>
+                    </button>
                   </div>
                 )}
 

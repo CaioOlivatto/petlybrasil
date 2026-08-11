@@ -1,16 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Zap, UtensilsCrossed, Moon, Heart, ClipboardEdit } from "lucide-react";
 import { subDays, format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import type { Database } from "@/integrations/supabase/types";
+
+type MetricKey = "energia" | "apetite" | "sono" | "humor";
+type CheckinMetrics = Pick<Database["public"]["Tables"]["daily_checkins"]["Row"], MetricKey>;
+type MetricConfig = { key: MetricKey; label: string; icon: typeof Zap; color: string; values: Record<string, number>; labels: Record<string, string> };
 
 interface Props {
   petName: string;
   petId: string;
 }
 
-const metricConfig = [
+const metricConfig: MetricConfig[] = [
   { key: "energia", label: "Energia", icon: Zap, color: "bg-amber-400", values: { baixa: 33, normal: 66, alta: 100 }, labels: { baixa: "Baixa", normal: "Normal", alta: "Alta" } },
   { key: "apetite", label: "Apetite", icon: UtensilsCrossed, color: "bg-amber-400", values: { baixo: 33, normal: 66, alto: 100 }, labels: { baixo: "Baixo", normal: "Normal", alto: "Alto" } },
   { key: "sono", label: "Sono", icon: Moon, color: "bg-amber-400", values: { ruim: 33, normal: 66, otimo: 100 }, labels: { ruim: "Ruim", normal: "Normal", otimo: "Ótimo" } },
@@ -22,17 +27,13 @@ type Period = "hoje" | "7dias" | "30dias";
 export function PetStatusCard({ petName, petId }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const userId = user?.id;
   const [period, setPeriod] = useState<Period>("hoje");
   const [metrics, setMetrics] = useState<Record<string, { value: number; label: string }>>({});
   const [hasData, setHasData] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user || !petId) return;
-    fetchMetrics();
-  }, [user, petId, period]);
-
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     setLoading(true);
     const today = format(new Date(), "yyyy-MM-dd");
 
@@ -59,8 +60,6 @@ export function PetStatusCard({ petName, petId }: Props) {
     }
 
     setHasData(true);
-    const count = data.length;
-
     const result: Record<string, { value: number; label: string }> = {};
 
     for (const metric of metricConfig) {
@@ -68,7 +67,7 @@ export function PetStatusCard({ petName, petId }: Props) {
       const labelsMap = metric.labels as Record<string, string>;
 
       if (period === "hoje") {
-        const raw = (data[0] as any)[metric.key] as string | null;
+        const raw = (data[0] as CheckinMetrics)[metric.key];
         if (raw && valuesMap[raw] !== undefined) {
           result[metric.key] = { value: valuesMap[raw], label: labelsMap[raw] || raw };
         } else {
@@ -78,7 +77,7 @@ export function PetStatusCard({ petName, petId }: Props) {
         let sum = 0;
         let filled = 0;
         for (const row of data) {
-          const raw = (row as any)[metric.key] as string | null;
+          const raw = (row as CheckinMetrics)[metric.key];
           if (raw && valuesMap[raw] !== undefined) {
             sum += valuesMap[raw];
             filled++;
@@ -104,7 +103,12 @@ export function PetStatusCard({ petName, petId }: Props) {
 
     setMetrics(result);
     setLoading(false);
-  };
+  }, [petId, period]);
+
+  useEffect(() => {
+    if (!userId || !petId) return;
+    void fetchMetrics();
+  }, [userId, petId, fetchMetrics]);
 
   const getScoreAvg = () => {
     const vals = Object.values(metrics).filter((m) => m.value > 0);

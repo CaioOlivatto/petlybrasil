@@ -3,10 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Printer, Download, Eye, Lightbulb } from "lucide-react";
 import { useRef } from "react";
 import petlyLogo from "@/assets/petly-logo.png";
+import type { Database } from "@/integrations/supabase/types";
+
+type Pet = Database["public"]["Tables"]["pets"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Props {
-  pet: any;
-  profile: any;
+  pet: Pet | null;
+  profile: Profile | null;
 }
 
 export function QRCodeSection({ pet, profile }: Props) {
@@ -14,8 +18,7 @@ export function QRCodeSection({ pet, profile }: Props) {
 
   const petName = pet?.name || "seu pet";
 
-  // QR code now only encodes the pet ID - the emergency page fetches all data
-  const qrValue = `${window.location.origin}/emergency?pet_id=${pet?.id || ""}`;
+  const qrValue = `${window.location.origin}/emergency?token=${pet?.emergency_token || ""}`;
 
   const handlePrint = () => {
     window.print();

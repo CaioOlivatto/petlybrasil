@@ -13,6 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePrimaryPet } from "@/hooks/useAccountData";
+import type { Database } from "@/integrations/supabase/types";
+
+type DailyCheckinInsert = Database["public"]["Tables"]["daily_checkins"]["Insert"];
 
 type CheckInData = {
   energia: string;
@@ -83,7 +87,7 @@ const mudancaOptions = [
 const Diario = () => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [pet, setPet] = useState<{ id: string; name: string } | null>(null);
+  const { data: pet } = usePrimaryPet(user?.id);
   const [checkIn, setCheckIn] = useState<CheckInData>({
     energia: "",
     apetite: "",
@@ -100,38 +104,26 @@ const Diario = () => {
     convulsaoQuantidade: 0,
   });
 
-  const [historyFilter, setHistoryFilter] = useState<"hoje" | "semana" | "mes">("hoje");
+  const [historyFilter, setHistoryFilter] = useState<"hoje" | "semana" | "mes" | "historico">("historico");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [saving, setSaving] = useState(false);
-
-  // Fetch pet
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("id, name")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setPet(data);
-      });
-  }, [user]);
 
   // Fetch history
   const fetchHistory = useCallback(async () => {
     if (!user || !pet) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("daily_checkins")
-      .select("*")
+      .select("date, energia, apetite, sono, humor, alteracoes, passeio, passeio_quantidade, passeio_duracao, atividade_mental, mudanca_rotina, observacoes, convulsao, convulsao_quantidade")
       .eq("pet_id", pet.id)
       .order("date", { ascending: false })
-      .limit(30);
+      .limit(31);
 
-    if (data) {
+    if (error) {
+      toast({ title: "Erro ao carregar o histórico", description: error.message, variant: "destructive" });
+    } else if (data) {
       setHistory(
-        data.map((row: any) => ({
-          date: new Date(row.date),
+        data.map((row) => ({
+          date: new Date(row.date + "T12:00:00"),
           energia: row.energia || "",
           apetite: row.apetite || "",
           sono: row.sono || "",
@@ -148,13 +140,14 @@ const Diario = () => {
         }))
       );
     }
-  }, [user, pet]);
+  }, [user, pet, toast]);
 
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
 
   const filteredHistory = useMemo(() => {
+    if (historyFilter === "historico") return history;
     const now = new Date();
     let start: Date;
     if (historyFilter === "hoje") {
@@ -190,7 +183,7 @@ const Diario = () => {
     setSaving(true);
 
     const today = format(new Date(), "yyyy-MM-dd");
-    const payload = {
+    const payload: DailyCheckinInsert = {
       user_id: user.id,
       pet_id: pet.id,
       date: today,
@@ -211,7 +204,7 @@ const Diario = () => {
 
     const { error } = await supabase
       .from("daily_checkins")
-      .upsert(payload as any, { onConflict: "pet_id,date" });
+      .upsert(payload, { onConflict: "pet_id,date" });
 
     setSaving(false);
 
@@ -578,6 +571,7 @@ const Diario = () => {
               { value: "hoje", label: "Hoje" },
               { value: "semana", label: "Semana" },
               { value: "mes", label: "Mês" },
+              { value: "historico", label: "Histórico" },
             ] as const).map((opt) => (
               <button
                 key={opt.value}
@@ -596,7 +590,11 @@ const Diario = () => {
         <div className="space-y-3">
           {filteredHistory.length === 0 ? (
             <div className="border-2 border-dashed border-border rounded-2xl bg-background">
-              <EmptyState icon={BookOpen} title="Nenhum check-in ainda" description={historyFilter === "hoje" ? "Preencha o check-in acima para registrar o dia de hoje." : "Nenhum registro encontrado neste período."} />
+              <EmptyState
+                icon={BookOpen}
+                title={historyFilter === "hoje" ? "Nenhum check-in hoje" : "Nenhum registro encontrado"}
+                description={historyFilter === "hoje" ? "Preencha o check-in acima para registrar o dia de hoje." : "Nenhum registro encontrado neste período."}
+              />
             </div>
           ) : (
             filteredHistory.map((entry, idx) => (

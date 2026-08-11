@@ -30,6 +30,7 @@ export function DashboardLayout() {
               onClick={() => navigate("/assinatura")}
               className="h-9 w-9 flex items-center justify-center rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
               title="Assinar / Upgrade"
+              aria-label="Abrir planos e assinatura"
             >
               <Gem className="h-5 w-5" />
             </button>
