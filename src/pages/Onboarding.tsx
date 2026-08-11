@@ -163,21 +163,21 @@ export default function Onboarding() {
           onboarding_completed: true,
           email: user.email || null,
           trial_ends_at: trialEndsAt.toISOString(),
-        } as any, { onConflict: "user_id" });
+        }, { onConflict: "user_id" });
 
       if (profileError) throw profileError;
 
       await queryClient.invalidateQueries({ queryKey: ["account", user.id] });
       toast.success("Tudo pronto! Bem-vindo ao Petly 🐾");
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (createdPetId) {
         await supabase.from("pets").delete().eq("id", createdPetId);
       }
       if (uploadedPhotoPath) {
         await supabase.storage.from("pet-photos").remove([uploadedPhotoPath]);
       }
-      toast.error("Erro: " + error.message);
+      toast.error("Erro: " + (error instanceof Error ? error.message : "NÃ£o foi possÃ­vel concluir o cadastro."));
     } finally {
       setSaving(false);
     }

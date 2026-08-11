@@ -68,7 +68,7 @@ const QuestoesVeterinario = () => {
     }
 
     setSavedLists(
-      (data || []).map((row: any) => ({
+      (data || []).map((row) => ({
         id: row.id,
         title: row.title,
         questions: row.questions || [],

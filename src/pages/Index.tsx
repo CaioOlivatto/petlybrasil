@@ -39,8 +39,8 @@ const Index = () => {
       });
       if (error) throw error;
       toast.success("Login realizado com sucesso!");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao fazer login.");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Erro ao fazer login.");
     } finally {
       setLoading(false);
     }

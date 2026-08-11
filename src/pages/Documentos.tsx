@@ -185,7 +185,7 @@ export default function Documentos() {
           notes: docNotes || null,
           attachment_url,
           attachment_name,
-        } as any)
+        })
         .select("id, name, date, notes, attachment_url, attachment_name")
         .single();
 
@@ -199,8 +199,8 @@ export default function Documentos() {
       setDocuments((current) => [data, ...current]);
       toast.success("Documento salvo com sucesso!");
       resetForm();
-    } catch (error: any) {
-      toast.error("Erro ao salvar: " + error.message);
+    } catch (error: unknown) {
+      toast.error("Erro ao salvar: " + (error instanceof Error ? error.message : "NÃ£o foi possÃ­vel salvar o documento."));
     } finally {
       setSaving(false);
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   FileText,
   Syringe,
@@ -74,8 +74,10 @@ const PawDecoration = () => (
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useProfile(user?.id);
-  const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
+  const userId = user?.id;
+  const { data: profile, isLoading: profileLoading } = useProfile(userId);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(userId);
+  const petId = pet?.id;
   const [loading, setLoading] = useState(true);
   const [nextEvent, setNextEvent] = useState<NextEvent | null>(null);
   const [vaccineStats, setVaccineStats] = useState<{ done: number; total: number; overdue: number } | null>(null);
@@ -84,16 +86,10 @@ export default function Dashboard() {
   
   const [todayCheckin, setTodayCheckin] = useState<{ humor: string | null; energia: string | null; apetite: string | null; sono: string | null } | null>(null);
 
-  useEffect(() => {
-    if (!user || profileLoading || petLoading) return;
-    fetchAll();
-  }, [user?.id, pet?.id, profileLoading, petLoading]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     const today = format(new Date(), "yyyy-MM-dd");
 
-    if (pet) {
-      const petId = pet.id;
+    if (petId) {
 
       const [eventsRes, vaccinesRes, checkinsRes] = await Promise.all([
         supabase.from("agenda_events").select("title, date, category").eq("pet_id", petId).gte("date", today).order("date", { ascending: true }).limit(1),
@@ -130,7 +126,12 @@ export default function Dashboard() {
     }
 
     setLoading(false);
-  };
+  }, [petId]);
+
+  useEffect(() => {
+    if (!userId || profileLoading || petLoading) return;
+    void fetchAll();
+  }, [userId, profileLoading, petLoading, fetchAll]);
 
 
   if (loading) {

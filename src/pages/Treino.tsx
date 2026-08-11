@@ -117,11 +117,11 @@ const Treino = () => {
           }
         }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Treino dicas error:", e);
       toast({
         title: "Erro",
-        description: e.message || "Tente novamente.",
+        description: e instanceof Error ? e.message : "Tente novamente.",
         variant: "destructive",
       });
     } finally {

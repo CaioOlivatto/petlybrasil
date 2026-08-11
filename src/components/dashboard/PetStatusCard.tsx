@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Zap, UtensilsCrossed, Moon, Heart, ClipboardEdit } from "lucide-react";
@@ -27,17 +27,13 @@ type Period = "hoje" | "7dias" | "30dias";
 export function PetStatusCard({ petName, petId }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const userId = user?.id;
   const [period, setPeriod] = useState<Period>("hoje");
   const [metrics, setMetrics] = useState<Record<string, { value: number; label: string }>>({});
   const [hasData, setHasData] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user || !petId) return;
-    fetchMetrics();
-  }, [user, petId, period]);
-
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     setLoading(true);
     const today = format(new Date(), "yyyy-MM-dd");
 
@@ -64,8 +60,6 @@ export function PetStatusCard({ petName, petId }: Props) {
     }
 
     setHasData(true);
-    const count = data.length;
-
     const result: Record<string, { value: number; label: string }> = {};
 
     for (const metric of metricConfig) {
@@ -109,7 +103,12 @@ export function PetStatusCard({ petName, petId }: Props) {
 
     setMetrics(result);
     setLoading(false);
-  };
+  }, [petId, period]);
+
+  useEffect(() => {
+    if (!userId || !petId) return;
+    void fetchMetrics();
+  }, [userId, petId, fetchMetrics]);
 
   const getScoreAvg = () => {
     const vals = Object.values(metrics).filter((m) => m.value > 0);

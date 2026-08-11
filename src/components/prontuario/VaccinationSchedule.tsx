@@ -23,9 +23,12 @@ import {
 } from "@/data/vaccinationCalendar";
 import { differenceInDays, format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import type { Database } from "@/integrations/supabase/types";
+
+type Pet = Database["public"]["Tables"]["pets"]["Row"];
 
 interface Props {
-  pet: any;
+  pet: Pet | null;
 }
 
 type VaccinationStatus = "taken" | "not_taken" | "will_not_take" | "pending";

@@ -53,8 +53,8 @@ export default function Auth() {
           ? "Cadastro realizado com sucesso!"
           : "Cadastro realizado! Verifique seu e-mail para confirmar a conta.");
       }
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao processar. Tente novamente.");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Erro ao processar. Tente novamente.");
     } finally {
       setLoading(false);
     }
