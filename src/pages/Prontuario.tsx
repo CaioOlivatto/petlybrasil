@@ -71,6 +71,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
 import { usePrimaryPet } from "@/hooks/useAccountData";
+import type { Database } from "@/integrations/supabase/types";
+
+type AgendaEventInsert = Database["public"]["Tables"]["agenda_events"]["Insert"];
+type SortOrder = "recent" | "oldest" | "category";
 
 const categories = [
   { key: "consulta", label: "Consulta", icon: Stethoscope, color: "hsl(263, 84%, 58%)" },
@@ -115,7 +119,7 @@ export default function Prontuario() {
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("todas");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"recent" | "oldest" | "category">("recent");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("recent");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
@@ -228,13 +232,13 @@ export default function Prontuario() {
         attachment_name,
         usage_end_date: selectedCategory === "medicacao" && usageEndDate ? usageEndDate : null,
         frequency: selectedCategory === "medicacao" && frequency ? frequency : null,
-      } as any).select().single();
+      }).select().single();
 
       if (error) throw error;
 
       // Auto-create agenda events for medications with frequency
       if (selectedCategory === "medicacao" && frequency && frequency !== "sob_demanda" && usageEndDate && startTime) {
-        const agendaEvents: any[] = [];
+        const agendaEvents: AgendaEventInsert[] = [];
         const startDate = new Date(newDate + "T00:00:00");
         const endDate = new Date(usageEndDate + "T00:00:00");
 
@@ -282,7 +286,7 @@ export default function Prontuario() {
         }
 
         if (agendaEvents.length > 0 && agendaEvents.length <= 1000) {
-          await supabase.from("agenda_events").insert(agendaEvents as any);
+          await supabase.from("agenda_events").insert(agendaEvents);
           toast.success(`${agendaEvents.length} lembretes adicionados à agenda!`);
         }
       }
@@ -306,15 +310,15 @@ export default function Prontuario() {
           notes: observations || null,
           source: "prontuario",
           source_record_id: insertedRecord.id,
-        } as any);
+        });
         toast.success("Evento adicionado à agenda!");
       }
 
       toast.success("Registro salvo com sucesso!");
       resetForm();
       fetchRecords();
-    } catch (error: any) {
-      toast.error("Erro ao salvar: " + error.message);
+    } catch (error: unknown) {
+      toast.error("Erro ao salvar: " + (error instanceof Error ? error.message : "NÃ£o foi possÃ­vel salvar o registro."));
     } finally {
       setSaving(false);
     }
@@ -759,7 +763,9 @@ export default function Prontuario() {
             className="h-12 pl-12 bg-background rounded-xl text-base"
           />
         </div>
-        <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as any)}>
+        <Select value={sortOrder} onValueChange={(v) => {
+          if (v === "recent" || v === "oldest" || v === "category") setSortOrder(v);
+        }}>
           <SelectTrigger className="w-[160px] h-12 rounded-xl">
             <SelectValue />
           </SelectTrigger>
