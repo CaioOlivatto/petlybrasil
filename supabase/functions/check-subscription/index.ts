@@ -26,9 +26,6 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
 
@@ -37,12 +34,12 @@ serve(async (req) => {
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    logStep("User authenticated", { userId: user.id });
 
-    // Master lifetime accounts
-    const MASTER_EMAILS = ["caiolivatto@hotmail.com"];
-    if (MASTER_EMAILS.includes(user.email.toLowerCase())) {
-      logStep("Master lifetime account detected", { email: user.email });
+    // Internal annual entitlement used for product testing without Stripe.
+    const ANNUAL_TEST_EMAILS = ["caiolivatto@hotmail.com"];
+    if (ANNUAL_TEST_EMAILS.includes(user.email.toLowerCase())) {
+      logStep("Annual test entitlement detected", { userId: user.id });
       return new Response(JSON.stringify({
         subscribed: true,
         product_id: "prod_UAPllCb7ehCAqH",
@@ -54,6 +51,9 @@ serve(async (req) => {
         status: 200,
       });
     }
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
     // Check trial status
     const { data: profile } = await supabaseClient
