@@ -70,6 +70,7 @@ import { toast } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonList } from "@/components/SkeletonCard";
 import { EmptyState } from "@/components/EmptyState";
+import { usePrimaryPet } from "@/hooks/useAccountData";
 
 const categories = [
   { key: "consulta", label: "Consulta", icon: Stethoscope, color: "hsl(263, 84%, 58%)" },
@@ -117,7 +118,7 @@ export default function Prontuario() {
   const [sortOrder, setSortOrder] = useState<"recent" | "oldest" | "category">("recent");
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [pet, setPet] = useState<any>(null);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -149,7 +150,7 @@ export default function Prontuario() {
     if (!user || !pet) return;
     const { data, error } = await supabase
       .from("medical_records")
-      .select("*")
+      .select("id, category, name, date, validity_date, notes, attachment_url, attachment_name, pet_id, frequency, usage_end_date")
       .eq("user_id", user.id)
       .eq("pet_id", pet.id)
       .order("date", { ascending: false });
@@ -163,22 +164,12 @@ export default function Prontuario() {
   }, [user, pet]);
 
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("*")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setPet(data);
-        else setLoading(false);
-      });
-  }, [user]);
-
-  useEffect(() => {
-    if (pet) fetchRecords();
-  }, [pet, fetchRecords]);
+    if (pet) {
+      fetchRecords();
+    } else if (!petLoading) {
+      setLoading(false);
+    }
+  }, [pet, petLoading, fetchRecords]);
 
   const categoriesWithAttachment = ["vacina", "exame", "consulta", "vermifugo", "medicacao", "procedimento", "documento"];
 
