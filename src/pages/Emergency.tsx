@@ -14,9 +14,26 @@ const humorLabels: Record<string, string> = { feliz: "😊 Feliz", calmo: "😌 
 const sonoLabels: Record<string, string> = { normal: "😴 Normal", muito: "💤 Muito", pouco: "👁️ Pouco" };
 const travelLabels: Record<string, string> = { viagem: "✈️ Viagem", ausencia_tutor: "🏠 Ausência do tutor", mudanca_ambiente: "🔄 Mudança de ambiente" };
 
+type Pet = { name?: string | null; species?: string | null; breed?: string | null; sex?: string | null; birth_date?: string | null; weight?: number | null; blood_type?: string | null; allergies?: string | null; health_conditions?: string | null; is_neutered?: boolean | null };
+type Tutor = { name?: string | null; phone?: string | null; email?: string | null };
+type MedicalRecord = { name?: string | null; date: string; frequency?: string | null; usage_end_date?: string | null; notes?: string | null; category?: string | null };
+type Vaccination = { vaccine_key?: string | null; date_taken?: string | null };
+type Wellness = { date: string; energia?: string | null; apetite?: string | null; humor?: string | null; sono?: string | null };
+type Travel = { date: string; reason?: string | null };
+type Observation = { date: string; text?: string | null };
+type EmergencyData = { pet: Pet | null; tutor: Tutor | null; medications: MedicalRecord[]; consultations: MedicalRecord[]; procedures: MedicalRecord[]; vaccinations: Vaccination[]; wellness: Wellness[]; travel: Travel[]; observations: Observation[] };
+
+function isEmergencyData(value: unknown): value is EmergencyData {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return (record.pet === null || typeof record.pet === "object")
+    && (record.tutor === null || typeof record.tutor === "object")
+    && ["medications", "consultations", "procedures", "vaccinations", "wellness", "travel", "observations"].every((key) => Array.isArray(record[key]));
+}
+
 export default function Emergency() {
   const [params] = useSearchParams();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<EmergencyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -28,16 +45,20 @@ export default function Emergency() {
     const legacyData = params.get("data");
     if (legacyData) {
       try {
-        const parsed = JSON.parse(atob(decodeURIComponent(legacyData)));
-        setData(parsed);
-        setLoading(false);
-        return;
-      } catch {
-        try {
-          const parsed = JSON.parse(atob(legacyData));
+        const parsed: unknown = JSON.parse(atob(decodeURIComponent(legacyData)));
+        if (isEmergencyData(parsed)) {
           setData(parsed);
           setLoading(false);
           return;
+        }
+      } catch {
+        try {
+          const parsed: unknown = JSON.parse(atob(legacyData));
+          if (isEmergencyData(parsed)) {
+            setData(parsed);
+            setLoading(false);
+            return;
+          }
         } catch {
           // The URL is not in the legacy base64 format; continue with the token flow.
         }
@@ -63,7 +84,8 @@ export default function Emergency() {
         );
 
         if (!response.ok) throw new Error("Failed to fetch");
-        const json = await response.json();
+        const json: unknown = await response.json();
+        if (!isEmergencyData(json)) throw new Error("Invalid emergency data");
         setData(json);
       } catch (e) {
         if (controller.signal.aborted) return;
@@ -172,7 +194,7 @@ export default function Emergency() {
         {medications && medications.length > 0 && (
           <SectionCard title="Medicamentos em Uso" icon={<Pill className="h-5 w-5 text-green-600" />} borderColor="border-green-100" headerBg="bg-green-50" titleColor="text-green-800">
             <div className="space-y-3">
-              {medications.map((m: any, i: number) => (
+              {medications.map((m, i) => (
                 <div key={i} className="bg-green-50/50 rounded-lg p-3">
                   <p className="text-sm font-semibold text-gray-900">{m.name}</p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
@@ -191,7 +213,7 @@ export default function Emergency() {
         {consultations && consultations.length > 0 && (
           <SectionCard title="Últimas Consultas" icon={<Stethoscope className="h-5 w-5 text-purple-600" />} borderColor="border-purple-100" headerBg="bg-purple-50" titleColor="text-purple-800">
             <div className="space-y-3">
-              {consultations.map((c: any, i: number) => (
+              {consultations.map((c, i) => (
                 <div key={i} className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{c.name}</p>
@@ -208,7 +230,7 @@ export default function Emergency() {
         {procedures && procedures.length > 0 && (
           <SectionCard title="Procedimentos / Exames" icon={<ClipboardList className="h-5 w-5 text-indigo-600" />} borderColor="border-indigo-100" headerBg="bg-indigo-50" titleColor="text-indigo-800">
             <div className="space-y-3">
-              {procedures.map((p: any, i: number) => (
+              {procedures.map((p, i) => (
                 <div key={i} className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{p.name}</p>
@@ -226,7 +248,7 @@ export default function Emergency() {
         {vaccinations && vaccinations.length > 0 && (
           <SectionCard title="Vacinas Aplicadas" icon={<Syringe className="h-5 w-5 text-cyan-600" />} borderColor="border-cyan-100" headerBg="bg-cyan-50" titleColor="text-cyan-800">
             <div className="space-y-2">
-              {vaccinations.map((v: any, i: number) => (
+              {vaccinations.map((v, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <span className="text-sm text-gray-700">{v.vaccine_key}</span>
                   <span className="text-xs text-gray-400">{v.date_taken ? formatDate(v.date_taken) : "—"}</span>
@@ -240,7 +262,7 @@ export default function Emergency() {
         {wellness && wellness.length > 0 && (
           <SectionCard title="Histórico de Bem-Estar" icon={<Activity className="h-5 w-5 text-teal-600" />} borderColor="border-teal-100" headerBg="bg-teal-50" titleColor="text-teal-800">
             <div className="space-y-3">
-              {wellness.map((w: any, i: number) => (
+              {wellness.map((w, i) => (
                 <div key={i} className="bg-teal-50/50 rounded-lg p-3">
                   <p className="text-xs font-semibold text-gray-600 mb-1">{formatDate(w.date)}</p>
                   <div className="flex flex-wrap gap-2">
@@ -259,7 +281,7 @@ export default function Emergency() {
         {travel && travel.length > 0 && (
           <SectionCard title="Mudanças de Rotina" icon={<Plane className="h-5 w-5 text-amber-600" />} borderColor="border-amber-100" headerBg="bg-amber-50" titleColor="text-amber-800">
             <div className="space-y-2">
-              {travel.map((t: any, i: number) => (
+              {travel.map((t, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <span className="text-sm text-gray-700">{travelLabels[t.reason] || t.reason}</span>
                   <span className="text-xs text-gray-400">{formatDate(t.date)}</span>
@@ -273,7 +295,7 @@ export default function Emergency() {
         {observations && observations.length > 0 && (
           <SectionCard title="Observações Recentes" icon={<MessageSquare className="h-5 w-5 text-sky-600" />} borderColor="border-sky-100" headerBg="bg-sky-50" titleColor="text-sky-800">
             <div className="space-y-2">
-              {observations.map((o: any, i: number) => (
+              {observations.map((o, i) => (
                 <div key={i}>
                   <p className="text-xs text-gray-400 mb-0.5">{formatDate(o.date)}</p>
                   <p className="text-sm text-gray-700">{o.text}</p>
