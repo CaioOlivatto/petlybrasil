@@ -14,8 +14,7 @@ export function QRCodeSection({ pet, profile }: Props) {
 
   const petName = pet?.name || "seu pet";
 
-  // QR code now only encodes the pet ID - the emergency page fetches all data
-  const qrValue = `${window.location.origin}/emergency?pet_id=${pet?.id || ""}`;
+  const qrValue = `${window.location.origin}/emergency?token=${pet?.emergency_token || ""}`;
 
   const handlePrint = () => {
     window.print();

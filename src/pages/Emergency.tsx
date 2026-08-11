@@ -21,7 +21,7 @@ export default function Emergency() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const petId = params.get("pet_id");
+    const emergencyToken = params.get("token");
     
     // Legacy support: try old base64 format
     const legacyData = params.get("data");
@@ -41,7 +41,7 @@ export default function Emergency() {
       }
     }
 
-    if (!petId) {
+    if (!emergencyToken) {
       setError(true);
       setLoading(false);
       return;
@@ -50,7 +50,7 @@ export default function Emergency() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/emergency-data?pet_id=${petId}`,
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/emergency-data?token=${emergencyToken}`,
           {
             headers: {
               "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,

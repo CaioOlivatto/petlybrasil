@@ -220,8 +220,7 @@ export default function Prontuario() {
         if (uploadError) {
           toast.error("Erro ao enviar anexo: " + uploadError.message);
         } else {
-          const { data } = supabase.storage.from("medical-attachments").getPublicUrl(path);
-          attachment_url = data.publicUrl;
+          attachment_url = path;
           attachment_name = attachedFile.name;
         }
       }
@@ -933,16 +932,19 @@ export default function Prontuario() {
                         <div className="flex items-center justify-between pt-1">
                           <div className="flex items-center gap-2">
                             {record.attachment_url && (
-                              <a
-                                href={record.attachment_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
+                              <button
+                                type="button"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const { data, error } = await supabase.storage.from("medical-attachments").createSignedUrl(record.attachment_url!, 300);
+                                  if (error) return toast.error("Erro ao abrir anexo: " + error.message);
+                                  window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                                }}
                                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted text-xs text-muted-foreground hover:border-primary/50 border border-transparent transition-colors"
                               >
                                 <ExternalLink className="h-3 w-3" />
                                 {record.attachment_name ? (record.attachment_name.length > 20 ? record.attachment_name.slice(0, 20) + "..." : record.attachment_name) : "Ver anexo"}
-                              </a>
+                              </button>
                             )}
                           </div>
                           <button
@@ -1021,15 +1023,18 @@ export default function Prontuario() {
                 {detailRecord.attachment_url && (
                   <div>
                     <p className="text-sm font-semibold text-foreground mb-2">Anexo</p>
-                    <a
-                      href={detailRecord.attachment_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { data, error } = await supabase.storage.from("medical-attachments").createSignedUrl(detailRecord.attachment_url!, 300);
+                        if (error) return toast.error("Erro ao abrir anexo: " + error.message);
+                        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                      }}
                       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-muted/50 text-sm text-foreground hover:border-primary/50 transition-colors"
                     >
                       <ExternalLink className="h-4 w-4 text-primary" />
                       {detailRecord.attachment_name || "Ver anexo"}
-                    </a>
+                    </button>
                   </div>
                 )}
 

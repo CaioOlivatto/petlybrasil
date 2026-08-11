@@ -154,11 +154,7 @@ export default function Documentos() {
 
         if (uploadError) throw uploadError;
 
-        const { data } = supabase.storage
-          .from("medical-attachments")
-          .getPublicUrl(path);
-
-        attachment_url = data.publicUrl;
+        attachment_url = path;
         attachment_name = attachedFile.name;
       }
 
@@ -343,15 +339,18 @@ export default function Documentos() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {doc.attachment_url ? (
-                    <a
-                      href={doc.attachment_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { data, error } = await supabase.storage.from("medical-attachments").createSignedUrl(doc.attachment_url!, 300);
+                        if (error) return toast({ title: "Erro ao abrir anexo", description: error.message, variant: "destructive" });
+                        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+                      }}
                       className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium"
                     >
                       <ExternalLink className="h-4 w-4" />
                       <span className="hidden sm:inline">Ver</span>
-                    </a>
+                    </button>
                   ) : (
                     <ImageOff className="h-4 w-4 text-muted-foreground/40" />
                   )}

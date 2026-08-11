@@ -13,10 +13,10 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const petId = url.searchParams.get("pet_id");
+    const emergencyToken = url.searchParams.get("token");
 
-    if (!petId) {
-      return new Response(JSON.stringify({ error: "pet_id is required" }), {
+    if (!emergencyToken) {
+      return new Response(JSON.stringify({ error: "token is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -31,7 +31,7 @@ serve(async (req) => {
     const { data: pet } = await supabase
       .from("pets")
       .select("*")
-      .eq("id", petId)
+      .eq("emergency_token", emergencyToken)
       .single();
 
     if (!pet) {
@@ -40,6 +40,8 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const petId = pet.id;
 
     // Fetch profile (tutor)
     const { data: profile } = await supabase
