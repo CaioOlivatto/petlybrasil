@@ -20,6 +20,10 @@ import { pt } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
 import TodayWellness from "@/components/dashboard/TodayWellness";
 import { usePrimaryPet, useProfile } from "@/hooks/useAccountData";
+import type { Database } from "@/integrations/supabase/types";
+
+type NextEvent = Pick<Database["public"]["Tables"]["agenda_events"]["Row"], "title" | "date" | "category">;
+type CheckinSummary = Pick<Database["public"]["Tables"]["daily_checkins"]["Row"], "humor" | "energia" | "apetite" | "sono" | "date">;
 
 /* ── helpers ────────────────────────────────────────── */
 
@@ -73,9 +77,9 @@ export default function Dashboard() {
   const { data: profile, isLoading: profileLoading } = useProfile(user?.id);
   const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
   const [loading, setLoading] = useState(true);
-  const [nextEvent, setNextEvent] = useState<any>(null);
+  const [nextEvent, setNextEvent] = useState<NextEvent | null>(null);
   const [vaccineStats, setVaccineStats] = useState<{ done: number; total: number; overdue: number } | null>(null);
-  const [lastCheckin, setLastCheckin] = useState<any>(null);
+  const [lastCheckin, setLastCheckin] = useState<CheckinSummary | null>(null);
   const [alerts, setAlerts] = useState<{ text: string; type: "danger" | "warning"; badge: string }[]>([]);
   
   const [todayCheckin, setTodayCheckin] = useState<{ humor: string | null; energia: string | null; apetite: string | null; sono: string | null } | null>(null);
