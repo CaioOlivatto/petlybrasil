@@ -43,6 +43,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { motion } from "framer-motion";
+import { usePrimaryPet } from "@/hooks/useAccountData";
 
 interface DocumentRecord {
   id: string;
@@ -65,10 +66,19 @@ const documentTypes = [
   { key: "outro", label: "Outros Documentos", icon: FileText, description: "Outros documentos relevantes" },
 ];
 
+const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+
+const toLocalDateString = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export default function Documentos() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [pet, setPet] = useState<any>(null);
+  const { data: pet, isLoading: petLoading } = usePrimaryPet(user?.id);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,24 +89,10 @@ export default function Documentos() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<typeof documentTypes[0] | null>(null);
   const [docName, setDocName] = useState("");
-  const [docDate, setDocDate] = useState(new Date().toISOString().split("T")[0]);
+  const [docDate, setDocDate] = useState(toLocalDateString(new Date()));
   const [docNotes, setDocNotes] = useState("");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("pets")
-      .select("id, name")
-      .eq("user_id", user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setPet(data);
-        else setLoading(false);
-      });
-  }, [user]);
 
   const fetchDocuments = useCallback(async () => {
     if (!user || !pet) return;
@@ -108,18 +104,26 @@ export default function Documentos() {
       .eq("category", "documento")
       .order("date", { ascending: false });
 
-    if (!error && data) setDocuments(data);
+    if (error) {
+      toast.error("Erro ao carregar documentos: " + error.message);
+    } else {
+      setDocuments(data || []);
+    }
     setLoading(false);
   }, [user, pet]);
 
   useEffect(() => {
-    if (pet) fetchDocuments();
-  }, [pet, fetchDocuments]);
+    if (pet) {
+      fetchDocuments();
+    } else if (!petLoading) {
+      setLoading(false);
+    }
+  }, [pet, petLoading, fetchDocuments]);
 
   const openCreateDialog = (type: typeof documentTypes[0]) => {
     setSelectedType(type);
     setDocName(type.label);
-    setDocDate(new Date().toISOString().split("T")[0]);
+    setDocDate(toLocalDateString(new Date()));
     setDocNotes("");
     setAttachedFile(null);
     setDialogOpen(true);
@@ -134,7 +138,19 @@ export default function Documentos() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) setAttachedFile(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_ATTACHMENT_SIZE) {
+      e.target.value = "";
+      toast.error("O anexo deve ter no máximo 10 MB.");
+      return;
+    }
+    if (file.type !== "application/pdf" && !file.type.startsWith("image/")) {
+      e.target.value = "";
+      toast.error("Envie somente imagens ou arquivos PDF.");
+      return;
+    }
+    setAttachedFile(file);
   };
 
   const handleSave = async () => {
@@ -158,22 +174,31 @@ export default function Documentos() {
         attachment_name = attachedFile.name;
       }
 
-      const { error } = await supabase.from("medical_records").insert({
-        user_id: user.id,
-        pet_id: pet.id,
-        category: "documento",
-        name: docName,
-        date: docDate,
-        notes: docNotes || null,
-        attachment_url,
-        attachment_name,
-      } as any);
+      const { data, error } = await supabase
+        .from("medical_records")
+        .insert({
+          user_id: user.id,
+          pet_id: pet.id,
+          category: "documento",
+          name: docName,
+          date: docDate,
+          notes: docNotes || null,
+          attachment_url,
+          attachment_name,
+        } as any)
+        .select("id, name, date, notes, attachment_url, attachment_name")
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        if (attachment_url) {
+          await supabase.storage.from("medical-attachments").remove([attachment_url]);
+        }
+        throw error;
+      }
 
+      setDocuments((current) => [data, ...current]);
       toast.success("Documento salvo com sucesso!");
       resetForm();
-      fetchDocuments();
     } catch (error: any) {
       toast.error("Erro ao salvar: " + error.message);
     } finally {
@@ -191,8 +216,16 @@ export default function Documentos() {
     if (error) {
       toast.error("Erro ao excluir: " + error.message);
     } else {
+      if (recordToDelete.attachment_url) {
+        const { error: storageError } = await supabase.storage
+          .from("medical-attachments")
+          .remove([recordToDelete.attachment_url]);
+        if (storageError) {
+          toast.warning("O registro foi excluído, mas não foi possível remover o arquivo do armazenamento.");
+        }
+      }
+      setDocuments((current) => current.filter((document) => document.id !== recordToDelete.id));
       toast.success("Documento excluído!");
-      fetchDocuments();
     }
     setRecordToDelete(null);
     setDeleteConfirmOpen(false);
