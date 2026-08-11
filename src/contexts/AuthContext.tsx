@@ -7,6 +7,7 @@ const PRO_PRODUCT_IDS = [
   "prod_UAPlcsCOMTE5kg", // Semestral/Pro
   "prod_UAPllCb7ehCAqH", // Anual/Master
 ];
+const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
 
 interface AuthContextType {
   session: Session | null;
@@ -35,6 +36,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const subscriptionCheckedFor = useRef<string | null>(null);
 
   const checkSubscription = useCallback(async (userId: string) => {
+    if (!BILLING_ENABLED) {
+      setSubscriptionProductId(null);
+      return;
+    }
     if (subscriptionCheckedFor.current === userId) return;
     subscriptionCheckedFor.current = userId;
     try {

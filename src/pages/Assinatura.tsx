@@ -9,6 +9,8 @@ import { Check, CalendarDays, CalendarRange, Sparkles, LogOut, ArrowLeft } from 
 import petlyLogo from "@/assets/petly-logo.png";
 import pawPattern from "@/assets/paw-pattern.png";
 
+const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
+
 const plans = [
   {
     id: "mensal",
@@ -20,7 +22,7 @@ const plans = [
     icon: CalendarDays,
     features: [
       "Multi-pet incluso",
-      "Petlyzinho IA ilimitado",
+      "Petlyzinho IA (em breve)",
       "Diário completo",
       "Dicas personalizadas por raça",
     ],
@@ -36,7 +38,7 @@ const plans = [
     icon: CalendarRange,
     features: [
       "Multi-pet incluso",
-      "Petlyzinho IA ilimitado",
+      "Petlyzinho IA (em breve)",
       "Diário completo",
       "Dicas personalizadas por raça",
       "Economia de 14%",
@@ -53,7 +55,7 @@ const plans = [
     icon: Sparkles,
     features: [
       "Multi-pet incluso",
-      "Petlyzinho IA ilimitado",
+      "Petlyzinho IA (em breve)",
       "Diário completo",
       "Dicas personalizadas por raça",
       "Economia de 29%",
@@ -70,6 +72,10 @@ export default function Assinatura() {
   useEffect(() => {
     if (!user) return;
     const check = async () => {
+      if (!BILLING_ENABLED) {
+        setCanGoBack(true);
+        return;
+      }
       // Check trial
       const { data: profile } = await supabase
         .from("profiles")
@@ -130,6 +136,11 @@ export default function Assinatura() {
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Escolha a periodicidade que combina com você. O conteúdo é o mesmo em todas as opções.
           </p>
+          {!BILLING_ENABLED && (
+            <p className="text-sm text-muted-foreground">
+              Pagamentos estão em preparação. O acesso ao sistema permanece liberado durante os testes.
+            </p>
+          )}
         </div>
 
         {/* Plans grid */}
