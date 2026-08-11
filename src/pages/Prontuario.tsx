@@ -762,14 +762,14 @@ export default function Prontuario() {
       <details open className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
         <summary className="cursor-pointer text-sm font-semibold text-foreground">Procurar ou filtrar registros</summary>
         <div className="mt-4 space-y-3">
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {[{ key: "todas", label: "Todas" }, ...categories].map((tab) => {
           const isActive = activeFilter === tab.key;
           return (
             <button
               key={tab.key}
               onClick={() => setActiveFilter(tab.key)}
-              className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`inline-flex min-h-11 items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-background text-muted-foreground border border-border hover:border-primary/50"
