@@ -454,6 +454,12 @@ export default function Prontuario() {
     });
   };
 
+  const openNewRecord = (category?: string) => {
+    resetForm();
+    if (category) setSelectedCategory(category);
+    setDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="max-w-[860px] mx-auto space-y-5">
@@ -712,8 +718,24 @@ export default function Prontuario() {
         </Dialog>
       </div>
 
-      {/* Summary Bar */}
-      <div className="rounded-[20px] bg-secondary p-4 flex flex-wrap items-center gap-3 sm:gap-0 sm:divide-x sm:divide-border">
+      <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <h2 className="text-lg font-semibold text-foreground">O que deseja registrar?</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Escolha uma opção para começar. Você pode preencher o restante depois.</p>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {categories.filter((category) => ["consulta", "medicacao", "exame", "vacina"].includes(category.key)).map((category) => {
+            const Icon = category.icon;
+            return (
+              <button key={category.key} type="button" onClick={() => openNewRecord(category.key)} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                <Icon className="h-6 w-6 text-primary" />
+                {category.key === "medicacao" ? "Remédio" : category.label}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Summary Bar retained for screen-reader context */}
+      <div className="sr-only">
         <div className="flex items-center gap-2 px-3 text-[13px] text-foreground">
           <ClipboardList className="h-4 w-4 text-primary" />
           <span className="font-semibold">{totalRecords}</span> registros totais
@@ -732,7 +754,14 @@ export default function Prontuario() {
         </div>
       </div>
 
-      {/* Filter chips */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Histórico</h2>
+        <p className="text-sm text-muted-foreground">{totalRecords} registro{totalRecords !== 1 ? "s" : ""} de {pet?.name || "seu pet"}</p>
+      </div>
+
+      <details className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-foreground">Procurar ou filtrar registros</summary>
+        <div className="mt-4 space-y-3">
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         {[{ key: "todas", label: "Todas" }, ...categories].map((tab) => {
           const isActive = activeFilter === tab.key;
@@ -777,6 +806,9 @@ export default function Prontuario() {
         </Select>
       </div>
 
+        </div>
+      </details>
+
       {/* Timeline */}
       {processedRecords.length === 0 ? (
         <EmptyState
@@ -784,7 +816,7 @@ export default function Prontuario() {
           title={activeFilter === "todas" ? "Nenhum registro ainda" : `Nenhum registro de ${getCategoryInfo(activeFilter)?.label || activeFilter} ainda`}
           description="Adicione o primeiro registro para começar o histórico"
           actionLabel="+ Novo Registro"
-          onAction={() => setDialogOpen(true)}
+          onAction={() => openNewRecord()}
         />
       ) : (
         <div className="relative">
@@ -846,7 +878,7 @@ export default function Prontuario() {
                             <span className="text-[13px] text-muted-foreground">{formatDate(record.date)}</span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <button className="p-1 rounded-md hover:bg-muted transition-colors">
+                                <button aria-label="Opções do registro" className="p-1 rounded-md hover:bg-muted transition-colors">
                                   <MoreVertical className="h-4 w-4 text-muted-foreground" />
                                 </button>
                               </DropdownMenuTrigger>
