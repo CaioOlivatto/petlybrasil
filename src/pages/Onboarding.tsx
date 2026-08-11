@@ -126,9 +126,9 @@ export default function Onboarding() {
 
       if (petError) throw petError;
 
-      // Save tutor profile + mark onboarding completed + set 3-day trial
+      // Save tutor profile + mark onboarding completed + set 7-day trial
       const trialEndsAt = new Date();
-      trialEndsAt.setDate(trialEndsAt.getDate() + 3);
+      trialEndsAt.setDate(trialEndsAt.getDate() + 7);
       
       const { error: profileError } = await supabase
         .from("profiles")

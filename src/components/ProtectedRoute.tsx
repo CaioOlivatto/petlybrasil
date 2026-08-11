@@ -4,6 +4,8 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+const BILLING_ENABLED = import.meta.env.VITE_BILLING_ENABLED === "true";
+
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -44,6 +46,14 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       }
 
       setOnboardingCompleted(data?.onboarding_completed ?? false);
+
+      // Billing remains disabled until the Stripe setup is ready. Keeping this
+      // behind an environment flag lets migrated users review the full system.
+      if (!BILLING_ENABLED) {
+        setHasAccess(true);
+        setCheckingOnboarding(false);
+        return;
+      }
 
       // Check if trial is still active
       const trialEndsAt = (data as any)?.trial_ends_at ? new Date((data as any).trial_ends_at) : null;
