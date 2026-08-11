@@ -819,17 +819,14 @@ export default function Prontuario() {
           onAction={() => openNewRecord()}
         />
       ) : (
-        <div className="relative">
+        <div className="space-y-6">
           {/* Timeline vertical line */}
-          <div className="absolute left-[18px] top-0 bottom-0 w-[2px] bg-border hidden sm:block" />
+          <div className="hidden" />
 
           {groupedByMonth.map((group) => (
             <div key={group.key} className="mb-6">
               {/* Month marker */}
-              <div className="sticky top-0 z-10 flex items-center gap-3 mb-4 py-2 bg-background">
-                <div className="hidden sm:block w-[38px] shrink-0">
-                  <div className="h-[2px] bg-border w-full" />
-                </div>
+              <div className="flex items-center gap-3 mb-2 py-1">
                 <span className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">
                   {group.label}
                 </span>
@@ -837,7 +834,7 @@ export default function Prontuario() {
               </div>
 
               {/* Records */}
-              <div className="space-y-3">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card divide-y divide-border">
                 {group.records.map((record, idx) => {
                   const catInfo = getCategoryInfo(record.category);
                   const colors = categoryColorMap[record.category] || categoryColorMap.documento;
@@ -849,13 +846,9 @@ export default function Prontuario() {
                   const notesLong = record.notes && record.notes.length > 120;
 
                   return (
-                    <div
-                      key={record.id}
-                      className="flex gap-3 sm:gap-4 animate-fade-up"
-                      style={{ animationDelay: `${idx * 60}ms`, animationFillMode: "both" }}
-                    >
+                    <div key={record.id} className="animate-fade-up" style={{ animationDelay: `${idx * 40}ms`, animationFillMode: "both" }}>
                       {/* Timeline dot */}
-                      <div className="hidden sm:flex flex-col items-center shrink-0 w-[38px]">
+                      <div className="hidden">
                         <div
                           className="w-[10px] h-[10px] rounded-full mt-5 ring-2 ring-background"
                           style={{ backgroundColor: colors.border, animation: "scalePop 400ms ease-out both", animationDelay: `${idx * 60}ms` }}
@@ -864,15 +857,15 @@ export default function Prontuario() {
 
                       {/* Card */}
                       <div
-                        className="flex-1 bg-card rounded-[14px] shadow-sm border border-border/50 p-5 transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] cursor-pointer"
+                        className="bg-card p-4 transition-colors hover:bg-muted/30 cursor-pointer"
                         style={{ borderLeftWidth: "4px", borderLeftColor: colors.border }}
                         onClick={() => { setDetailRecord(record); setDetailOpen(true); }}
                       >
                         {/* Row 1: Title + Date + Menu */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <Icon className="h-5 w-5 shrink-0" style={{ color: colors.text }} />
-                            <span className="font-semibold text-foreground text-[16px] truncate">{record.name}</span>
+                            <span className="font-semibold text-foreground text-base truncate">{record.name}</span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
                             <span className="text-[13px] text-muted-foreground">{formatDate(record.date)}</span>
@@ -893,7 +886,7 @@ export default function Prontuario() {
                         </div>
 
                         {/* Row 2: Badges */}
-                        <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mt-1.5">
                           <span
                             className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold"
                             style={{ backgroundColor: colors.bg, color: colors.text }}
@@ -901,7 +894,7 @@ export default function Prontuario() {
                             {catInfo?.label}
                           </span>
                           <span
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                            className="hidden"
                             style={{ backgroundColor: statusInfo.bg, color: statusInfo.text }}
                           >
                             {statusInfo.icon} {statusInfo.label}
@@ -915,7 +908,7 @@ export default function Prontuario() {
                         </div>
 
                         {/* Row 3: Contextual info */}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted-foreground mb-2">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-2">
                           {record.category === "medicacao" && (
                             <>
                               {freqLabel && (
@@ -942,23 +935,15 @@ export default function Prontuario() {
 
                         {/* Row 4: Notes */}
                         {record.notes && (
-                          <div className="mb-2">
-                            <p className={`text-sm text-muted-foreground italic ${!isNotesExpanded && notesLong ? "line-clamp-2" : ""}`}>
+                          <div className="mt-2">
+                            <p className="text-sm text-muted-foreground line-clamp-2">
                               {record.notes}
                             </p>
-                            {notesLong && (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); toggleNotes(record.id); }}
-                                className="text-primary text-xs mt-1 hover:underline"
-                              >
-                                {isNotesExpanded ? "Ver menos" : "Ver mais"}
-                              </button>
-                            )}
                           </div>
                         )}
 
                         {/* Footer: attachments + details link */}
-                        <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center justify-between mt-3">
                           <div className="flex items-center gap-2">
                             {record.attachment_url && (
                               <button
@@ -978,9 +963,9 @@ export default function Prontuario() {
                           </div>
                           <button
                             onClick={(e) => { e.stopPropagation(); setDetailRecord(record); setDetailOpen(true); }}
-                            className="text-primary text-[13px] font-medium hover:underline inline-flex items-center gap-1"
+                            className="text-primary text-sm font-semibold hover:underline inline-flex items-center gap-1"
                           >
-                            Ver detalhes <ChevronRight className="h-3.5 w-3.5" />
+                            Abrir <ChevronRight className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
